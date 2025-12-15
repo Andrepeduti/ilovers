@@ -1,0 +1,110 @@
+<div class="feed-container" *ngIf="currentProfile; else emptyState">
+    <div class="card">
+        <img [src]="currentProfile.image" [alt]="currentProfile.name" class="profile-image">
+
+        <div class="overlay-gradient"></div>
+
+        <div class="profile-info">
+            <h1>{{ currentProfile.name }} <span class="age"><span *ngIf="currentProfile.age">- {{
+                        currentProfile.age}}</span></span></h1>
+            <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
+                currentProfile.state }}</p>
+
+            <div class="tags">
+                <span class="tag" *ngFor="let hobby of currentProfile.hobbies">
+                    {{ hobby }}
+                </span>
+            </div>
+
+            <button class="info-btn" (click)="toggleDetails()">
+                <i class="fas fa-info"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Super Like Animation Element -->
+    <div class="super-like-overlay" *ngIf="isSuperLikeActive">
+        <i class="fas fa-star super-star"></i>
+        <h1 class="super-like-text">SUPER LIKE!</h1>
+    </div>
+
+    <!-- Actions Bar - Moved inside a wrapper for overlay -->
+    <div class="card-overlay-actions">
+        <div class="actions-bar">
+            <button class="action-btn undo" (click)="onUndo()" [class.rotate-back]="isUndoActive"
+                [disabled]="currentIndex === 0" [style.opacity]="currentIndex === 0 ? '0.5' : '1'">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="action-btn reject" (click)="onReject()" [class.shake-x]="isRejectActive">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="action-btn like" (click)="onLike()" [class.pulse-heart]="isLikeActive">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="action-btn super-like" (click)="onSuperLike()">
+                <i class="fas fa-star"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Expanded Profile Details Modal -->
+    <div class="profile-details-modal" [class.active]="isDetailsActive">
+        <button class="close-details-btn" (click)="toggleDetails()">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div class="details-content">
+            <div class="details-header">
+                <h1>{{ currentProfile.name }} <span class="age" *ngIf="currentProfile.age">- {{ currentProfile.age
+                        }}</span>
+                </h1>
+                <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
+                    currentProfile.state }}</p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="details-section">
+                <h3>Sobre</h3>
+                <p class="bio-text">{{ currentProfile.bio }}</p>
+            </div>
+
+            <div class="details-section">
+                <h3>Interesses</h3>
+                <div class="tags-detail">
+                    <span class="tag-detail" *ngFor="let hobby of currentProfile.hobbies">
+                        {{ hobby }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="details-actions">
+                <button class="action-btn-large undo" (click)="onUndo(); toggleDetails()"
+                    [disabled]="currentIndex === 0">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="action-btn-large reject" (click)="onReject(); toggleDetails()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="action-btn-large like" (click)="onLike(); toggleDetails()">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="action-btn-large super-like" (click)="onSuperLike(); toggleDetails()">
+                    <i class="fas fa-star"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #emptyState>
+    <div class="empty-feed">
+        <h2>Não há mais perfis por perto.</h2>
+        <button (click)="currentIndex = 0">Recarregar</button>
+    </div>
+</ng-template>
+
+<!-- Font Awesome for Icons (assuming it's loaded globally or we need to add CDN) -->
+<!-- Adding a link here for simplicity if not in index.html, but better in index.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

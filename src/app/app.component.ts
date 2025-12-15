@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, Event } from '@angular/router';
 import { CommonModule } from '@angular/common'; // Important for *ngIf if not using @if
-import { FooterComponent } from './shared/footer/footer.component';
+import { FooterComponent } from './components/shared/footer/footer.component';
 import { filter } from 'rxjs/operators';
 
 @Component({

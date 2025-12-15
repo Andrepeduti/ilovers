@@ -7,7 +7,8 @@
         <!-- Photos Section -->
         <section class="section photos-section">
             <div class="section-header">
-                <h2>Suas Fotos</h2>
+                <h2>Suas Fotos <span class="required" *ngIf="!validatePhotos">*</span>
+                </h2>
                 <span class="counter">0/8</span>
             </div>
 
@@ -25,41 +26,53 @@
             <h2>Informações Básicas</h2>
 
             <div class="form-group">
-                <label>Nome</label>
-                <input type="text" [(ngModel)]="profile.name">
+                <label>Nome <span class="required" *ngIf="!profile.name">*</span></label>
+                <input type="text" [(ngModel)]="profile.name" (input)="onNameInput($event)">
             </div>
 
             <div class="row">
                 <div class="form-group col">
-                    <label>Idade</label>
+                    <label>Idade <span class="required" *ngIf="!profile.age && !profile.hideAge">*</span></label>
                     <div class="age-input-group">
-                        <input type="text" inputmode="numeric" required [(ngModel)]="profile.age"
-                            (input)="onAgeInput($event)">
+                        <input type="text" inputmode="numeric" required [ngModel]="profile.age"
+                            (ngModelChange)="profile.age = $event" [disabled]="profile.hideAge"
+                            (keydown)="blockNonNumeric($event)" (input)="onAgeInput($event)">
+
                         <small *ngIf="ageInvalid">
                             Idade minima: 18 anos
                         </small>
                     </div>
                     <div class="checkbox-wrapper">
-                        <input type="checkbox" id="hideAge" [(ngModel)]="profile.hideAge">
+                        <input type="checkbox" id="hideAge" [(ngModel)]="profile.hideAge" (change)="onHideAgeChange()">
                         <label for="hideAge">Esconder Idade</label>
                     </div>
                 </div>
                 <div class="form-group col">
-                    <label>Estado</label>
+                    <label>Estado <span class="required" *ngIf="!profile.state">*</span></label>
                     <input style="text-transform: uppercase;" type="text" maxlength="2" (input)="onlyLetters($event)"
                         [(ngModel)]="profile.state">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Cidade</label>
+                <label>Cidade <span class="required" *ngIf="!profile.city">*</span></label>
                 <input type="text" [(ngModel)]="profile.city">
             </div>
         </section>
 
+        <section class="section info-section">
+            <h2>Conte mais sobre você <span class="required" *ngIf="!profile.description">*</span></h2>
+
+            <div class="form-group description-wrapper">
+                <textarea class="description-input" [(ngModel)]="profile.description"
+                    placeholder="Descrição que aparecerá no seu perfil"></textarea>
+            </div>
+        </section>
+
+
         <!-- Gender Section -->
         <section class="section gender-section">
-            <h2>Gênero</h2>
+            <h2>Gênero <span class="required" *ngIf="!profile.gender">*</span></h2>
             <p class="subtitle">Como você se identifica?</p>
 
             <div class="radio-group">
@@ -88,7 +101,7 @@
 
         <!-- Interested In Section -->
         <section class="section interest-in-section">
-            <h2>Interesse em</h2>
+            <h2>Preferências <span class="required" *ngIf="!profile.interestedIn">*</span></h2>
             <p class="subtitle">Quem você está procurando?</p>
             <div class="radio-group">
                 <label class="radio-option">
@@ -111,6 +124,31 @@
                     <span class="radio-label">Qualquer gênero</span>
                     <span class="custom-radio"></span>
                 </label>
+            </div>
+            <br>
+            <p class="subtitle">Faixa etária que você deseja ver</p>
+
+            <div class="form-group">
+                <label>Faixa de Idade <span class="required"
+                        *ngIf="!profile.seeAllAges && (!profile.ageRange.min || !profile.ageRange.max)">*</span></label>
+                <div class="row">
+                    <div class="col">
+                        <input type="number" [(ngModel)]="profile.ageRange.min" placeholder="Min"
+                            [disabled]="profile.seeAllAges">
+                    </div>
+                    <div class="col">
+                        <input type="number" [(ngModel)]="profile.ageRange.max" placeholder="Max"
+                            [disabled]="profile.seeAllAges">
+                    </div>
+                </div>
+                <small *ngIf="isAgeRangeInvalid">
+                    A idade mínima: 18 anos.
+                </small>
+            </div>
+
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="seeAllAges" [(ngModel)]="profile.seeAllAges">
+                <label for="seeAllAges">Ver todas as idades</label>
             </div>
         </section>
 

@@ -15,7 +15,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   activeTab: string = 'feed';
   private routerSubscription: Subscription | undefined;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit() {
     this.updateActiveTab(this.router.url);
@@ -45,13 +45,13 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   navigateTo(tab: string) {
     if (tab === 'profile') {
-        this.router.navigate(['/profile']);
+      this.router.navigate(['/profile']);
     } else if (tab === 'feed') {
-        this.router.navigate(['/feed']);
+      this.router.navigate(['/feed']);
     } else if (tab === 'chat') {
-        // this.router.navigate(['/chat']);
-        console.log('Navigate to Chat');
-        this.activeTab = 'chat'; // Manually set for now as route might not change
+      this.router.navigate(['/chat']);
+      // console.log('Navigate to Chat');
+      // this.activeTab = 'chat'; // Manually set for now as route might not change
     }
   }
 }

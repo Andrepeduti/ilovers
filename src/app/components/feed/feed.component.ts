@@ -4,8 +4,9 @@ import { CommonModule } from '@angular/common';
 interface Profile {
   id: number;
   name: string;
-  age: number;
-  distance: number;
+  age: number | null;
+  city: string;
+  state: string;
   image: string;
   bio: string;
   hobbies: string[];
@@ -23,8 +24,9 @@ export class FeedComponent {
     {
       id: 1,
       name: 'Sofia',
-      age: 24,
-      distance: 2,
+      age: null,
+      city: 'São Paulo',
+      state: 'SP',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
       bio: 'Apaixonada por fotografia e viagens.',
       hobbies: ['Fotografia', 'Viagens', 'Música']
@@ -33,7 +35,8 @@ export class FeedComponent {
       id: 2,
       name: 'Lucas',
       age: 27,
-      distance: 5,
+      city: 'Juiz de Fora',
+      state: 'MG',
       image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
       bio: 'Curto aventuras ao ar livre e café.',
       hobbies: ['Trilhas', 'Café', 'Surf']
@@ -42,7 +45,8 @@ export class FeedComponent {
       id: 3,
       name: 'Ana',
       age: 22,
-      distance: 10,
+      city: 'Santa Catarina',
+      state: 'SC',
       image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80',
       bio: 'Estudante de arquitetura e amante de gatos.',
       hobbies: ['Arquitetura', 'Gatos', 'Design']
@@ -93,8 +97,22 @@ export class FeedComponent {
     }, 1000); // Wait for animation
   }
 
+  isUndoActive = false;
+
   onUndo() {
-      // Logic to undo (optional)
-      console.log('Undo');
+    if (this.currentIndex > 0) {
+      this.isUndoActive = true;
+      setTimeout(() => this.isUndoActive = false, 500); // Reset animation
+
+      this.currentIndex--;
+    } else {
+      console.log('No previous profile');
+    }
+  }
+
+  isDetailsActive = false;
+
+  toggleDetails() {
+    this.isDetailsActive = !this.isDetailsActive;
   }
 }

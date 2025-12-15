@@ -130,7 +130,9 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     }
 
     input[type="text"],
-    input[type="number"] {
+    textarea[type="text"],
+    input[type="number"],
+    textarea {
         width: 100%;
         padding: 12px;
         border: 1px solid #eee;
@@ -143,6 +145,28 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
             border-color: #9c27b0;
             background-color: #fff;
         }
+
+        &:disabled {
+            background-color: #e0e0e0;
+            /* Explicit disabled color */
+            color: #888;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+    }
+
+    .description-input {
+        resize: vertical;
+        /* Permite o redimensionamento apenas na vertical */
+        max-width: 100%;
+        /* Impede que a caixa estoure na horizontal */
+        padding: 12px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        outline: none;
+        font-family: inherit;
+        width: 100%;
     }
 }
 

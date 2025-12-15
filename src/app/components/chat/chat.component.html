@@ -1,0 +1,49 @@
+<div class="chat-container">
+    <header class="header">
+        <h1>Mensagens</h1>
+    </header>
+
+    <div class="matches-section">
+        <h2 class="section-title">Novos Matches</h2>
+        <div class="matches-scroll">
+            <div class="match-item" *ngFor="let match of matches" (click)="openChat(match.id)">
+                <div class="avatar-wrapper">
+                    <img [src]="match.photo" [alt]="match.name">
+                </div>
+                <span class="match-name">{{ match.name }}</span>
+            </div>
+            <!-- Empty state for matches if needed -->
+            <div class="match-item" *ngIf="matches.length === 0">
+                <span style="font-size: 0.8rem; color: #999;">Sem matches novos</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="conversations-section">
+        <h2 class="section-title">Conversas</h2>
+        <div class="conversations-list">
+            <div class="conversation-item" *ngFor="let chat of conversations" (click)="openChat(chat.id)"
+                [class.has-unread]="chat.unreadCount > 0">
+                <div class="avatar-wrapper">
+                    <img [src]="chat.photo" [alt]="chat.name">
+                </div>
+                <div class="content">
+                    <div class="name-row">
+                        <h3>{{ chat.name }}</h3>
+                        <span class="time">{{ chat.time }}</span>
+                    </div>
+                    <div class="message-row">
+                        <p>{{ chat.lastMessage }}</p>
+                        <div class="unread-badge" *ngIf="chat.unreadCount > 0">{{ chat.unreadCount }}</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Empty state for conversations -->
+            <div *ngIf="conversations.length === 0" style="text-align: center; padding: 40px; color: #999;">
+                <p>Nenhuma conversa ainda.</p>
+                <p style="font-size: 0.85rem;">Dê like em alguém para começar!</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer is global, handled by AppComponent -->
