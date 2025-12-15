@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -39,10 +40,25 @@ export class ProfileComponent implements OnInit {
 
   private currentIndexForUpload: number = -1;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
     this.updateOriginalState();
+  }
+
+  showLogoutModal = false;
+
+  logout() {
+    this.showLogoutModal = true;
+  }
+
+  confirmLogout() {
+    this.showLogoutModal = false;
+    this.router.navigate(['/login']);
+  }
+
+  cancelLogout() {
+    this.showLogoutModal = false;
   }
 
   updateOriginalState() {

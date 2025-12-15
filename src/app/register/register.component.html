@@ -1,0 +1,126 @@
+<div class="register-container">
+    <div class="content">
+        <div class="title-section">
+            <h2>Cadastre-se</h2>
+            <p>Preencha os dados para criar sua conta</p>
+        </div>
+
+        <form (ngSubmit)="onCreateAccount()">
+            <!-- Email -->
+            <div class="form-group">
+                <label>E-mail</label>
+                <div class="input-wrapper">
+                    <input type="email" [(ngModel)]="email" name="email" placeholder="seu@email.com">
+                    <i class="fas fa-envelope icon-suffix"></i>
+                </div>
+            </div>
+
+            <!-- Confirm Email -->
+            <div class="form-group">
+                <label>Confirmar E-mail</label>
+                <div class="input-wrapper">
+                    <input type="email" [(ngModel)]="confirmEmail" name="confirmEmail"
+                        placeholder="Confirme seu e-mail">
+                    <i class="fas fa-check-circle icon-suffix" [class.success]="email && email === confirmEmail"
+                        *ngIf="emailsMatch"></i>
+                </div>
+                <p *ngIf="showEmailMismatchError" style="color: #e74c3c; font-size: 0.8rem; margin-top: 5px;">Os e-mails
+                    não coincidem</p>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label>Senha</label>
+                <div class="input-wrapper">
+                    <input [type]="passwordVisible ? 'text' : 'password'" [(ngModel)]="password" name="password"
+                        (input)="updatePasswordRules()" placeholder="Digite sua senha">
+                    <span class="material-icons suffix-icon interactive" (click)="togglePasswordVisibility()">
+                        {{ passwordVisible ? 'visibility_off' : 'visibility' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Password Rules -->
+            <div class="password-rules">
+                <div class="rule-item" [class.valid]="passwordRules.minLength"
+                    [class.invalid]="isPasswordDirty && !passwordRules.minLength">
+                    <div class="circle" [class.active]="passwordRules.minLength"
+                        [class.error]="isPasswordDirty && !passwordRules.minLength"></div>
+                    <span>Mínimo 8 caracteres</span>
+                </div>
+                <div class="rule-item" [class.valid]="passwordRules.upper"
+                    [class.invalid]="isPasswordDirty && !passwordRules.upper">
+                    <div class="circle" [class.active]="passwordRules.upper"
+                        [class.error]="isPasswordDirty && !passwordRules.upper"></div>
+                    <span>Pelo menos uma letra maiúscula</span>
+                </div>
+                <div class="rule-item" [class.valid]="passwordRules.lower"
+                    [class.invalid]="isPasswordDirty && !passwordRules.lower">
+                    <div class="circle" [class.active]="passwordRules.lower"
+                        [class.error]="isPasswordDirty && !passwordRules.lower"></div>
+                    <span>Pelo menos uma letra minúscula</span>
+                </div>
+                <div class="rule-item" [class.valid]="passwordRules.special"
+                    [class.invalid]="isPasswordDirty && !passwordRules.special">
+                    <div class="circle" [class.active]="passwordRules.special"
+                        [class.error]="isPasswordDirty && !passwordRules.special"></div>
+                    <span>Pelo menos um caractere especial</span>
+                </div>
+                <div class="rule-item" [class.valid]="passwordsMatch"
+                    [class.invalid]="isPasswordDirty && !passwordsMatch">
+                    <div class="circle" [class.active]="passwordsMatch"
+                        [class.error]="isPasswordDirty && !passwordsMatch"></div>
+                    <span>As senhas devem ser iguais</span>
+                </div>
+            </div>
+
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label>Confirmar Senha</label>
+                <div class="input-wrapper">
+                    <input [type]="confirmPasswordVisible ? 'text' : 'password'" [(ngModel)]="confirmPassword"
+                        name="confirmPassword" placeholder="Confirme sua senha">
+                    <span class="material-icons suffix-icon interactive" (click)="toggleConfirmPasswordVisibility()">
+                        {{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bank ID -->
+            <div class="form-group">
+                <label>Funcional do Banco</label>
+                <div class="input-wrapper">
+                    <input type="text" (input)="onBankIdInput($event)" inputmode="numeric" [(ngModel)]="bankId"
+                        name="bankId" placeholder="Digite sua funcional">
+                    <i class="fas fa-id-card icon-suffix"></i>
+                </div>
+                <small *ngIf="bankIdInvalid">
+                    O código deve conter 9 números
+                </small>
+                <p style="font-size: 0.75rem; color: #777; margin-top: 5px;">Sua funcional será validada</p>
+            </div>
+
+            <!-- Terms -->
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="terms" [(ngModel)]="termsAccepted" name="terms">
+                <label for="terms">Eu concordo com os <a href="#">Termos de Uso</a> e <a href="#">Política de
+                        Privacidade</a></label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="create-btn" [disabled]="!isFormValid">Criar Conta</button>
+
+            <!-- Login Link -->
+            <div class="footer-link">
+                Já tem uma conta? <a routerLink="/login">Fazer Login</a>
+            </div>
+
+            <!-- Or Divider -->
+            <!-- <div class="divider">ou</div> -->
+
+            <!-- Google Button omitted as per instruction -->
+
+        </form>
+    </div>
+</div>

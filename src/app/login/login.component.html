@@ -19,12 +19,7 @@
       <div class="form-group">
         <label for="email">Email</label>
         <div class="input-wrapper">
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            [(ngModel)]="loginData.email" 
-            placeholder="seu@email.com"
+          <input type="email" id="email" name="email" [(ngModel)]="loginData.email" placeholder="seu@email.com"
             required>
           <span class="material-icons suffix-icon">mail</span>
         </div>
@@ -34,16 +29,9 @@
       <div class="form-group">
         <label for="password">Senha</label>
         <div class="input-wrapper">
-          <input 
-            [type]="showPassword ? 'text' : 'password'" 
-            id="password" 
-            name="password" 
-            [(ngModel)]="loginData.password" 
-            placeholder="........."
-            required>
-          <span 
-            class="material-icons suffix-icon interactive" 
-            (click)="togglePassword()">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password"
+            [(ngModel)]="loginData.password" placeholder="........." required>
+          <span class="material-icons suffix-icon interactive" (click)="togglePassword()">
             {{ showPassword ? 'visibility_off' : 'visibility' }}
           </span>
         </div>
@@ -63,11 +51,12 @@
 
     <!-- Social Login -->
     <div class="divider">
-      <span>ou continue com</span>
+      <span>ou</span>
     </div>
 
     <div class="social-buttons">
-      <asl-google-signin-button type='icon' size='large'></asl-google-signin-button>
+      <asl-google-signin-button type='standard' theme='outline' size='large' text='continue_with'
+        shape='pill'></asl-google-signin-button>
     </div>
   </div>
 

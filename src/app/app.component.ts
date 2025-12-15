@@ -19,8 +19,8 @@ export class AppComponent {
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      // Hide footer on login page
-      this.showFooter = !event.urlAfterRedirects.includes('/login');
+      // Hide footer on login and register pages
+      this.showFooter = !event.urlAfterRedirects.includes('/login') && !event.urlAfterRedirects.includes('/register');
     });
   }
 }

@@ -26,7 +26,7 @@
 
             <div class="form-group">
                 <label>Nome</label>
-                <input type="text" [(ngModel)]="profile.name" placeholder="Seu nome">
+                <input type="text" [(ngModel)]="profile.name">
             </div>
 
             <div class="row">
@@ -34,7 +34,7 @@
                     <label>Idade</label>
                     <div class="age-input-group">
                         <input type="text" inputmode="numeric" required [(ngModel)]="profile.age"
-                            (input)="onAgeInput($event)" placeholder="25">
+                            (input)="onAgeInput($event)">
                         <small *ngIf="ageInvalid">
                             Idade minima: 18 anos
                         </small>
@@ -47,13 +47,13 @@
                 <div class="form-group col">
                     <label>Estado</label>
                     <input style="text-transform: uppercase;" type="text" maxlength="2" (input)="onlyLetters($event)"
-                        [(ngModel)]="profile.state" placeholder="SP">
+                        [(ngModel)]="profile.state">
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Cidade</label>
-                <input type="text" [(ngModel)]="profile.city" placeholder="São Paulo">
+                <input type="text" [(ngModel)]="profile.city">
             </div>
         </section>
 
@@ -142,11 +142,23 @@
         <div class="footer-action">
             <button class="save-full-btn" [disabled]="!isFormValid || !isDirty" (click)="saveProfile()">Salvar
                 Perfil</button>
+            <button class="logout-btn" (click)="logout()">Sair</button>
         </div>
 
         <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
 
         <!-- Bottom spacer for global footer -->
         <div style="height: 100px;"></div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showLogoutModal">
+        <div class="modal-content">
+            <h3>Deseja realmente sair?</h3>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="cancelLogout()">Não</button>
+                <button class="btn-confirm" (click)="confirmLogout()">Sim</button>
+            </div>
+        </div>
     </div>
 </div>
