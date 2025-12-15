@@ -1,0 +1,78 @@
+<div class="login-container">
+  <!-- Animated Background Circles -->
+  <div class="circle circle-1"></div>
+  <div class="circle circle-2"></div>
+  <div class="circle circle-3"></div>
+
+  <!-- Header Section -->
+  <div class="header">
+    <div class="logo-container">
+      <h1 class="logo">IL<span class="heart-icon material-icons">favorite</span>vers</h1>
+    </div>
+    <p>Faça login para continuar</p>
+  </div>
+
+  <!-- Login Card -->
+  <div class="card">
+    <form (ngSubmit)="onSubmit()">
+      <!-- Email Input -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            [(ngModel)]="loginData.email" 
+            placeholder="seu@email.com"
+            required>
+          <span class="material-icons suffix-icon">mail</span>
+        </div>
+      </div>
+
+      <!-- Password Input -->
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password" 
+            name="password" 
+            [(ngModel)]="loginData.password" 
+            placeholder="........."
+            required>
+          <span 
+            class="material-icons suffix-icon interactive" 
+            (click)="togglePassword()">
+            {{ showPassword ? 'visibility_off' : 'visibility' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Forgot Password (No Remember Me) -->
+      <div class="form-actions">
+        <!-- Spacer to push Forgot Password to right if needed, or just alignment -->
+        <a routerLink="/forgot-password" class="forgot-password">Esqueci a senha</a>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-primary">
+        Entrar <span class="material-icons">arrow_forward</span>
+      </button>
+    </form>
+
+    <!-- Social Login -->
+    <div class="divider">
+      <span>ou continue com</span>
+    </div>
+
+    <div class="social-buttons">
+      <asl-google-signin-button type='icon' size='large'></asl-google-signin-button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Não tem uma conta? <a routerLink="/register">Cadastre-se</a></p>
+  </div>
+</div>

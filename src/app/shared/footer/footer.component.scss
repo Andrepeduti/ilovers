@@ -1,0 +1,82 @@
+.nav-footer {
+    height: 60px;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+/* BOTÕES PADRÃO */
+.nav-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    color: black;
+    transition: color 0.3s, opacity 0.3s;
+    position: relative;
+}
+
+/* ÍCONES */
+.nav-btn i {
+    font-size: 1.5rem;
+}
+
+/* TEXTO */
+.nav-btn span {
+    font-size: 0.7rem;
+}
+
+/* ATIVO */
+.nav-btn.active {
+    color: #ff2d55;
+}
+
+/* ========================= */
+/* 🔥 BOTÃO CENTRAL (FEED) 🔥 */
+/* ========================= */
+
+.feed-btn {
+    background: linear-gradient(90deg, #c297eb 20%, #e9a5c7 60%);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transform: translateY(-24px);
+    /* 👈 ULTRAPASSA O FOOTER */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ícone maior */
+.feed-btn i {
+    font-size: 2rem;
+}
+
+.feed-btn span {
+    display: block;
+    position: absolute;
+    bottom: -16px;
+    font-size: 0.7rem;
+    color: black;
+}
+
+/* quando o botão FEED estiver ativo */
+.feed-btn.active span {
+    color: #ff2d55;
+}

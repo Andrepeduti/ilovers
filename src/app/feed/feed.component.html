@@ -1,0 +1,57 @@
+<div class="feed-container" *ngIf="currentProfile; else emptyState">
+    <div class="card">
+        <img [src]="currentProfile.image" [alt]="currentProfile.name" class="profile-image">
+        
+        <div class="overlay-gradient"></div>
+
+        <div class="profile-info">
+            <h1>{{ currentProfile.name }} <span class="age">{{ currentProfile.age }}</span> <span class="status-dot"></span></h1>
+            <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.distance }} km de distância</p>
+            
+            <div class="tags">
+                <span class="tag" *ngFor="let hobby of currentProfile.hobbies">
+                    {{ hobby }}
+                </span>
+            </div>
+            
+             <button class="info-btn">
+                <i class="fas fa-info"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Super Like Animation Element -->
+    <div class="super-like-overlay" *ngIf="isSuperLikeActive">
+        <i class="fas fa-star super-star"></i>
+        <h1 class="super-like-text">SUPER LIKE!</h1>
+    </div>
+
+    <!-- Actions Bar - Moved inside a wrapper for overlay -->
+    <div class="card-overlay-actions">
+         <div class="actions-bar">
+            <button class="action-btn undo" (click)="onUndo()">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="action-btn reject" (click)="onReject()" [class.shake-x]="isRejectActive">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="action-btn like" (click)="onLike()" [class.pulse-heart]="isLikeActive">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="action-btn super-like" (click)="onSuperLike()">
+                <i class="fas fa-star"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<ng-template #emptyState>
+    <div class="empty-feed">
+        <h2>Não há mais perfis por perto.</h2>
+        <button (click)="currentIndex = 0">Recarregar</button>
+    </div>
+</ng-template>
+
+<!-- Font Awesome for Icons (assuming it's loaded globally or we need to add CDN) -->
+<!-- Adding a link here for simplicity if not in index.html, but better in index.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

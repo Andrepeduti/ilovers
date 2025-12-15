@@ -1,0 +1,152 @@
+<div class="profile-container">
+    <header class="header">
+        <h1>Meu Perfil</h1>
+    </header>
+
+    <div class="scroll-content">
+        <!-- Photos Section -->
+        <section class="section photos-section">
+            <div class="section-header">
+                <h2>Suas Fotos</h2>
+                <span class="counter">0/8</span>
+            </div>
+
+            <div class="photo-grid">
+                <div class="photo-slot" *ngFor="let photo of photos; let i = index" (click)="onPhotoClick(i)">
+                    <img *ngIf="photo" [src]="photo" alt="Photo {{i+1}}">
+                    <span *ngIf="!photo" class="plus-icon">+</span>
+                </div>
+            </div>
+            <p class="hint">Adicione até 8 fotos para mostrar quem você é</p>
+        </section>
+
+        <!-- Basic Info Section -->
+        <section class="section info-section">
+            <h2>Informações Básicas</h2>
+
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" [(ngModel)]="profile.name" placeholder="Seu nome">
+            </div>
+
+            <div class="row">
+                <div class="form-group col">
+                    <label>Idade</label>
+                    <div class="age-input-group">
+                        <input type="text" inputmode="numeric" required [(ngModel)]="profile.age"
+                            (input)="onAgeInput($event)" placeholder="25">
+                        <small *ngIf="ageInvalid">
+                            Idade minima: 18 anos
+                        </small>
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="hideAge" [(ngModel)]="profile.hideAge">
+                        <label for="hideAge">Esconder Idade</label>
+                    </div>
+                </div>
+                <div class="form-group col">
+                    <label>Estado</label>
+                    <input style="text-transform: uppercase;" type="text" maxlength="2" (input)="onlyLetters($event)"
+                        [(ngModel)]="profile.state" placeholder="SP">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" [(ngModel)]="profile.city" placeholder="São Paulo">
+            </div>
+        </section>
+
+        <!-- Gender Section -->
+        <section class="section gender-section">
+            <h2>Gênero</h2>
+            <p class="subtitle">Como você se identifica?</p>
+
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="gender" [(ngModel)]="profile.gender" value="Homem">
+                    <span class="radio-label">Homem</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="gender" [(ngModel)]="profile.gender" value="Mulher">
+                    <span class="radio-label">Mulher</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="gender" [(ngModel)]="profile.gender" value="Não-binário">
+                    <span class="radio-label">Não-binário</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="gender" [(ngModel)]="profile.gender" value="Outros">
+                    <span class="radio-label">Outros / Prefiro não dizer</span>
+                    <span class="custom-radio"></span>
+                </label>
+            </div>
+        </section>
+
+        <!-- Interested In Section -->
+        <section class="section interest-in-section">
+            <h2>Interesse em</h2>
+            <p class="subtitle">Quem você está procurando?</p>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="interestedIn" [(ngModel)]="profile.interestedIn" value="Homem">
+                    <span class="radio-label">Homem</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="interestedIn" [(ngModel)]="profile.interestedIn" value="Mulher">
+                    <span class="radio-label">Mulher</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="interestedIn" [(ngModel)]="profile.interestedIn" value="Todos">
+                    <span class="radio-label">Todos / Não-binário</span>
+                    <span class="custom-radio"></span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="interestedIn" [(ngModel)]="profile.interestedIn" value="Qualquer">
+                    <span class="radio-label">Qualquer gênero</span>
+                    <span class="custom-radio"></span>
+                </label>
+            </div>
+        </section>
+
+        <!-- Interests Tags Section -->
+        <section class="section tags-section">
+            <h2>Seus Interesses</h2>
+            <p class="subtitle">Adicione tags que representam você</p>
+
+            <div class="selected-tags">
+                <span class="tag selected" *ngFor="let tag of profile.interests">
+                    {{ tag }} <i class="fas fa-times" (click)="removeInterest(tag)"></i>
+                </span>
+            </div>
+
+            <div class="input-group-append">
+                <input type="text" [(ngModel)]="newInterest" (keydown.enter)="addInterest()"
+                    placeholder="Adicionar interesse...">
+                <button class="add-btn" (click)="addInterest()">+</button>
+            </div>
+
+            <p class="hint">Mais usados</p>
+            <div class="suggested-tags">
+                <button class="tag suggestion" *ngFor="let tag of availableInterests" (click)="addInterest(tag)">
+                    {{ tag }}
+                </button>
+            </div>
+        </section>
+
+        <div class="footer-action">
+            <button class="save-full-btn" [disabled]="!isFormValid || !isDirty" (click)="saveProfile()">Salvar
+                Perfil</button>
+        </div>
+
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+
+        <!-- Bottom spacer for global footer -->
+        <div style="height: 100px;"></div>
+    </div>
+</div>

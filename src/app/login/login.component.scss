@@ -1,0 +1,320 @@
+// Variables
+$primary-gradient: linear-gradient(135deg, #FF6B6B 0%, #556270 100%); // Fallback/Base
+$bg-gradient: linear-gradient(160deg, #c45b3d 0%, #2f27ce 100%);
+$card-bg: #ffffff;
+$text-color: #333333;
+$input-bg: #f5f6fa;
+$btn-gradient: linear-gradient(90deg, #a855f7 0%, #ec4899 100%); // Purple to Pink
+$btn-hover-gradient: linear-gradient(90deg, #9333ea 0%, #db2777 100%);
+$heart-color: #FF4D4D; // Redish/White depending on context, we'll use white if it's in the header title? 
+// Wait, in the image the text is White on the background.
+$text-light: #ffffff;
+
+.login-container {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    background: $bg-gradient;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; // Hide overflow from animated circles
+    padding: 2rem;
+}
+
+// Background Circles
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: 0;
+    animation: jump 3s ease-in-out infinite alternate;
+}
+
+.circle-1 {
+    width: 15rem; // Foguete placeholder size approximation
+    height: 15rem;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.1); // Light subtle circle behind logo area
+    // The user asked for "bolinhas do background", implying the decorative ones.
+    // In the image there is a pink one left, blue/white one right, green one bottom left.
+    display: none; // The central one is the 'rocket' area, processed differently.
+}
+
+// Let's make the decorative ones
+.circle-2 {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 105, 180, 0.5); // Pinkish
+    top: 15%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.circle-3 {
+    width: 40px;
+    height: 40px;
+    background: rgba(100, 149, 237, 0.5); // Blueish
+    top: 10%;
+    right: 15%;
+    animation-delay: 1.5s;
+}
+
+// Keyframes for Jumping (approx 2cm ~ 75px or less depending on screen, let's say 20px-30px)
+@keyframes jump {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-30px); // "uns 2 centimetros"
+    }
+}
+
+.header {
+    text-align: center;
+    color: $text-light;
+    z-index: 1;
+    margin-bottom: 2rem;
+
+    .logo-container {
+        margin-bottom: 1rem;
+        // Replacing the Rocket circle with text logo
+    }
+
+    .logo {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+
+        .heart-icon {
+            font-size: 2.5rem; // Match text size mostly
+            color: $text-light; // Or red? Let's keep it white to match text or maybe Red for contrast?
+            // "O do Lovers é um coração" usually acts as the O.
+            // Let's make it Red? No, white usually looks cleaner on that BG, but let's try a soft pink or just white.
+            // User said "pulsando, como se estivesse vivo".
+            animation: pulse 1.5s infinite;
+        }
+    }
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+
+    p {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2); // Heartbeat expansion
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.card {
+    background: $card-bg;
+    border-radius: 2rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    position: relative; // For decorative elements potentially inside/around
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #444;
+        font-size: 0.9rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+
+        input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 1.2rem;
+            border-radius: 1rem;
+            border: none;
+            background: $input-bg;
+            font-family: inherit;
+            font-size: 1rem;
+            color: #333;
+            transition: outline 0.2s;
+
+            &:focus {
+                outline: 2px solid #a855f7; // Focus ring color from gradient
+                background: #fff;
+            }
+        }
+
+        .suffix-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+
+            &.interactive {
+                cursor: pointer;
+
+                &:hover {
+                    color: #666;
+                }
+            }
+        }
+    }
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+
+    .forgot-password {
+        color: #a855f7;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 2rem;
+    border: none;
+    background: $btn-gradient;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
+        background: $btn-hover-gradient;
+    }
+
+    .material-icons {
+        font-size: 1.2rem;
+    }
+}
+
+.divider {
+    text-align: center;
+    margin: 2rem 0 1.5rem;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 1px;
+        background: #eee;
+        z-index: 0;
+    }
+
+    span {
+        background: #fff;
+        padding: 0 1rem;
+        color: #888;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.social-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+
+    .btn-social {
+        width: 60px;
+        height: 60px; // Make them roughly uniform
+        padding: 0.5rem 2rem; // Adjust based on image wide buttons or round? 
+        // Image shows wide rounded rectangles with logo centered.
+        // Let's make them wide rounded rectangles.
+        flex: 1;
+        border-radius: 1rem;
+        border: 1px solid #eee;
+        background: #fff;
+        cursor: pointer;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+
+        // Google color
+        &.google {
+            color: #DB4437;
+        }
+
+        // Facebook color
+        &.facebook {
+            color: #4267B2;
+        }
+
+        &:hover {
+            background: #f9f9f9;
+        }
+    }
+}
+
+.footer {
+    margin-top: 2rem;
+    color: $text-light;
+    z-index: 1;
+
+    p {
+        font-weight: 500;
+    }
+
+    a {
+        color: #FFD700; // Yellowish "Cadastre-se" in image
+        text-decoration: none;
+        font-weight: 700;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

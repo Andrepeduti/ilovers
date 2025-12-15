@@ -1,0 +1,16 @@
+<div class="nav-footer">
+    <button class="nav-btn" [class.active]="activeTab === 'profile'" (click)="navigateTo('profile')">
+        <i class="fas fa-user"></i>
+        <span>Perfil</span>
+    </button>
+
+    <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'" (click)="navigateTo('feed')">
+        <i class="fas fa-heart"></i>
+        <span>Feed</span>
+    </button>
+
+    <button class="nav-btn" [class.active]="activeTab === 'chat'" (click)="navigateTo('chat')">
+        <i class="fas fa-comment"></i>
+        <span>Chat</span>
+    </button>
+</div>
