@@ -1,0 +1,222 @@
+$text-light: #ffffff;
+
+.profile-details-container {
+    background: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-header {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    /* Fixed height for consistency */
+    overflow: hidden;
+}
+
+.main-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+.photo-counter {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    padding: 6px 6px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 30;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-area {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 30%;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .nav-arrow {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 2rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    &:active .nav-arrow {
+        opacity: 1;
+    }
+}
+
+.nav-area.left {
+    left: 0;
+}
+
+.nav-area.right {
+    right: 0;
+}
+
+.dots-indicators {
+    position: absolute;
+    bottom: 465px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    gap: 8px;
+    z-index: 25;
+    /* Ensure above content overlap if needed */
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+.header {
+    text-align: center;
+    color: $text-light;
+    z-index: 1;
+    margin-bottom: 2rem;
+
+    .logo-container {
+        margin-bottom: 1rem;
+        // Replacing the Rocket circle with text logo
+    }
+
+    .logo {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+
+        .heart-icon {
+            font-size: 2.5rem; // Match text size mostly
+            color: $text-light; // Or red? Let's keep it white to match text or maybe Red for contrast?
+            // "O do Lovers é um coração" usually acts as the O.
+            // Let's make it Red? No, white usually looks cleaner on that BG, but let's try a soft pink or just white.
+            // User said "pulsando, como se estivesse vivo".
+            animation: pulse 1.5s infinite;
+        }
+    }
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+
+    p {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+}
+
+.content-body {
+    padding: 24px;
+    /* Safe space for scrolling */
+    background: white;
+    flex: 1;
+    border-radius: 24px 24px 0 0;
+    /* Modern overlap look */
+    margin-top: -14px;
+    position: relative;
+    z-index: 20;
+}
+
+.main-info {
+    margin-bottom: 24px;
+
+    h1 {
+        font-size: 2rem;
+        margin: 0;
+        color: #333;
+    }
+
+    .age {
+        font-weight: 400;
+    }
+
+    .location {
+        color: #888;
+        margin: 5px 0 0;
+        font-size: 0.95rem;
+    }
+}
+
+.section {
+    margin-bottom: 24px;
+
+    h3 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        color: #333;
+    }
+
+    p {
+        color: #666;
+        line-height: 1.5;
+    }
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Updated Tag Style to match Profile (Login Gradient or Brand Color) */
+.tag {
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #ff4b7d;
+    /* Brand Color */
+    border: 1px solid #ff4b7d;
+    font-weight: 500;
+
+    /* Optional: Background variant? The user said "colored". 
+       Let's try a light pink background with dark pink text for readability */
+    background: #fff0f5;
+}

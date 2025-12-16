@@ -1,0 +1,60 @@
+<div class="conversation-container">
+    <header class="chat-header">
+        <div class="header">
+            <button class="back-btn" (click)="goBack()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="user-info" (click)="viewProfile()">
+                <div class="avatar-wrapper">
+                    <img [src]="chatPartner?.photo" alt="User">
+                </div>
+                <span class="user-name">{{ chatPartner?.name }}</span>
+            </div>
+
+            <div class="menu-container">
+                <button class="menu-btn" (click)="toggleMenu()">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu" *ngIf="showMenu">
+                    <button (click)="viewProfile()">
+                        <i class="fas fa-user-circle"></i> Ver Perfil
+                    </button>
+                    <button class="text-danger" (click)="openUnmatchModal()">
+                        <i class="fas fa-user-slash"></i> Desfazer Match
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="messages-list">
+        <div *ngFor="let msg of messages" class="message-bubble" [ngClass]="{'me': msg.isMe, 'them': !msg.isMe}">
+            <p>{{ msg.text }}</p>
+            <span class="msg-time">{{ msg.time }}</span>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" placeholder="Digite uma mensagem..." [(ngModel)]="newMessage"
+            (keydown.enter)="sendMessage()">
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Unmatch Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showUnmatchModal">
+        <div class="modal-content">
+            <h3>Desfazer Match?</h3>
+            <p>Essa ação não pode ser desfeita. A conversa sumirá da sua lista.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeUnmatchModal()">Cancelar</button>
+                <button class="btn-confirm-danger" (click)="confirmUnmatch()">Sim, desfazer</button>
+            </div>
+        </div>
+    </div>
+</div>

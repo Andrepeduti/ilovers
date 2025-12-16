@@ -1,12 +1,15 @@
 <div class="chat-container">
     <header class="header">
-        <h1>Mensagens</h1>
+        <div class="logo">
+            IL<span class="heart-icon material-icons">favorite</span>vers
+        </div>
     </header>
 
     <div class="matches-section">
         <h2 class="section-title">Novos Matches</h2>
         <div class="matches-scroll">
-            <div class="match-item" *ngFor="let match of matches" (click)="openChat(match.id)">
+            <div class="match-item" *ngFor="let match of matches" (click)="openChat(match.id)"
+                [class.viewed]="match.viewed">
                 <div class="avatar-wrapper">
                     <img [src]="match.photo" [alt]="match.name">
                 </div>

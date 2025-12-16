@@ -1,6 +1,15 @@
 <div class="feed-container" *ngIf="currentProfile; else emptyState">
-    <div class="card">
-        <img [src]="currentProfile.image" [alt]="currentProfile.name" class="profile-image">
+    <div class="card" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
+        (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+
+        <!-- Photo Indicators -->
+        <div class="photo-indicators">
+            <div class="indicator-bar" *ngFor="let img of currentProfile.images; let i = index"
+                [class.active]="i === currentPhotoIndex">
+            </div>
+        </div>
+
+        <img [src]="currentProfile.images[currentPhotoIndex]" [alt]="currentProfile.name" class="profile-image">
 
         <div class="overlay-gradient"></div>
 
@@ -16,7 +25,8 @@
                 </span>
             </div>
 
-            <button class="info-btn" (click)="toggleDetails()">
+            <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
+                (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
                 <i class="fas fa-info"></i>
             </button>
         </div>
@@ -96,6 +106,10 @@
             </div>
         </div>
     </div>
+    <!-- Match Modal -->
+    <app-match-modal *ngIf="showMatchModal" [matchedProfile]="matchedProfileData" (close)="closeMatchModal()"
+        (startChat)="startChatFromMatch()">
+    </app-match-modal>
 </div>
 
 <ng-template #emptyState>

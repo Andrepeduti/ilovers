@@ -18,12 +18,41 @@
     /* Remove border radius for full screen effect */
     overflow: hidden;
     box-shadow: none;
+
+    /* Disable default drag for image ghosting */
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.photo-indicators {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    gap: 4px;
+    padding: 0 10px;
+    z-index: 20;
+}
+
+.indicator-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transition: background 0.2s;
+
+    &.active {
+        background: white;
+    }
 }
 
 .profile-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    pointer-events: none;
+    /* Let clicks pass through to card for gesture handling, or just disable drag */
 }
 
 .overlay-gradient {
@@ -41,8 +70,8 @@
     position: absolute;
     bottom: 200px;
     /* Above buttons */
-    left: 20px;
-    right: 20px;
+    left: 40px;
+    right: 40px;
     color: white;
     z-index: 10;
 }

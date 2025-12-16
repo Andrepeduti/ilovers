@@ -1,0 +1,43 @@
+<div class="profile-details-container" *ngIf="profile">
+    <!-- Header Image / Carousel -->
+    <div class="image-header">
+        <button class="back-btn" (click)="goBack()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <img [src]="profile.images[currentPhotoIndex]" alt="Profile Photo" class="main-photo">
+
+        <!-- Photo Counter -->
+        <div class="photo-counter">
+            {{ currentPhotoIndex + 1 }}/{{ profile.images.length }}
+        </div>
+
+        <!-- Navigation Areas -->
+        <div class="nav-area left" (click)="prevPhoto()">
+            <i class="fas fa-chevron-left nav-arrow"></i>
+        </div>
+        <div class="nav-area right" (click)="nextPhoto()">
+            <i class="fas fa-chevron-right nav-arrow"></i>
+        </div>
+    </div>
+
+    <!-- Info Content -->
+    <div class="content-body">
+        <div class="main-info">
+            <h1>{{ profile.name }} <span class="age" *ngIf="profile.age">, {{ profile.age }}</span></h1>
+            <p class="location"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state }}</p>
+        </div>
+
+        <section class="section">
+            <h3>Sobre</h3>
+            <p>{{ profile.bio }}</p>
+        </section>
+
+        <section class="section">
+            <h3>Interesses</h3>
+            <div class="tags">
+                <span class="tag" *ngFor="let hobby of profile.hobbies">{{ hobby }}</span>
+            </div>
+        </section>
+    </div>
+</div>

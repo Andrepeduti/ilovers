@@ -21,6 +21,11 @@ export class LoginComponent {
   // Toggle password visibility
   showPassword = false;
 
+  // Forgot Password Modal State
+  showForgotModal = false;
+  forgotEmail = '';
+  resetSent = false;
+
   constructor(
     private authService: SocialAuthService,
     private router: Router
@@ -31,7 +36,6 @@ export class LoginComponent {
       console.log('User:', user);
       if (user) {
         this.router.navigate(['/profile']);
-        // console.log('Login successful (Redirection to Profile)');
       }
     });
   }
@@ -42,8 +46,25 @@ export class LoginComponent {
 
   onSubmit() {
     console.log('Login attempt:', this.loginData);
-    // Here you would implement actual login logic
-    this.router.navigate(['/profile']); // Fallback for manual login for demo
-    // console.log('Login attempt successful (Redirection to Profile)');
+    this.router.navigate(['/profile']);
+  }
+
+  // Forgot Password Logic
+  openForgotModal() {
+    this.showForgotModal = true;
+    this.resetSent = false;
+    this.forgotEmail = '';
+  }
+
+  closeForgotModal() {
+    this.showForgotModal = false;
+  }
+
+  sendResetLink() {
+    if (this.forgotEmail) {
+      console.log(`Sending reset link to: ${this.forgotEmail}`);
+      // Simulate API call
+      this.resetSent = true;
+    }
   }
 }

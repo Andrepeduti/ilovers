@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -44,7 +44,8 @@ export class ProfileComponent implements OnInit {
   };
 
   get validatePhotos() {
-    return this.photos.length > 0 && this.photos.find((photo) => photo !== null)
+    // Only the first photo is mandatory now
+    return this.photos[0] !== null;
   }
 
   get isFormValid(): boolean {
@@ -71,7 +72,9 @@ export class ProfileComponent implements OnInit {
     const cityHasNoNumbers = !/\d/.test(p.city);
     // State: max 2 chars, no numbers
     const stateValid = p.state.length <= 2 && !/\d/.test(p.state);
-    const photoValid = this.photos.some(photo => photo != null);
+
+    // Validate ONLY first photo is required for Form Validity too
+    const photoValid = this.photos[0] !== null;
 
     return isAgeValid && nameHasNoNumbers && cityHasNoNumbers && stateValid && photoValid && isAgeRangeValid;
   }
@@ -94,6 +97,31 @@ export class ProfileComponent implements OnInit {
     const maxInvalid = max !== null && max < 18;
 
     return minInvalid || maxInvalid;
+  }
+
+  // Asterisk Logic: Show if range is incomplete OR invalid (unless See All is checked)
+  get showAgeRangeAsterisk(): boolean {
+    if (this.profile.seeAllAges) return false;
+
+    const min = this.profile.ageRange.min;
+    const max = this.profile.ageRange.max;
+
+    // Must be present AND >= 18
+    const minValid = min !== null && min >= 18;
+    const maxValid = max !== null && max >= 18;
+
+    return !minValid || !maxValid;
+  }
+
+  // Asterisk for Main Age: Show if empty OR < 18
+  get showAgeAsterisk(): boolean {
+    // If hidden, maybe not required? But the form requires it. 
+    // Assuming for now it must be valid to remove asterisk.
+    // If hideAge is checked, age is null, so asterisk persists (meaning "Please enter age so we know, even if hidden?").
+    // Actually, onHideAgeChange clears it. If it clears it, user can't enter it?
+    // Let's stick to the rule requested: Remove * if content is correct.
+    const age = this.profile.age;
+    return !age || age < 18;
   }
 
   newInterest = '';
@@ -182,7 +210,7 @@ export class ProfileComponent implements OnInit {
     }
 
     // só números
-    let value = rawValue.replace(/\D/g, '').slice(0, 3);
+    let value = rawValue.replace(/\D/g, '').slice(0, 2);
     input.value = value;
 
     // atualiza model
@@ -193,11 +221,40 @@ export class ProfileComponent implements OnInit {
     this.ageInvalid = !!value && age < 18;
   }
 
+  onAgeRangeInput(event: Event, field: 'min' | 'max') {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '').slice(0, 2);
+    input.value = value;
+
+    // Update model
+    this.profile.ageRange[field] = value ? Number(value) : null;
+  }
+
 
   onHideAgeChange() {
     if (this.profile.hideAge) {
       this.profile.age = null; // Clear age
       this.ageInvalid = false; // Clear invalid flag
+    }
+  }
+
+  onSeeAllAgesChange() {
+    if (this.profile.seeAllAges) {
+      this.profile.ageRange.min = null;
+      this.profile.ageRange.max = null;
+    }
+  }
+
+  showAgeInfo = false;
+
+  toggleAgeInfo() {
+    this.showAgeInfo = !this.showAgeInfo;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.showAgeInfo) {
+      this.showAgeInfo = false;
     }
   }
 
@@ -216,6 +273,11 @@ export class ProfileComponent implements OnInit {
   onPhotoClick(index: number) {
     this.currentIndexForUpload = index;
     this.fileInput.nativeElement.click();
+  }
+
+  removePhoto(index: number, event: Event) {
+    event.stopPropagation(); // Prevent triggering upload
+    this.photos[index] = null;
   }
 
   onFileSelected(event: any) {

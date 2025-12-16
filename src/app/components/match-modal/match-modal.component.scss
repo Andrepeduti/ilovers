@@ -1,0 +1,290 @@
+.match-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    /* Darker backdrop */
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.match-card {
+    background: white;
+    width: 90%;
+    max-width: 320px;
+    border-radius: 24px;
+    padding: 40px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px) scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.header-icon {
+    font-size: 4rem;
+    color: #ff4b7d;
+    margin-bottom: 0px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.match-title {
+    font-size: 1.8rem;
+    color: #222;
+    margin: 10px 0 5px 0;
+    font-weight: 800;
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+.match-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0 0 35px 0;
+    font-weight: 500;
+}
+
+.avatars-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.avatar-wrapper {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    padding: 3px;
+    background: #ffecf2;
+    /* Light pink ring */
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+}
+
+/* Specific styling to match the image: left avatar slightly overlaps? No, side by side with heart */
+.avatar-wrapper:first-child {
+    border: 3px solid #ffdeeb;
+    /* Lighter pink border */
+    background: transparent;
+    padding: 0;
+}
+
+.avatar-wrapper:last-child {
+    border: 3px solid #ffdeeb;
+    background: transparent;
+    padding: 0;
+}
+
+
+.small-heart {
+    color: #ff4b7d;
+    font-size: 1.2rem;
+    padding: 0 5px;
+}
+
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #ff4b7d 0%, #aa3eea 100%);
+    /* Strong gradient */
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 75, 125, 0.2);
+    transition: transform 0.2s, opacity 0.2s;
+    width: 100%;
+    letter-spacing: 0.5px;
+
+    &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+}
+
+.btn-secondary {
+    background: #f38b8b;
+    color: #444;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+
+    &:hover {
+        background: #ececec;
+    }
+}
+
+/* Confetti Logic */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 5;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #f2d74e;
+    top: -20px;
+    opacity: 0;
+}
+
+/* Simple CSS loop for randomness */
+.confetti {
+    animation: fall 4s linear infinite;
+}
+
+.confetti:nth-child(2n) {
+    background: #ff4b7d;
+    width: 12px;
+    height: 12px;
+}
+
+.confetti:nth-child(3n) {
+    background: #4cc9f0;
+    transform: rotate(45deg);
+}
+
+.confetti:nth-child(4n) {
+    background: #95d5b2;
+    width: 8px;
+    height: 8px;
+}
+
+/* Stagger delays manually for a "burst" feel or continuous rain */
+/* I'll generate a few specific rules for spread */
+.confetti:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.confetti:nth-child(2) {
+    left: 20%;
+    animation-delay: 1.5s;
+}
+
+.confetti:nth-child(3) {
+    left: 30%;
+    animation-delay: 3s;
+}
+
+.confetti:nth-child(4) {
+    left: 40%;
+    animation-delay: 0.5s;
+}
+
+.confetti:nth-child(5) {
+    left: 50%;
+    animation-delay: 2s;
+}
+
+.confetti:nth-child(6) {
+    left: 60%;
+    animation-delay: 4s;
+}
+
+.confetti:nth-child(7) {
+    left: 70%;
+    animation-delay: 1s;
+}
+
+.confetti:nth-child(8) {
+    left: 80%;
+    animation-delay: 2.5s;
+}
+
+.confetti:nth-child(9) {
+    left: 90%;
+    animation-delay: 0.2s;
+}
+
+.confetti:nth-child(10) {
+    left: 15%;
+    animation-delay: 3.5s;
+}
+
+/* ... assuming 50 items, relying on fall animation to carry them */
+
+@keyframes fall {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+    }
+}

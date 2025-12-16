@@ -13,9 +13,14 @@
             </div>
 
             <div class="photo-grid">
-                <div class="photo-slot" *ngFor="let photo of photos; let i = index" (click)="onPhotoClick(i)">
+                <div class="photo-slot" *ngFor="let photo of photos; let i = index" (click)="onPhotoClick(i)"
+                    [class.mandatory]="i === 0">
                     <img *ngIf="photo" [src]="photo" alt="Photo {{i+1}}">
                     <span *ngIf="!photo" class="plus-icon">+</span>
+
+                    <button *ngIf="photo" class="remove-btn" (click)="removePhoto(i, $event)">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
             <p class="hint">Adicione até 8 fotos para mostrar quem você é</p>
@@ -32,19 +37,28 @@
 
             <div class="row">
                 <div class="form-group col">
-                    <label>Idade <span class="required" *ngIf="!profile.age && !profile.hideAge">*</span></label>
+                    <label>Idade <span class="required" *ngIf="showAgeAsterisk">*</span></label>
                     <div class="age-input-group">
                         <input type="text" inputmode="numeric" required [ngModel]="profile.age"
-                            (ngModelChange)="profile.age = $event" [disabled]="profile.hideAge"
-                            (keydown)="blockNonNumeric($event)" (input)="onAgeInput($event)">
+                            (ngModelChange)="profile.age = $event" (keydown)="blockNonNumeric($event)"
+                            (input)="onAgeInput($event)">
 
                         <small *ngIf="ageInvalid">
                             Idade minima: 18 anos
                         </small>
                     </div>
                     <div class="checkbox-wrapper">
-                        <input type="checkbox" id="hideAge" [(ngModel)]="profile.hideAge" (change)="onHideAgeChange()">
+                        <input type="checkbox" id="hideAge" [(ngModel)]="profile.hideAge">
                         <label for="hideAge">Esconder Idade</label>
+                        <i class="fas fa-info-circle info-icon" (click)="$event.stopPropagation(); toggleAgeInfo()"></i>
+
+                        <div class="tooltip-balloon" *ngIf="showAgeInfo" (click)="$event.stopPropagation()">
+                            <p>Ao selecionar esta opção, sua idade não será exibida no feed.
+                                <br>
+                                Mas ainda precisamos dela para fazer regras de filtro.
+                            </p>
+                            <div class="arrow-down"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group col">
@@ -129,16 +143,15 @@
             <p class="subtitle">Faixa etária que você deseja ver</p>
 
             <div class="form-group">
-                <label>Faixa de Idade <span class="required"
-                        *ngIf="!profile.seeAllAges && (!profile.ageRange.min || !profile.ageRange.max)">*</span></label>
+                <label>Faixa de Idade <span class="required" *ngIf="showAgeRangeAsterisk">*</span></label>
                 <div class="row">
                     <div class="col">
-                        <input type="number" [(ngModel)]="profile.ageRange.min" placeholder="Min"
-                            [disabled]="profile.seeAllAges">
+                        <input type="text" inputmode="numeric" [ngModel]="profile.ageRange.min"
+                            (input)="onAgeRangeInput($event, 'min')" placeholder="Min" [disabled]="profile.seeAllAges">
                     </div>
                     <div class="col">
-                        <input type="number" [(ngModel)]="profile.ageRange.max" placeholder="Max"
-                            [disabled]="profile.seeAllAges">
+                        <input type="text" inputmode="numeric" [ngModel]="profile.ageRange.max"
+                            (input)="onAgeRangeInput($event, 'max')" placeholder="Max" [disabled]="profile.seeAllAges">
                     </div>
                 </div>
                 <small *ngIf="isAgeRangeInvalid">
@@ -147,7 +160,7 @@
             </div>
 
             <div class="checkbox-wrapper">
-                <input type="checkbox" id="seeAllAges" [(ngModel)]="profile.seeAllAges">
+                <input type="checkbox" id="seeAllAges" [(ngModel)]="profile.seeAllAges" (change)="onSeeAllAgesChange()">
                 <label for="seeAllAges">Ver todas as idades</label>
             </div>
         </section>
@@ -164,7 +177,7 @@
             </div>
 
             <div class="input-group-append">
-                <input type="text" [(ngModel)]="newInterest" (keydown.enter)="addInterest()"
+                <input type="text" maxlength="15" [(ngModel)]="newInterest" (keydown.enter)="addInterest()"
                     placeholder="Adicionar interesse...">
                 <button class="add-btn" (click)="addInterest()">+</button>
             </div>
@@ -185,8 +198,7 @@
 
         <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
 
-        <!-- Bottom spacer for global footer -->
-        <div style="height: 100px;"></div>
+        <div style="height: 80px;"></div>
     </div>
 
     <!-- Logout Confirmation Modal -->

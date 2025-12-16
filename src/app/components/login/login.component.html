@@ -40,7 +40,7 @@
       <!-- Forgot Password (No Remember Me) -->
       <div class="form-actions">
         <!-- Spacer to push Forgot Password to right if needed, or just alignment -->
-        <a routerLink="/forgot-password" class="forgot-password">Esqueci a senha</a>
+        <a (click)="openForgotModal()" class="forgot-password" style="cursor: pointer;">Esqueci a senha</a>
       </div>
 
       <!-- Submit Button -->
@@ -63,5 +63,33 @@
   <!-- Footer -->
   <div class="footer">
     <p>Não tem uma conta? <a routerLink="/register">Cadastre-se</a></p>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" *ngIf="showForgotModal">
+    <div class="modal-content">
+      <h3>Esqueceu sua senha?</h3>
+      <p *ngIf="!resetSent">Informe seu e-mail para receber um link de redefinição.</p>
+
+      <div class="form-group" *ngIf="!resetSent">
+        <div class="input-wrapper">
+          <input type="email" name="forgotEmail" [(ngModel)]="forgotEmail" placeholder="seu@email.com" required>
+        </div>
+      </div>
+
+      <div class="success-message" *ngIf="resetSent">
+        <i class="material-icons" style="color: #2ecc71; font-size: 3rem;">check_circle</i>
+        <p>Link enviado!</p>
+        <p>Se o e-mail estiver cadastrado, você receberá um link de redefinição.</p>
+        <div class="modal-actions">
+          <button class="btn-confirm" (click)="closeForgotModal()">Fechar</button>
+        </div>
+      </div>
+
+      <div class="modal-actions" *ngIf="!resetSent">
+        <button class="btn-cancel" (click)="closeForgotModal()">Cancelar</button>
+        <button class="btn-confirm" (click)="sendResetLink()" [disabled]="!forgotEmail">Enviar</button>
+      </div>
+    </div>
   </div>
 </div>
