@@ -4,29 +4,40 @@
     </header>
 
     <div class="scroll-content">
-        <!-- Photos Section -->
         <section class="section photos-section">
             <div class="section-header">
-                <h2>Suas Fotos <span class="required" *ngIf="!validatePhotos">*</span>
-                </h2>
-                <span class="counter">0/8</span>
+                <h2>Suas Fotos</h2>
+                <span class="counter">{{ photoCount }}/8</span>
             </div>
 
             <div class="photo-grid">
-                <div class="photo-slot" *ngFor="let photo of photos; let i = index" (click)="onPhotoClick(i)"
-                    [class.mandatory]="i === 0">
-                    <img *ngIf="photo" [src]="photo" alt="Photo {{i+1}}">
-                    <span *ngIf="!photo" class="plus-icon">+</span>
+                <div class="photo-slot-wrapper" *ngFor="let photo of photos; let i = index">
+                    <span class="cover-label" *ngIf="i === 0">
+                        <div class="info-wrapper">
+                            <i class="fas fa-info-circle info-icon"
+                                (click)="$event.stopPropagation(); toggleCoverInfo()"></i>
+                            Capa
+                            <span class="required" *ngIf="!validatePhotos">*</span>
 
-                    <button *ngIf="photo" class="remove-btn" (click)="removePhoto(i, $event)">
-                        <i class="fas fa-times"></i>
-                    </button>
+                            <div class="tooltip-balloon" *ngIf="showCoverInfo" (click)="$event.stopPropagation()">
+                                <p>Essa é a foto que aparecerá como capa do seu perfil.</p>
+                                <div class="arrow-down"></div>
+                            </div>
+                        </div>
+                    </span>
+                    <div class="photo-slot" (click)="onPhotoClick(i)" [class.mandatory]="i === 0">
+                        <img *ngIf="photo" [src]="photo" alt="Photo {{i+1}}">
+                        <span *ngIf="!photo" class="plus-icon">+</span>
+
+                        <button *ngIf="photo" class="remove-btn" (click)="removePhoto(i, $event)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <p class="hint">Adicione até 8 fotos para mostrar quem você é</p>
         </section>
 
-        <!-- Basic Info Section -->
         <section class="section info-section">
             <h2>Informações Básicas</h2>
 
@@ -84,7 +95,6 @@
         </section>
 
 
-        <!-- Gender Section -->
         <section class="section gender-section">
             <h2>Gênero <span class="required" *ngIf="!profile.gender">*</span></h2>
             <p class="subtitle">Como você se identifica?</p>
@@ -113,7 +123,6 @@
             </div>
         </section>
 
-        <!-- Interested In Section -->
         <section class="section interest-in-section">
             <h2>Preferências <span class="required" *ngIf="!profile.interestedIn">*</span></h2>
             <p class="subtitle">Quem você está procurando?</p>
@@ -165,7 +174,6 @@
             </div>
         </section>
 
-        <!-- Interests Tags Section -->
         <section class="section tags-section">
             <h2>Seus Interesses</h2>
             <p class="subtitle">Adicione tags que representam você</p>
@@ -194,6 +202,7 @@
             <button class="save-full-btn" [disabled]="!isFormValid || !isDirty" (click)="saveProfile()">Salvar
                 Perfil</button>
             <button class="logout-btn" (click)="logout()">Sair</button>
+            <button class="help-btn" (click)="openHelpModal()">Dúvidas, problemas ou sugestões?</button>
         </div>
 
         <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
@@ -201,7 +210,6 @@
         <div style="height: 80px;"></div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
     <div class="modal-overlay" *ngIf="showLogoutModal">
         <div class="modal-content">
             <h3>Deseja realmente sair?</h3>
@@ -211,4 +219,39 @@
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" *ngIf="showHelpModal">
+        <div class="modal-content help-modal">
+            <h3>Atendimento</h3>
+
+            <div class="form-group">
+                <label>O que você precisa?</label>
+                <select [(ngModel)]="helpType">
+                    <option value="duvida">Dúvida</option>
+                    <option value="problema">Problema</option>
+                    <option value="sugestao">Sugestão</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Sua mensagem</label>
+                <textarea rows="4" [(ngModel)]="helpMessage" placeholder="Descreva aqui..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeHelpModal()">Cancelar</button>
+                <button class="btn-confirm" (click)="sendHelp()" [disabled]="!helpMessage.trim()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader Test Button & Component -->
+    <button (click)="toggleLoader()"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; padding: 10px 20px; background: #9c27b0; color: white; border: none; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;">
+        Testar Loader
+    </button>
+    <div *ngIf="showLoader" (click)="toggleLoader()"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; cursor: pointer;">
+        <app-loader></app-loader>
+    </div>

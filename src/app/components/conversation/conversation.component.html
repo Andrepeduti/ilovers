@@ -22,6 +22,9 @@
                     <button class="text-danger" (click)="openUnmatchModal()">
                         <i class="fas fa-user-slash"></i> Desfazer Match
                     </button>
+                    <button class="text-danger" (click)="openReportModal()">
+                        <i class="fas fa-flag"></i> Denunciar
+                    </button>
                 </div>
             </div>
         </div>
@@ -52,8 +55,56 @@
             <h3>Desfazer Match?</h3>
             <p>Essa ação não pode ser desfeita. A conversa sumirá da sua lista.</p>
             <div class="modal-actions">
-                <button class="btn-cancel" (click)="closeUnmatchModal()">Cancelar</button>
-                <button class="btn-confirm-danger" (click)="confirmUnmatch()">Sim, desfazer</button>
+                <button class="btn-secondary" (click)="closeUnmatchModal()">Cancelar</button>
+                <button class="btn-primary" (click)="confirmUnmatch()">Sim, desfazer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" *ngIf="showReportModal">
+        <div class="modal-content report-modal">
+            <h3>Denunciar Usuário</h3>
+
+            <div class="form-group">
+                <label>Qual o motivo?</label>
+                <select [(ngModel)]="reportReason">
+                    <option value="Perfil Falso">Perfil Falso</option>
+                    <option value="assédio">Assédio ou Comportamento Abusivo</option>
+                    <option value="Conteúdo Impróprio">Conteúdo Impróprio</option>
+                    <option value="Spam ou Golpe">Spam ou Golpe</option>
+                    <option value="Menor de Idade">Menor de Idade</option>
+                    <option value="Não é funcionário">Não é funcionário</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Comentário (opcional)</label>
+                <textarea rows="3" [(ngModel)]="reportComment" placeholder="Descreva o ocorrido..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Evidências (até 3 fotos)</label>
+                <div class="evidence-grid">
+                    <div class="evidence-slot" *ngFor="let img of reportEvidence; let i = index">
+                        <img [src]="img">
+                        <button class="remove-btn" (click)="removeEvidence(i)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="add-evidence-btn" *ngIf="reportEvidence.length < 3" (click)="evidenceInput.click()">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+                <input type="file" #evidenceInput (change)="onEvidenceSelected($event)" accept="image/*"
+                    style="display: none">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" (click)="closeReportModal()">Cancelar</button>
+                <button class="btn-primary" (click)="submitReport()"
+                    [disabled]="!reportReason || reportEvidence.length === 0">Denunciar</button>
             </div>
         </div>
     </div>

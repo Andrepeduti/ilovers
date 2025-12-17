@@ -9,10 +9,8 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     min-height: 100vh;
     font-family: 'Poppins', sans-serif;
     padding-top: 60px;
-    /* Header height */
 }
 
-/* Header */
 .header {
     position: fixed;
     justify-content: center;
@@ -79,18 +77,87 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     }
 }
 
-/* Photo Grid */
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 10px;
+    align-items: end;
+}
+
+.photo-slot-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+
+    .cover-label {
+        font-size: 0.75rem;
+        color: #ff2d55;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        display: block;
+
+        .info-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            position: relative;
+
+            .info-icon {
+                color: #9c27b0;
+                font-size: 0.8rem;
+                cursor: pointer;
+                transition: color 0.2s;
+
+                &:hover {
+                    color: #7b1fa2;
+                }
+            }
+        }
+
+        .required {
+            color: #ff2d55;
+        }
+
+        .tooltip-balloon {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            width: 160px;
+            text-align: center;
+            z-index: 20;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.2s;
+            font-weight: 400;
+            line-height: 1.4;
+
+            .arrow-down {
+                position: absolute;
+                bottom: -6px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 6px solid #333;
+            }
+        }
+    }
 }
 
 .photo-slot {
     aspect-ratio: 1;
     background-color: #f9f0ff;
-    /* Light purple tint */
     border: 2px dashed #d1c4e9;
     border-radius: 12px;
     display: flex;
@@ -99,11 +166,9 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    /* For remove button positioning */
 
     &.mandatory {
         border: 2px solid #e91e63 !important;
-        /* Reddish border matching header gradient end */
     }
 
     img {
@@ -147,7 +212,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     color: #999;
 }
 
-/* Forms */
 .form-group {
     margin-bottom: 15px;
 
@@ -178,7 +242,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
 
         &:disabled {
             background-color: #e0e0e0;
-            /* Explicit disabled color */
             color: #888;
             cursor: not-allowed;
             border-color: #ccc;
@@ -187,9 +250,7 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
 
     .description-input {
         resize: vertical;
-        /* Permite o redimensionamento apenas na vertical */
         max-width: 100%;
-        /* Impede que a caixa estoure na horizontal */
         padding: 12px;
         border: 1px solid #eee;
         border-radius: 8px;
@@ -215,7 +276,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     gap: 8px;
     margin-top: 5px;
     position: relative;
-    /* Anchor for tooltip */
 
     label {
         margin: 0;
@@ -239,7 +299,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     .tooltip-balloon {
         position: absolute;
         bottom: 30px;
-        /* Float above */
         left: 50%;
         transform: translateX(-50%);
         background: #333;
@@ -280,7 +339,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
 }
 
 
-/* Radio Groups */
 .radio-group {
     display: flex;
     flex-direction: column;
@@ -310,7 +368,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
         font-size: 0.95rem;
         color: #333;
         margin-left: 30px;
-        /* Space for custom radio */
     }
 
     .custom-radio {
@@ -339,7 +396,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
 }
 
 
-/* Tags */
 .selected-tags {
     display: flex;
     flex-wrap: wrap;
@@ -400,7 +456,6 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     gap: 8px;
 }
 
-/* Footer Action */
 .footer-action {
     margin-top: 20px;
 }
@@ -436,7 +491,26 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     }
 }
 
-/* Modal */
+.help-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #9c27b0, #e91e63);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 10px;
+    text-decoration: underline;
+    transition: color 0.2s;
+
+    &:hover {
+        color: #666;
+    }
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -467,6 +541,29 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
         color: #333;
         font-weight: 600;
     }
+
+    &.help-modal {
+        max-width: 400px;
+        text-align: left;
+
+        h3 {
+            text-align: center;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            outline: none;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            resize: none;
+        }
+    }
 }
 
 .modal-actions {
@@ -477,26 +574,39 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     button {
         flex: 1;
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 12px;
         border: none;
         font-weight: 600;
         cursor: pointer;
-        font-size: 0.95rem;
-        transition: transform 0.1s;
+        font-size: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
         &:active {
-            transform: scale(0.95);
+            transform: scale(0.98);
         }
     }
 
     .btn-cancel {
-        background: #f0f0f0;
-        color: #333;
+        background-color: #f08080; // Salmon
+        color: white;
+        box-shadow: 0 4px 10px rgba(240, 128, 128, 0.3);
+
+        &:hover {
+            background-color: #e57373;
+        }
     }
 
     .btn-confirm {
-        background: $primary;
+        background: linear-gradient(135deg, #ff6b6b, #d64aef); // Purple/Pink Gradient
         color: white;
+        box-shadow: 0 4px 15px rgba(214, 74, 239, 0.4);
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
     }
 }
 
@@ -521,17 +631,13 @@ small {
     font-size: 0.75rem;
 }
 
-/* 🔒 DESABILITADO */
 .save-full-btn:disabled {
     background: #e0e0e0;
-    /* cinza claro */
     color: #9e9e9e;
-    /* texto apagado */
     cursor: not-allowed;
     opacity: 0.7;
 }
 
-/* evita hover quando desabilitado */
 .save-full-btn:disabled:hover {
     background: #e0e0e0;
 }

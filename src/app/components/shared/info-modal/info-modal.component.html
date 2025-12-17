@@ -1,0 +1,18 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <header>
+            <h3>{{ title }}</h3>
+            <button class="close-btn" (click)="onClose()">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+
+        <div class="modal-content">
+            <div [innerHTML]="content"></div>
+        </div>
+
+        <footer>
+            <button class="btn-primary" (click)="onClose()">Entendi</button>
+        </footer>
+    </div>
+</div>

@@ -89,7 +89,7 @@
 
             <!-- Bank ID -->
             <div class="form-group">
-                <label>Funcional do Banco</label>
+                <label>Funcional</label>
                 <div class="input-wrapper">
                     <input type="text" (input)="onBankIdInput($event)" inputmode="numeric" [(ngModel)]="bankId"
                         name="bankId" placeholder="Digite sua funcional">
@@ -98,14 +98,18 @@
                 <small *ngIf="bankIdInvalid">
                     O código deve conter 9 números
                 </small>
-                <p style="font-size: 0.75rem; color: #777; margin-top: 5px;">Sua funcional será validada</p>
             </div>
 
             <!-- Terms -->
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="terms" [(ngModel)]="termsAccepted" name="terms">
-                <label for="terms">Eu concordo com os <a href="#">Termos de Uso</a> e <a href="#">Política de
-                        Privacidade</a></label>
+                <label for="terms">Eu concordo com os <a href="#" (click)="openModal('terms', $event)">Termos de Uso</a>
+                    e <a href="#" (click)="openModal('privacy', $event)">Política de Privacidade</a></label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="terms" [(ngModel)]="bankEmployee" name="terms">
+                <label for="terms">Declaro, sob minha responsabilidade, que possuo vínculo profissional com a
+                    instituição à qual este aplicativo se destina.</label>
             </div>
 
             <!-- Submit Button -->
@@ -123,4 +127,7 @@
 
         </form>
     </div>
+
+    <!-- Info Modal -->
+    <app-info-modal *ngIf="showModal" [type]="modalType" (close)="closeModal()"></app-info-modal>
 </div>

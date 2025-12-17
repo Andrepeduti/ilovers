@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { InfoModalComponent } from '../shared/info-modal/info-modal.component';
 
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink, InfoModalComponent],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -17,9 +18,13 @@ export class RegisterComponent {
     confirmPassword = '';
     bankId = '';
     termsAccepted = false;
+    bankEmployee = false;
 
     passwordVisible = false;
     confirmPasswordVisible = false;
+
+    showModal = false;
+    modalType: 'terms' | 'privacy' = 'terms';
 
     passwordRules = {
         minLength: false,
@@ -55,7 +60,7 @@ export class RegisterComponent {
         const passwordValid = Object.values(this.passwordRules).every(r => r);
         const bankIdFilled = !!this.bankId;
 
-        return emailsMatch && passwordsMatch && passwordValid && bankIdFilled && this.termsAccepted;
+        return emailsMatch && passwordsMatch && passwordValid && bankIdFilled && this.termsAccepted && this.bankEmployee;
     }
 
     get passwordsMatch(): boolean {
@@ -82,17 +87,23 @@ export class RegisterComponent {
     onBankIdInput(event: Event) {
         const input = event.target as HTMLInputElement;
 
-        // remove tudo que não for número
         let value = input.value.replace(/\D/g, '');
 
-        // limita a 9 dígitos
         value = value.slice(0, 9);
 
-        // atualiza input e model
         input.value = value;
         this.bankId = value;
 
-        // valida se tem exatamente 9 números
         this.bankIdInvalid = value.length !== 9;
+    }
+
+    openModal(type: 'terms' | 'privacy', event: Event) {
+        event.preventDefault();
+        this.modalType = type;
+        this.showModal = true;
+    }
+
+    closeModal() {
+        this.showModal = false;
     }
 }

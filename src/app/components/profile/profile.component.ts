@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IProfile } from './models/profile.interfaces';
+import { LoaderComponent } from "../shared/loader/loader.component";
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -15,17 +16,14 @@ export class ProfileComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('descriptionArea') descriptionArea!: ElementRef<HTMLTextAreaElement>;
 
-  // Resize State
   isResizing = false;
   private startY = 0;
   private startHeight = 0;
   private resizeMouseMoveListener: any;
   private resizeMouseUpListener: any;
 
-  // Photo slots (8 total)
   photos: (string | null)[] = [null, null, null, null, null, null, null, null];
 
-  // Basic Info
   profile: IProfile = {
     name: '',
     description: '',
@@ -43,37 +41,43 @@ export class ProfileComponent implements OnInit {
     interests: [] as string[]
   };
 
+  newInterest = '';
+
+  availableInterests = ['Fotografia', 'Viagens', 'Música', 'Arte', 'Esportes', 'Culinária', 'Leitura', 'Cinema', 'Tecnologia', 'Natureza', 'Yoga'];
+
+  private originalProfile: any;
+  private originalPhotos: (string | null)[] = [];
+
+  private currentIndexForUpload: number = -1;
+
+  get photoCount(): number {
+    return this.photos.filter(p => p !== null).length;
+  }
+
   get validatePhotos() {
-    // Only the first photo is mandatory now
     return this.photos[0] !== null;
   }
 
   get isFormValid(): boolean {
     const p = this.profile;
 
-    // Basic presence checks
     if (!p.name || !p.age || !p.state || !p.city || !p.gender || !p.interestedIn || !p.description) {
       return false;
     }
 
-    // Age Range Validation (Conditional)
     let isAgeRangeValid = true;
     if (!p.seeAllAges) {
       const min = p.ageRange.min;
       const max = p.ageRange.max;
 
-      // Both must be present AND >= 18
       isAgeRangeValid = (min !== null && min >= 18) && (max !== null && max >= 18);
     }
 
-    // Advanced validations
     const isAgeValid = p.age >= 18;
     const nameHasNoNumbers = !/\d/.test(p.name);
     const cityHasNoNumbers = !/\d/.test(p.city);
-    // State: max 2 chars, no numbers
     const stateValid = p.state.length <= 2 && !/\d/.test(p.state);
 
-    // Validate ONLY first photo is required for Form Validity too
     const photoValid = this.photos[0] !== null;
 
     return isAgeValid && nameHasNoNumbers && cityHasNoNumbers && stateValid && photoValid && isAgeRangeValid;
@@ -85,55 +89,33 @@ export class ProfileComponent implements OnInit {
     return profileChanged || photosChanged;
   }
 
-  // Verify if Age Range is Invalid (min < 18 or max < 18)
-  // Returns TRUE if INVALID (to show error), FALSE if VALID or incomplete
   get isAgeRangeInvalid(): boolean {
     if (this.profile.seeAllAges) return false;
     const min = this.profile.ageRange.min;
     const max = this.profile.ageRange.max;
 
-    // Check if any entered value is < 18
     const minInvalid = min !== null && min < 18;
     const maxInvalid = max !== null && max < 18;
 
     return minInvalid || maxInvalid;
   }
 
-  // Asterisk Logic: Show if range is incomplete OR invalid (unless See All is checked)
   get showAgeRangeAsterisk(): boolean {
     if (this.profile.seeAllAges) return false;
 
     const min = this.profile.ageRange.min;
     const max = this.profile.ageRange.max;
 
-    // Must be present AND >= 18
     const minValid = min !== null && min >= 18;
     const maxValid = max !== null && max >= 18;
 
     return !minValid || !maxValid;
   }
 
-  // Asterisk for Main Age: Show if empty OR < 18
   get showAgeAsterisk(): boolean {
-    // If hidden, maybe not required? But the form requires it. 
-    // Assuming for now it must be valid to remove asterisk.
-    // If hideAge is checked, age is null, so asterisk persists (meaning "Please enter age so we know, even if hidden?").
-    // Actually, onHideAgeChange clears it. If it clears it, user can't enter it?
-    // Let's stick to the rule requested: Remove * if content is correct.
     const age = this.profile.age;
     return !age || age < 18;
   }
-
-  newInterest = '';
-
-  // Predefined interests tags
-  availableInterests = ['Fotografia', 'Viagens', 'Música', 'Arte', 'Esportes', 'Culinária', 'Leitura', 'Cinema', 'Tecnologia', 'Natureza', 'Yoga'];
-
-  // For dirty checking
-  private originalProfile: any;
-  private originalPhotos: (string | null)[] = [];
-
-  private currentIndexForUpload: number = -1;
 
   constructor(private router: Router) { }
 
@@ -142,6 +124,9 @@ export class ProfileComponent implements OnInit {
   }
 
   showLogoutModal = false;
+  showHelpModal = false;
+  helpType = 'duvida';
+  helpMessage = '';
 
   logout() {
     this.showLogoutModal = true;
@@ -156,6 +141,22 @@ export class ProfileComponent implements OnInit {
     this.showLogoutModal = false;
   }
 
+  openHelpModal() {
+    this.showHelpModal = true;
+    this.helpType = 'duvida';
+    this.helpMessage = '';
+  }
+
+  closeHelpModal() {
+    this.showHelpModal = false;
+  }
+
+  sendHelp() {
+    console.log('Sending help request:', { type: this.helpType, message: this.helpMessage });
+    alert('Mensagem enviada com sucesso!');
+    this.closeHelpModal();
+  }
+
   updateOriginalState() {
     this.originalProfile = JSON.parse(JSON.stringify(this.profile));
     this.originalPhotos = [...this.photos];
@@ -163,15 +164,13 @@ export class ProfileComponent implements OnInit {
 
   onlyLetters(event: Event) {
     const input = event.target as HTMLInputElement;
-    // Remove numbers and special chars, allow letters and spaces
     input.value = input.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, '');
-    this.profile.state = input.value; // Sync model
+    this.profile.state = input.value;
   }
 
-  // Strict name input handler to block numbers immediately
   onNameInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    input.value = input.value.replace(/[0-9]/g, ''); // Remove numbers
+    input.value = input.value.replace(/[0-9]/g, '');
     this.profile.name = input.value;
   }
 
@@ -194,29 +193,22 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-
   onAgeInput(event: Event) {
     const input = event.target as HTMLInputElement;
     const rawValue = input.value;
 
-    // verifica se o usuário digitou alguma letra
     const hasLetter = /[a-zA-Z]/.test(rawValue);
 
-    // se digitou letra, NÃO limpa tudo
     if (hasLetter) {
-      // mantém o valor anterior no input
       input.value = this.profile.age ? String(this.profile.age) : '';
       return;
     }
 
-    // só números
     let value = rawValue.replace(/\D/g, '').slice(0, 2);
     input.value = value;
 
-    // atualiza model
     this.profile.age = value ? Number(value) : null;
 
-    // valida idade mínima
     const age = Number(value);
     this.ageInvalid = !!value && age < 18;
   }
@@ -226,15 +218,13 @@ export class ProfileComponent implements OnInit {
     let value = input.value.replace(/\D/g, '').slice(0, 2);
     input.value = value;
 
-    // Update model
     this.profile.ageRange[field] = value ? Number(value) : null;
   }
 
-
   onHideAgeChange() {
     if (this.profile.hideAge) {
-      this.profile.age = null; // Clear age
-      this.ageInvalid = false; // Clear invalid flag
+      this.profile.age = null;
+      this.ageInvalid = false;
     }
   }
 
@@ -246,15 +236,30 @@ export class ProfileComponent implements OnInit {
   }
 
   showAgeInfo = false;
+  showCoverInfo = false;
 
   toggleAgeInfo() {
     this.showAgeInfo = !this.showAgeInfo;
+    if (this.showAgeInfo) this.showCoverInfo = false;
+  }
+
+  toggleCoverInfo() {
+    this.showCoverInfo = !this.showCoverInfo;
+    if (this.showCoverInfo) this.showAgeInfo = false;
+  }
+
+  showLoader = false;
+  toggleLoader() {
+    this.showLoader = !this.showLoader;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (this.showAgeInfo) {
       this.showAgeInfo = false;
+    }
+    if (this.showCoverInfo) {
+      this.showCoverInfo = false;
     }
   }
 
@@ -276,7 +281,7 @@ export class ProfileComponent implements OnInit {
   }
 
   removePhoto(index: number, event: Event) {
-    event.stopPropagation(); // Prevent triggering upload
+    event.stopPropagation();
     this.photos[index] = null;
   }
 
@@ -286,21 +291,18 @@ export class ProfileComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.photos[this.currentIndexForUpload] = e.target.result;
-        // Clear input payload so same file can be selected again if needed
         this.fileInput.nativeElement.value = '';
       };
       reader.readAsDataURL(file);
     }
   }
 
-  // Resize Logic
   startResize(event: MouseEvent) {
-    event.preventDefault(); // Prevent text selection
+    event.preventDefault();
     this.isResizing = true;
     this.startY = event.clientY;
     this.startHeight = this.descriptionArea.nativeElement.offsetHeight;
 
-    // Attach listeners to window to handle dragging outside the element
     this.resizeMouseMoveListener = this.onResize.bind(this);
     this.resizeMouseUpListener = this.stopResize.bind(this);
 
@@ -312,7 +314,7 @@ export class ProfileComponent implements OnInit {
     if (!this.isResizing) return;
 
     const deltaY = event.clientY - this.startY;
-    const newHeight = Math.max(80, this.startHeight + deltaY); // Min height 80px
+    const newHeight = Math.max(80, this.startHeight + deltaY);
     this.descriptionArea.nativeElement.style.height = `${newHeight}px`;
   }
 
@@ -323,13 +325,8 @@ export class ProfileComponent implements OnInit {
   }
 
   saveProfile() {
-    console.log('teste');
     if (!this.isFormValid || !this.isDirty) return;
 
-    console.log('Saving profile:', this.profile, this.photos);
-    // Ideally call a service here
-
-    // Update original state to current state to disable save button until next change
     this.updateOriginalState();
 
     alert('Perfil salvo com sucesso!');

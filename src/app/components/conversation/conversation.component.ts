@@ -27,6 +27,11 @@ export class ConversationComponent implements OnInit {
 
     showMenu = false;
     showUnmatchModal = false;
+    showReportModal = false;
+    reportReason = 'fake_profile';
+    not_employee = ''
+    reportComment = '';
+    reportEvidence: string[] = [];
 
     constructor(
         private router: Router,
@@ -52,9 +57,6 @@ export class ConversationComponent implements OnInit {
             const id = params.get('id');
             if (id) {
                 this.partnerId = +id;
-
-                // PERSISTENCE FIX: 
-                // If chatPartner is null (e.g., refresh or back from profile), fetch from Service
                 if (!this.chatPartner) {
                     const profile = this.profileService.getProfile(this.partnerId);
                     if (profile) {
@@ -63,8 +65,6 @@ export class ConversationComponent implements OnInit {
                             photo: profile.images[0]
                         };
                     } else {
-                        // Optional: Try finding in ChatService if not in ProfileService (though ProfileService has the superset)
-                        // Fallback
                         this.chatPartner = {
                             name: 'Usuário',
                             photo: 'https://i.pravatar.cc/150?u=99'
@@ -76,7 +76,6 @@ export class ConversationComponent implements OnInit {
     }
 
     scrollToBottom(): void {
-        // Implementation for scrolling to bottom
     }
 
     sendMessage() {
@@ -125,5 +124,45 @@ export class ConversationComponent implements OnInit {
 
     goBack() {
         this.router.navigate(['/chat']);
+    }
+
+    openReportModal() {
+        this.showMenu = false;
+        this.showReportModal = true;
+        // Reset form
+        this.reportReason = '';
+        this.reportComment = '';
+        this.reportEvidence = [];
+    }
+
+    closeReportModal() {
+        this.showReportModal = false;
+    }
+
+    onEvidenceSelected(event: any) {
+        if (this.reportEvidence.length >= 3) return;
+
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.reportEvidence.push(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    removeEvidence(index: number) {
+        this.reportEvidence.splice(index, 1);
+    }
+
+    submitReport() {
+        console.log('Report submitted:', {
+            reason: this.reportReason,
+            comment: this.reportComment,
+            evidence: this.reportEvidence
+        });
+        alert('Denúncia enviada com sucesso! Analisaremos o caso.');
+        this.closeReportModal();
     }
 }
