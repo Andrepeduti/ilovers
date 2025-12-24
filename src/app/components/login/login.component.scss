@@ -142,6 +142,39 @@ $text-light: #ffffff;
     position: relative; // For decorative elements potentially inside/around
 }
 
+.error-banner {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 0.8rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: shake 0.4s ease-in-out;
+
+    .material-icons {
+        font-size: 1.2rem;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 
@@ -158,7 +191,7 @@ $text-light: #ffffff;
 
         input {
             width: 100%;
-            padding: 1rem 1rem 1rem 1.2rem;
+            padding: 1rem 3rem 1rem 1.2rem; // Increased right padding for icon
             border-radius: 1rem;
             border: none;
             background: $input-bg;
@@ -232,6 +265,28 @@ $text-light: #ffffff;
 
     .material-icons {
         font-size: 1.2rem;
+    }
+
+    &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 
@@ -383,8 +438,14 @@ $text-light: #ffffff;
         }
 
         .btn-cancel {
-            background: #f0f0f0;
-            color: #333;
+            background-color: transparent;
+            color: #f08080;
+            border: 1px solid #f08080;
+            box-shadow: none;
+
+            &:hover {
+                background-color: rgba(240, 128, 128, 0.1);
+            }
         }
 
         .btn-confirm {
@@ -421,5 +482,59 @@ $text-light: #ffffff;
     to {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+// Help Modal & Button Styles
+.help-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 5px;
+    text-decoration: underline;
+    transition: color 0.2s;
+    font-weight: 500;
+
+    &:hover {
+        color: #ddd;
+    }
+}
+
+.modal-content.help-modal {
+    max-width: 400px;
+    text-align: left;
+
+    h3 {
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .full-width-select,
+    .full-width-textarea {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 1rem;
+        background-color: $input-bg;
+        outline: none;
+        font-family: inherit;
+        font-size: 1rem;
+        color: #333;
+
+        &:focus {
+            outline: 2px solid #a855f7;
+            background-color: #fff;
+        }
+    }
+
+    textarea {
+        resize: none;
     }
 }

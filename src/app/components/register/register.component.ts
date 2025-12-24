@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { InfoModalComponent } from '../shared/info-modal/info-modal.component';
+import { AuthService } from '../../core/services/auth.service';
+
 
 @Component({
     selector: 'app-register',
@@ -19,7 +21,7 @@ export class RegisterComponent {
     bankId = '';
     termsAccepted = false;
     bankEmployee = false;
-
+    bankIdInvalid = false;
     passwordVisible = false;
     confirmPasswordVisible = false;
 
@@ -34,8 +36,10 @@ export class RegisterComponent {
     };
 
     isPasswordDirty = false;
+    registerError = '';
+    isLoading = false;
 
-    constructor(private router: Router) { }
+    constructor(private router: Router, private authService: AuthService) { }
 
     togglePasswordVisibility() {
         this.passwordVisible = !this.passwordVisible;
@@ -76,13 +80,38 @@ export class RegisterComponent {
     }
 
     onCreateAccount() {
+        this.registerError = '';
         if (this.isFormValid) {
-            console.log('Account created for:', this.email, this.bankId);
-            this.router.navigate(['/profile']);
+            this.isLoading = true;
+            const registrationData = {
+                email: this.email,
+                password: this.password,
+                employeeId: this.bankId,
+                acceptTerms: this.termsAccepted,
+                bankEmployee: this.bankEmployee,
+            };
+
+            this.authService.register(registrationData).subscribe({
+                next: () => {
+                    // isLoading stays true while navigating
+                    this.router.navigate(['/profile']);
+                },
+                error: (err) => {
+                    this.isLoading = false;
+                    console.error('Registration failed', err);
+                    const code = err.error?.error?.code;
+
+                    if (code === 'EMAIL_ALREADY_EXISTS') {
+                        this.registerError = 'Este e-mail já está em uso.';
+                    } else if (code === 'EMPLOYEE_ID_ALREADY_EXISTS') {
+                        this.registerError = 'ID do funcionário já está em uso.';
+                    } else {
+                        this.registerError = 'Falha no cadastro. Verifique os dados e tente novamente.';
+                    }
+                }
+            });
         }
     }
-
-    bankIdInvalid = false;
 
     onBankIdInput(event: Event) {
         const input = event.target as HTMLInputElement;

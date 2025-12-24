@@ -32,7 +32,7 @@ small {
 
 .title-section {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     h2 {
         font-size: 1.5rem;
@@ -44,6 +44,39 @@ small {
     p {
         color: #666;
         font-size: 0.9rem;
+    }
+}
+
+.error-banner {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 0.8rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: shake 0.4s ease-in-out;
+
+    .material-icons {
+        font-size: 1.2rem;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
     }
 }
 

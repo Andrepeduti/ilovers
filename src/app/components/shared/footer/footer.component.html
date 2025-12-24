@@ -4,9 +4,15 @@
         <span>Perfil</span>
     </button>
 
-    <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'" (click)="navigateTo('feed')">
+    <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'"
+        [class.disabled-nav]="!authService.isProfileComplete(authService.currentUser())" (click)="navigateTo('feed')">
         <i class="fas fa-heart"></i>
         <span>Feed</span>
+
+        <div class="tooltip-balloon" *ngIf="showDisabledTooltip" (click)="$event.stopPropagation()">
+            <p>É necessário preencher todo o perfil para acessar o feed.</p>
+            <div class="arrow-down"></div>
+        </div>
     </button>
 
     <button class="nav-btn" [class.active]="activeTab === 'chat'" (click)="navigateTo('chat')">

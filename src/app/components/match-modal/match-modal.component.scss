@@ -164,9 +164,9 @@
 }
 
 .btn-secondary {
-    background: #f38b8b;
-    color: #444;
-    border: none;
+    background: transparent;
+    color: #f38b8b;
+    border: 1px solid #f38b8b;
     padding: 16px;
     border-radius: 16px;
     font-size: 1rem;
@@ -176,7 +176,7 @@
     width: 100%;
 
     &:hover {
-        background: #ececec;
+        background: rgba(243, 139, 139, 0.1);
     }
 }
 

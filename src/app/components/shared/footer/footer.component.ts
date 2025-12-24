@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, Event } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-footer',
@@ -15,7 +16,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   activeTab: string = 'feed';
   private routerSubscription: Subscription | undefined;
 
-  constructor(private router: Router) { }
+  showDisabledTooltip = false;
+
+  constructor(private router: Router, public authService: AuthService) { }
 
   ngOnInit() {
     this.updateActiveTab(this.router.url);
@@ -47,11 +50,24 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (tab === 'profile') {
       this.router.navigate(['/profile']);
     } else if (tab === 'feed') {
+      const user = this.authService.currentUser();
+      if (!this.authService.isProfileComplete(user)) {
+        this.showDisabledTooltip = !this.showDisabledTooltip;
+        return;
+      }
       this.router.navigate(['/feed']);
     } else if (tab === 'chat') {
       this.router.navigate(['/chat']);
-      // console.log('Navigate to Chat');
-      // this.activeTab = 'chat'; // Manually set for now as route might not change
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.showDisabledTooltip) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.feed-btn')) {
+        this.showDisabledTooltip = false;
+      }
     }
   }
 }

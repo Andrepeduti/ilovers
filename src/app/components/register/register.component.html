@@ -6,6 +6,13 @@
         </div>
 
         <form (ngSubmit)="onCreateAccount()">
+
+            <!-- Error Message -->
+            <div class="error-banner" *ngIf="registerError">
+                <span class="material-icons">error_outline</span>
+                {{ registerError }}
+            </div>
+
             <!-- Email -->
             <div class="form-group">
                 <label>E-mail</label>
@@ -113,7 +120,9 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="create-btn" [disabled]="!isFormValid">Criar Conta</button>
+            <button type="submit" class="create-btn" [disabled]="!isFormValid || isLoading">
+                {{ isLoading ? 'Carregando...' : 'Criar Conta' }}
+            </button>
 
             <!-- Login Link -->
             <div class="footer-link">

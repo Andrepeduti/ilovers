@@ -1,6 +1,6 @@
 export interface IProfile {
-    name: string;
-    description: string;
+    displayName: string;
+    bio: string;
     age: number | null;
     hideAge: boolean;
     state: string;
@@ -12,5 +12,7 @@ export interface IProfile {
         max: number | null;
     };
     seeAllAges: boolean;
-    interests: string[];
+    hobbies: string[];
+    photos: (string | null)[];
+    isComplete?: boolean;
 }

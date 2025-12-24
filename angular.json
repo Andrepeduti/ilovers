@@ -50,13 +50,24 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
             },
             "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "homolog": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.homolog.ts"
+                }
+              ],
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -72,12 +83,16 @@
             },
             "development": {
               "buildTarget": "ILovers:build:development"
+            },
+            "homolog": {
+              "buildTarget": "ILovers:build:homolog"
             }
           },
           "defaultConfiguration": "development",
           "options": {
             "host": "127.0.0.1",
-            "port": 4200
+            "port": 4200,
+            "proxyConfig": "proxy.conf.json"
           }
         },
         "extract-i18n": {

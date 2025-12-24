@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Message } from './models/conversation.interface';
 import { ChatService } from '../../services/chat.service';
-import { ProfileService } from '../../services/profile.service';
 
 @Component({
     selector: 'app-conversation',
@@ -35,9 +34,7 @@ export class ConversationComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private route: ActivatedRoute,
         private chatService: ChatService,
-        private profileService: ProfileService
     ) {
         // Try to get data from State (Navigation) first
         const navigation = this.router.getCurrentNavigation();
@@ -51,28 +48,6 @@ export class ConversationComponent implements OnInit {
 
     ngOnInit() {
         this.scrollToBottom();
-
-        // Subscribe to params to get ID
-        this.route.paramMap.subscribe(params => {
-            const id = params.get('id');
-            if (id) {
-                this.partnerId = +id;
-                if (!this.chatPartner) {
-                    const profile = this.profileService.getProfile(this.partnerId);
-                    if (profile) {
-                        this.chatPartner = {
-                            name: profile.name,
-                            photo: profile.images[0]
-                        };
-                    } else {
-                        this.chatPartner = {
-                            name: 'Usuário',
-                            photo: 'https://i.pravatar.cc/150?u=99'
-                        };
-                    }
-                }
-            }
-        });
     }
 
     scrollToBottom(): void {

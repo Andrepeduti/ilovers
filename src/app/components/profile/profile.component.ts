@@ -1,9 +1,12 @@
-import { Component, ViewChild, ElementRef, OnInit, HostListener } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IProfile } from './models/profile.interfaces';
-import { LoaderComponent } from "../shared/loader/loader.component";
+import { AuthService } from '../../core/services/auth.service';
+import { LoaderComponent } from '../shared/loader/loader.component';
+import { ImageService } from '../../core/services/image.service';
+import { Observable, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -21,12 +24,15 @@ export class ProfileComponent implements OnInit {
   private startHeight = 0;
   private resizeMouseMoveListener: any;
   private resizeMouseUpListener: any;
+  private authService = inject(AuthService);
 
   photos: (string | null)[] = [null, null, null, null, null, null, null, null];
-
+  showAgeInfo = false;
+  showCoverInfo = false;
+  showLoader = false;
   profile: IProfile = {
-    name: '',
-    description: '',
+    displayName: '',
+    bio: '',
     age: null,
     hideAge: false,
     state: '',
@@ -38,10 +44,18 @@ export class ProfileComponent implements OnInit {
       max: null
     },
     seeAllAges: false,
-    interests: [] as string[]
+    hobbies: [] as string[],
+    photos: [] as (string | null)[]
   };
-
-  newInterest = '';
+  cachedProfile = this.authService.currentUser;
+  newHobby = '';
+  showLogoutModal = false;
+  showHelpModal = false;
+  helpType = 'duvida';
+  helpMessage = '';
+  ageInvalid = false;
+  requiredAgeInput = true;
+  saveError = '';
 
   availableInterests = ['Fotografia', 'Viagens', 'Música', 'Arte', 'Esportes', 'Culinária', 'Leitura', 'Cinema', 'Tecnologia', 'Natureza', 'Yoga'];
 
@@ -54,6 +68,10 @@ export class ProfileComponent implements OnInit {
     return this.photos.filter(p => p !== null).length;
   }
 
+  get suggestedInterests(): string[] {
+    return this.availableInterests.filter(i => !this.profile.hobbies.includes(i));
+  }
+
   get validatePhotos() {
     return this.photos[0] !== null;
   }
@@ -61,7 +79,7 @@ export class ProfileComponent implements OnInit {
   get isFormValid(): boolean {
     const p = this.profile;
 
-    if (!p.name || !p.age || !p.state || !p.city || !p.gender || !p.interestedIn || !p.description) {
+    if (!p.displayName || !p.age || !p.state || !p.city || !p.gender || !p.interestedIn || !p.bio) {
       return false;
     }
 
@@ -74,7 +92,7 @@ export class ProfileComponent implements OnInit {
     }
 
     const isAgeValid = p.age >= 18;
-    const nameHasNoNumbers = !/\d/.test(p.name);
+    const nameHasNoNumbers = !/\d/.test(p.displayName);
     const cityHasNoNumbers = !/\d/.test(p.city);
     const stateValid = p.state.length <= 2 && !/\d/.test(p.state);
 
@@ -117,22 +135,81 @@ export class ProfileComponent implements OnInit {
     return !age || age < 18;
   }
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router
+  ) { }
 
   ngOnInit() {
-    this.updateOriginalState();
+    this.checkAndLoadProfile();
   }
 
-  showLogoutModal = false;
-  showHelpModal = false;
-  helpType = 'duvida';
-  helpMessage = '';
+  checkAndLoadProfile() {
+    if (this.cachedProfile()) {
+      console.log('Loading profile from signal cache', this.cachedProfile());
+      this.populateForm(this.cachedProfile());
+      this.updateOriginalState();
+    } else {
+      // Fallback to API
+      this.loadProfile();
+    }
+  }
+
+  loadProfile() {
+    this.toggleLoader();
+    this.authService.getProfile().subscribe({
+      next: (response) => {
+        console.log('Profile loaded:', response);
+        if (response && response.data) {
+          this.populateForm(response.data);
+        }
+        this.updateOriginalState();
+        this.toggleLoader();
+      },
+      error: (err) => {
+        console.error('Error loading profile:', err);
+        this.toggleLoader();
+        this.updateOriginalState();
+      }
+    });
+  }
+
+
+
+  populateForm(data: any) {
+    this.profile = {
+      ...this.profile,
+      displayName: data.name || data.displayName || '', // Map 'name' from backend
+      bio: data.bio || '',
+      age: data.age || null,
+      hideAge: data.hideAge || false,
+      state: data.state || '',
+      city: data.city || '',
+      gender: data.gender || '',
+      interestedIn: data.interestedIn || '',
+      hobbies: [...(data.hobbies || [])],
+      ageRange: {
+        min: data.ageRange?.min || null,
+        max: data.ageRange?.max || null
+      },
+      seeAllAges: data.seeAllAges || false,
+      isComplete: data.isComplete
+    };
+
+    const images = data.images || data.photos; // Map 'images' from backend
+    if (images && Array.isArray(images)) {
+      this.photos = [...images, ...Array(8).fill(null)].slice(0, 8);
+    } else {
+      this.photos = Array(8).fill(null);
+    }
+    this.profile.photos = this.photos; // Ensure usage
+  }
 
   logout() {
     this.showLogoutModal = true;
   }
 
   confirmLogout() {
+    this.authService.logout();
     this.showLogoutModal = false;
     this.router.navigate(['/login']);
   }
@@ -153,7 +230,6 @@ export class ProfileComponent implements OnInit {
 
   sendHelp() {
     console.log('Sending help request:', { type: this.helpType, message: this.helpMessage });
-    alert('Mensagem enviada com sucesso!');
     this.closeHelpModal();
   }
 
@@ -171,11 +247,8 @@ export class ProfileComponent implements OnInit {
   onNameInput(event: Event) {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/[0-9]/g, '');
-    this.profile.name = input.value;
+    this.profile.displayName = input.value;
   }
-
-  ageInvalid = false;
-  requiredAgeInput = true;
 
   blockNonNumeric(event: KeyboardEvent) {
     const allowedKeys = [
@@ -223,7 +296,6 @@ export class ProfileComponent implements OnInit {
 
   onHideAgeChange() {
     if (this.profile.hideAge) {
-      this.profile.age = null;
       this.ageInvalid = false;
     }
   }
@@ -235,9 +307,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  showAgeInfo = false;
-  showCoverInfo = false;
-
   toggleAgeInfo() {
     this.showAgeInfo = !this.showAgeInfo;
     if (this.showAgeInfo) this.showCoverInfo = false;
@@ -248,7 +317,6 @@ export class ProfileComponent implements OnInit {
     if (this.showCoverInfo) this.showAgeInfo = false;
   }
 
-  showLoader = false;
   toggleLoader() {
     this.showLoader = !this.showLoader;
   }
@@ -263,16 +331,16 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  addInterest(interest?: string) {
-    const value = interest || this.newInterest.trim();
-    if (value && !this.profile.interests.includes(value)) {
-      this.profile.interests.push(value);
+  addHobby(hobby?: string) {
+    const value = hobby || this.newHobby.trim();
+    if (value && !this.profile.hobbies.includes(value)) {
+      this.profile.hobbies.push(value);
     }
-    this.newInterest = '';
+    this.newHobby = '';
   }
 
-  removeInterest(interest: string) {
-    this.profile.interests = this.profile.interests.filter(i => i !== interest);
+  removeHobby(hobby: string) {
+    this.profile.hobbies = this.profile.hobbies.filter(h => h !== hobby);
   }
 
   onPhotoClick(index: number) {
@@ -283,14 +351,27 @@ export class ProfileComponent implements OnInit {
   removePhoto(index: number, event: Event) {
     event.stopPropagation();
     this.photos[index] = null;
+    this.pendingFiles.delete(index);
   }
+
+  private imageService = inject(ImageService);
+
+  private pendingFiles: Map<number, File> = new Map();
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file && this.currentIndexForUpload !== -1) {
+      if (file.size > 5 * 1024 * 1024) {
+        this.saveError = 'A imagem deve ter no máximo 5MB.';
+        this.fileInput.nativeElement.value = '';
+        return;
+      }
+
+      // Show local preview immediately
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.photos[this.currentIndexForUpload] = e.target.result;
+        this.pendingFiles.set(this.currentIndexForUpload, file);
         this.fileInput.nativeElement.value = '';
       };
       reader.readAsDataURL(file);
@@ -327,8 +408,83 @@ export class ProfileComponent implements OnInit {
   saveProfile() {
     if (!this.isFormValid || !this.isDirty) return;
 
-    this.updateOriginalState();
+    this.toggleLoader();
+    this.saveError = ''; // Clear previous errors
 
-    alert('Perfil salvo com sucesso!');
+    // 1. Upload Pending Files first
+    if (this.pendingFiles.size > 0) {
+      const uploadObservables: Observable<any>[] = [];
+      const indexes: number[] = [];
+
+      this.pendingFiles.forEach((file, index) => {
+        indexes.push(index);
+        uploadObservables.push(this.imageService.uploadImage(file));
+      });
+
+      // Use forkJoin to upload all in parallel
+      forkJoin(uploadObservables).subscribe({
+        next: (urls: string[]) => {
+          // Replace local previews with real S3 URLs
+          urls.forEach((url, i) => {
+            const photoIndex = indexes[i];
+            this.photos[photoIndex] = url;
+          });
+
+          // Clear pending files as they are uploaded
+          this.pendingFiles.clear();
+
+          // 2. Now save the profile with real URLs
+          this.performProfileUpdate();
+        },
+        error: (err) => {
+          console.error('Batch upload error:', err);
+          this.toggleLoader();
+          this.saveError = 'Erro ao enviar algumas imagens. Tente novamente.';
+        }
+      });
+    } else {
+      // No new images, just save text data
+      this.performProfileUpdate();
+    }
+  }
+
+  private performProfileUpdate() {
+    this.profile.photos = this.photos;
+
+    console.log('Saving profile:', this.profile);
+
+    this.authService.updateProfile(this.profile).subscribe({
+      next: (response: any) => {
+        // Update with the full response from backend to ensure we have the latest flags (like isComplete)
+        if (response && response.data) {
+          this.populateForm(response.data);
+          this.authService.currentUser.set(response.data);
+        } else {
+          this.authService.currentUser.set(this.profile);
+        }
+
+        this.updateOriginalState();
+        this.toggleLoader();
+        this.saveError = '';
+        // Optional: Show success message or tooltip
+      },
+      error: (err) => {
+        console.error('Error saving profile:', err);
+        this.toggleLoader();
+
+        const errorData = err.error?.error;
+        if (errorData) {
+          if (errorData.code === 'VALIDATION_ERROR' && errorData.validationErrors?.length > 0) {
+            this.saveError = errorData.validationErrors[0].message;
+          } else if (errorData.message) {
+            this.saveError = errorData.message;
+          } else {
+            this.saveError = 'Não foi possível salvar o perfil. Tente novamente.';
+          }
+        } else {
+          this.saveError = 'Não foi possível salvar o perfil. Verifique sua conexão e tente novamente.';
+        }
+      }
+    });
   }
 }

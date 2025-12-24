@@ -42,8 +42,8 @@
             <h2>Informações Básicas</h2>
 
             <div class="form-group">
-                <label>Nome <span class="required" *ngIf="!profile.name">*</span></label>
-                <input type="text" [(ngModel)]="profile.name" (input)="onNameInput($event)">
+                <label>Nome <span class="required" *ngIf="!profile.displayName">*</span></label>
+                <input type="text" [(ngModel)]="profile.displayName" (input)="onNameInput($event)">
             </div>
 
             <div class="row">
@@ -51,8 +51,7 @@
                     <label>Idade <span class="required" *ngIf="showAgeAsterisk">*</span></label>
                     <div class="age-input-group">
                         <input type="text" inputmode="numeric" required [ngModel]="profile.age"
-                            (ngModelChange)="profile.age = $event" (keydown)="blockNonNumeric($event)"
-                            (input)="onAgeInput($event)">
+                            (keydown)="blockNonNumeric($event)" (input)="onAgeInput($event)">
 
                         <small *ngIf="ageInvalid">
                             Idade minima: 18 anos
@@ -86,10 +85,10 @@
         </section>
 
         <section class="section info-section">
-            <h2>Conte mais sobre você <span class="required" *ngIf="!profile.description">*</span></h2>
+            <h2>Conte mais sobre você <span class="required" *ngIf="!profile.bio">*</span></h2>
 
             <div class="form-group description-wrapper">
-                <textarea class="description-input" [(ngModel)]="profile.description"
+                <textarea class="description-input" [(ngModel)]="profile.bio"
                     placeholder="Descrição que aparecerá no seu perfil"></textarea>
             </div>
         </section>
@@ -179,20 +178,20 @@
             <p class="subtitle">Adicione tags que representam você</p>
 
             <div class="selected-tags">
-                <span class="tag selected" *ngFor="let tag of profile.interests">
-                    {{ tag }} <i class="fas fa-times" (click)="removeInterest(tag)"></i>
+                <span class="tag selected" *ngFor="let tag of profile.hobbies">
+                    {{ tag }} <i class="fas fa-times" (click)="removeHobby(tag)"></i>
                 </span>
             </div>
 
             <div class="input-group-append">
-                <input type="text" maxlength="15" [(ngModel)]="newInterest" (keydown.enter)="addInterest()"
+                <input type="text" maxlength="15" [(ngModel)]="newHobby" (keydown.enter)="addHobby()"
                     placeholder="Adicionar interesse...">
-                <button class="add-btn" (click)="addInterest()">+</button>
+                <button class="add-btn" (click)="addHobby()">+</button>
             </div>
 
             <p class="hint">Mais usados</p>
             <div class="suggested-tags">
-                <button class="tag suggestion" *ngFor="let tag of availableInterests" (click)="addInterest(tag)">
+                <button class="tag suggestion" *ngFor="let tag of suggestedInterests" (click)="addHobby(tag)">
                     {{ tag }}
                 </button>
             </div>

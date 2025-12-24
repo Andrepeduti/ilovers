@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:hom": "ng build --configuration homolog",
+    "start:hom": "ng serve --configuration homolog"
   },
   "private": true,
   "dependencies": {
