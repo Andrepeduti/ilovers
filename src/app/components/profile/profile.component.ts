@@ -202,6 +202,11 @@ export class ProfileComponent implements OnInit {
       this.photos = Array(8).fill(null);
     }
     this.profile.photos = this.photos; // Ensure usage
+
+    // Update Signal
+    if (this.photos[0]) {
+      this.authService.currentCoverPhoto.set(this.photos[0]);
+    }
   }
 
   logout() {
@@ -459,8 +464,15 @@ export class ProfileComponent implements OnInit {
         if (response && response.data) {
           this.populateForm(response.data);
           this.authService.currentUser.set(response.data);
+
+          if (response.data.photos && response.data.photos.length > 0) {
+            this.authService.currentCoverPhoto.set(response.data.photos[0]);
+          }
         } else {
           this.authService.currentUser.set(this.profile);
+          if (this.profile.photos && this.profile.photos.length > 0) {
+            this.authService.currentCoverPhoto.set(this.profile.photos[0]);
+          }
         }
 
         this.updateOriginalState();

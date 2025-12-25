@@ -40,7 +40,7 @@ export class ChatService {
     }
 
     // Unified remove method
-    unmatch(id: number) {
+    unmatch(id: string | number) {
         // Remove from matches
         this.matches = this.matches.filter(m => m.id !== id);
         this.matchesSubject.next([...this.matches]);

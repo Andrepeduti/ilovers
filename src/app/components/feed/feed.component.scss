@@ -69,11 +69,11 @@
 .profile-info {
     position: absolute;
     bottom: 200px;
-    /* Above buttons */
     left: 40px;
     right: 40px;
     color: white;
     z-index: 10;
+    /* Space for info button removed as it's now inline-block below */
 }
 
 .profile-info h1 {
@@ -81,14 +81,30 @@
     font-weight: 700;
     margin-bottom: 5px;
     display: flex;
-    align-items: center;
+    align-items: baseline;
+    /* Align text properly */
     gap: 10px;
+    width: 100%;
+
+    .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+        /* Allow shrinking */
+        min-width: 0;
+        /* Enable flex item truncation */
+    }
+
+    .age {
+        flex-shrink: 0;
+        /* Prevent age from shrinking */
+        font-weight: 400;
+        font-size: 1.8rem;
+    }
 }
 
-.age {
-    font-weight: 400;
-    font-size: 1.8rem;
-}
+
 
 .status-dot {
     width: 10px;
@@ -97,12 +113,6 @@
     border-radius: 50%;
     border: 2px solid white;
     display: inline-block;
-}
-
-.distance {
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-    opacity: 0.9;
 }
 
 .tags {
@@ -123,21 +133,38 @@
     gap: 5px;
 }
 
+.location-row {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    /* Space between text and button */
+    margin-bottom: 15px;
+}
+
+.distance {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+    /* Remove all margins for proper flex alignment */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .info-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    /* Slightly smaller to fit nicely */
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    flex-shrink: 0;
+    /* Prevent button from squishing */
 }
 
 /* Actions Bar Styles (Transparent Background) */
@@ -457,12 +484,15 @@
 }
 
 .tag-detail {
-    background: white;
-    border: 1px solid #ddd;
+    background: linear-gradient(45deg, #ab47bc, #ef5350);
+    color: white;
+    border: none;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.9rem;
-    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .details-actions {

@@ -1,12 +1,12 @@
 export interface Match {
-    id: number;
+    id: string | number;
     name: string;
     photo: string;
     viewed?: boolean;
 }
 
 export interface Conversation {
-    id: number;
+    id: string | number;
     name: string;
     photo: string;
     lastMessage: string;

@@ -40,7 +40,7 @@ export class ChatComponent {
         });
     }
 
-    openChat(id: number) {
+    openChat(id: string | number) {
         const conversation = this.conversations.find(c => c.id === id);
         const match = this.matches.find(m => m.id === id);
 

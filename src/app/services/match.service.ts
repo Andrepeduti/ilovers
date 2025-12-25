@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface MatchProfile {
-    id: number;
+    id: string | number;
     name: string;
     photo: string;
     viewed?: boolean;

@@ -15,13 +15,14 @@
 
         <div class="avatars-container">
             <div class="avatar-wrapper">
-                <img [src]="myPhoto" alt="Me">
+                <img [src]="myPhoto" (error)="myPhoto = 'assets/user_placeholder.png'" alt="Me">
             </div>
             <div class="small-heart">
                 <i class="fas fa-heart"></i>
             </div>
             <div class="avatar-wrapper">
-                <img [src]="matchedProfile?.photo" [alt]="matchedProfile?.name">
+                <img [src]="matchedProfile?.photo" (error)="matchedProfile!.photo = 'assets/user_placeholder.png'"
+                    [alt]="matchedProfile?.name">
             </div>
         </div>
 

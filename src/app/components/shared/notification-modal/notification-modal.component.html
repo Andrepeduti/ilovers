@@ -1,0 +1,22 @@
+<div class="notification-overlay" (click)="onClose()">
+    <div class="notification-card" (click)="$event.stopPropagation()">
+        <div class="star-icon">
+            <i class="fas fa-star"></i>
+        </div>
+
+        <h2>Uau! Super Like!</h2>
+        <p>Você recebeu um Super Like de <strong>{{ data?.fromUserName }}</strong></p>
+
+        <div class="avatar-container">
+            <img [src]="data?.fromUserPhoto || 'assets/user_placeholder.png'"
+                (error)="data!.fromUserPhoto = 'assets/user_placeholder.png'" alt="User Photo">
+            <div class="badge">
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+
+        <button class="btn-primary" (click)="onClose()">
+            Que legal!
+        </button>
+    </div>
+</div>

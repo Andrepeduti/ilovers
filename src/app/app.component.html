@@ -1,2 +1,4 @@
 <router-outlet></router-outlet>
 <app-footer *ngIf="showFooter"></app-footer>
+<app-notification-modal *ngIf="showNotificationModal" [data]="currentNotification" (close)="closeNotification()">
+</app-notification-modal>

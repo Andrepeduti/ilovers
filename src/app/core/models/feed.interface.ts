@@ -1,6 +1,19 @@
-import { User } from './user.interface';
+export interface FeedProfile {
+    id: string;
+    displayName: string;
+    age: number;
+    city: string;
+    state: string;
+    bio: string;
+    mainPhotoUrl: string;
+    photos: string[];
+    hobbies: string[];
+}
 
-export interface FeedProfile extends User {
-    distance: number;
-    matchPercentage?: number;
+export interface FeedResponse {
+    profiles: FeedProfile[];
+}
+
+export interface InteractionResponse {
+    isMatch: boolean;
 }

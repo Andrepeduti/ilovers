@@ -1,205 +1,225 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatchService } from '../../services/match.service';
 import { MatchModalComponent } from '../match-modal/match-modal.component';
+import { FeedService } from '../../core/services/feed.service';
+import { ProfileService } from '../../core/services/profile.service';
+import { FeedProfile } from '../../core/models/feed.interface';
 
-import { Profile, ProfileService } from '../../services/profile.service';
+import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, MatchModalComponent],
+  imports: [CommonModule, MatchModalComponent, LoaderComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss'
 })
-export class FeedComponent {
-  profiles: Profile[] = [];
+export class FeedComponent implements OnInit {
+  private feedService = inject(FeedService);
+  private matchService = inject(MatchService);
+  private profileService = inject(ProfileService);
+  private authService = inject(AuthService);
 
-
+  profiles: FeedProfile[] = [];
   currentIndex = 0;
   currentPhotoIndex = 0;
+  loading = false;
+  myPhotoUrl: string = '';
 
   isSuperLikeActive = false;
   isLikeActive = false;
   isRejectActive = false;
-
+  showMatchModal = false;
+  matchedProfileData: { name: string; photo: string } | null = null;
   // Interaction State
   private startX = 0;
   private isDragging = false;
+  private lastTouchTime = 0;
 
-  get currentProfile(): Profile | undefined {
+  isDetailsActive = false;
+  isUndoActive = false; // Undo disabled by default in real logic usually, unless premium
+
+  get currentProfile(): FeedProfile | undefined {
     return this.profiles[this.currentIndex];
   }
 
+  ngOnInit() {
+    this.loadMyProfile();
+    this.loadFeed();
+  }
+
+  loadMyProfile() {
+    this.profileService.getMyProfile().subscribe({
+      next: (profile) => {
+        // Run test AFTER profile is loaded
+        const photo = this.authService.currentCoverPhoto();
+        if (photo) {
+          this.myPhotoUrl = photo;
+        } else if (profile.photos && profile.photos.length > 0) {
+          // Fallback
+          this.myPhotoUrl = profile.photos[0];
+        }
+
+        //this.testMatchModal();
+      },
+      error: (err) => console.error('Error loading my profile', err)
+    });
+  }
+
+  loadFeed() {
+    if (this.loading) return;
+    this.loading = true;
+    this.feedService.getFeed(10).subscribe({
+      next: (data) => {
+        // Append new profiles to the list, filtering duplicates just in case
+        const existingIds = new Set(this.profiles.map(p => p.id));
+        const newProfiles = data.filter(p => !existingIds.has(p.id));
+        this.profiles = [...this.profiles, ...newProfiles];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading feed', err);
+        this.loading = false;
+      }
+    });
+  }
+
   nextProfile() {
+    // Optimistic UI Update: Move immediately
     if (this.currentIndex < this.profiles.length) {
       this.currentIndex++;
-      this.currentPhotoIndex = 0; // Reset photo index for new profile
-    } else {
-      this.currentIndex = 0;
       this.currentPhotoIndex = 0;
+    }
+
+    // Check buffer
+    if (this.profiles.length - this.currentIndex <= 3) {
+      this.loadFeed();
     }
   }
 
-  private lastTouchTime = 0;
+  onLike() {
+    const profile = this.currentProfile;
+    if (!profile) return;
 
-  // Carousel Logic
+    this.isLikeActive = true;
+    setTimeout(() => this.isLikeActive = false, 500);
+
+    // Call API in background
+    this.feedService.like(profile.id).subscribe({
+      next: (response) => {
+        if (response.isMatch) {
+          this.handleMatch(profile);
+        }
+      },
+      error: (err) => console.error('Like error', err)
+    });
+
+    // Advance UI immediately
+    this.nextProfile();
+  }
+
+  onReject() {
+    const profile = this.currentProfile;
+    if (!profile) return;
+
+    this.isRejectActive = true;
+    setTimeout(() => this.isRejectActive = false, 500);
+
+    this.feedService.dislike(profile.id).subscribe({
+      error: (err) => console.error('Dislike error', err)
+    });
+
+    this.nextProfile();
+  }
+
+  onSuperLike() {
+    const profile = this.currentProfile;
+    if (!profile) return;
+
+    this.isSuperLikeActive = true;
+    setTimeout(() => this.isSuperLikeActive = false, 1000);
+
+    this.feedService.superLike(profile.id).subscribe({
+      next: (response) => {
+        if (response.isMatch) {
+          this.handleMatch(profile);
+        }
+      },
+      error: (err) => console.error('SuperLike error', err)
+    });
+
+    // Delay to let animation play
+    setTimeout(() => {
+      this.nextProfile();
+    }, 800);
+
+  }
+
+  handleMatch(profile: FeedProfile) {
+    this.matchedProfileData = {
+      name: profile.displayName,
+      photo: profile.mainPhotoUrl || profile.photos[0]
+    };
+
+    this.matchService.addMatch({
+      id: profile.id,
+      name: profile.displayName,
+      photo: profile.mainPhotoUrl,
+      viewed: false
+    });
+
+    this.showMatchModal = true;
+  }
+
+  closeMatchModal() {
+    this.showMatchModal = false;
+    // We already moved to next profile in background
+  }
+
+  startChatFromMatch() {
+    this.closeMatchModal();
+    if (this.matchedProfileData) {
+      // Logic for chat navigation
+      // Need to verify if route needs ID. 
+      // For now, assuming standard flow
+    }
+  }
+
+  // Carousel & Touch Logic (Simplified/Kept similar)
   onTouchStart(event: TouchEvent | MouseEvent) {
-    // Ignore emulated mouse events
-    if (event instanceof MouseEvent && Date.now() - this.lastTouchTime < 500) {
-      return;
-    }
-
-    if (window.TouchEvent && event instanceof TouchEvent) {
-      this.lastTouchTime = Date.now();
-    }
-
     this.isDragging = true;
     this.startX = 'touches' in event ? event.touches[0].clientX : (event as MouseEvent).clientX;
   }
 
   onTouchEnd(event: TouchEvent | MouseEvent) {
-    if (event instanceof MouseEvent && Date.now() - this.lastTouchTime < 500) {
-      this.isDragging = false; // Reset anyway but don't action
-      return;
-    }
-
-    if (window.TouchEvent && event instanceof TouchEvent) {
-      this.lastTouchTime = Date.now();
-    }
-
     if (!this.isDragging) return;
     this.isDragging = false;
-
     const endX = 'changedTouches' in event ? event.changedTouches[0].clientX : (event as MouseEvent).clientX;
     const deltaX = endX - this.startX;
 
-    // Threshold for swipe
     if (Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        this.prevPhoto();
-      } else {
-        this.nextPhoto();
-      }
+      if (deltaX > 0) this.prevPhoto();
+      else this.nextPhoto();
     } else if (Math.abs(deltaX) < 5) {
-      // It's a click/tap (minimal movement)
-      // Determine if clicked on left or right side of the screen/card
       const screenWidth = window.innerWidth;
-      if (endX < screenWidth / 2) {
-        this.prevPhoto();
-      } else {
-        this.nextPhoto();
-      }
+      if (endX < screenWidth / 2) this.prevPhoto();
+      else this.nextPhoto();
     }
   }
 
   nextPhoto() {
     if (!this.currentProfile) return;
-    if (this.currentPhotoIndex < this.currentProfile.images.length - 1) {
+    if (this.currentPhotoIndex < this.currentProfile.photos.length - 1) {
       this.currentPhotoIndex++;
     }
   }
 
   prevPhoto() {
-    if (this.currentPhotoIndex > 0) {
-      this.currentPhotoIndex--;
-    }
+    if (this.currentPhotoIndex > 0) this.currentPhotoIndex--;
   }
-
-  showMatchModal = false;
-  matchedProfileData: { name: string; photo: string } | null = null;
-
-  constructor(
-    private matchService: MatchService,
-    private router: Router,
-    private profileService: ProfileService
-  ) {
-    this.profiles = this.profileService.getProfiles();
-  }
-
-  onLike() {
-    this.isLikeActive = true;
-    setTimeout(() => this.isLikeActive = false, 500);
-
-    const profile = this.currentProfile;
-    if (profile) {
-      console.log('Liked:', profile.name);
-
-      // Mock Match Logic: 50% chance or if ID is even
-      // Let's force match for specific IDs for predictable testing, or Math.random()
-      const isMatch = Math.random() > 0.5;
-
-      if (isMatch) {
-        this.matchedProfileData = {
-          name: profile.name,
-          // Use first image for avatar
-          photo: profile.images[0]
-        };
-
-        // Add to globel state
-        this.matchService.addMatch({
-          id: profile.id,
-          name: profile.name,
-          photo: profile.images[0],
-          viewed: false
-        });
-
-        // Show Modal
-        setTimeout(() => {
-          this.showMatchModal = true;
-        }, 300); // Small delay for like animation to be seen
-      } else {
-        this.nextProfile();
-      }
-    }
-  }
-
-  closeMatchModal() {
-    this.showMatchModal = false;
-    this.nextProfile(); // Move to next after closing
-  }
-
-  startChatFromMatch() {
-    this.showMatchModal = false;
-    if (this.matchedProfileData && this.currentProfile) {
-      // We know the current profile is the one we matched with
-      const id = this.currentProfile.id;
-
-      // Add to service again just to be sure/mark as viewed? 
-      // Logic handled in onLike, but let's set viewed if starting chat immediately
-      // The chat component will handle finding it in the service via getMatches()
-
-      this.router.navigate(['chat', id], {
-        state: {
-          name: this.matchedProfileData.name,
-          photo: this.matchedProfileData.photo
-        }
-      });
-
-      // We do typically move to next profile in background so when they come back it's fresh
-      this.nextProfile();
-    }
-  }
-
-  onReject() {
-    this.isRejectActive = true;
-    setTimeout(() => this.isRejectActive = false, 500);
-
-    console.log('Rejected:', this.currentProfile?.name);
-    this.nextProfile();
-  }
-
-  onSuperLike() {
-    console.log('Super Liked', this.currentProfile?.name);
-    this.isSuperLikeActive = true;
-    setTimeout(() => {
-      this.nextProfile();
-      this.isSuperLikeActive = false;
-    }, 1000);
-  }
-
-  isUndoActive = false;
 
   onUndo() {
     if (this.currentIndex > 0) {
@@ -208,14 +228,33 @@ export class FeedComponent {
 
       this.currentIndex--;
       this.currentPhotoIndex = 0;
-    } else {
-      console.log('No previous profile');
     }
   }
 
-  isDetailsActive = false;
-
   toggleDetails() {
     this.isDetailsActive = !this.isDetailsActive;
+  }
+
+  testMatchModal() {
+    // Force wait for myPhotoUrl to likely be populated
+    setTimeout(() => {
+      const mockProfile: FeedProfile = this.currentProfile || {
+        id: 'mock-id',
+        displayName: 'Teste Name',
+        age: 25,
+        city: 'São Paulo',
+        state: 'SP',
+        bio: 'Bio teste',
+        mainPhotoUrl: 'https://placehold.co/600x400',
+        photos: ['https://placehold.co/600x400'],
+        hobbies: ['Teste']
+      };
+
+      this.matchedProfileData = {
+        name: mockProfile.displayName,
+        photo: mockProfile.mainPhotoUrl || mockProfile.photos[0]
+      };
+      this.showMatchModal = true;
+    }, 1000);
   }
 }

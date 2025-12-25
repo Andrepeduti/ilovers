@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class MatchModalComponent {
     @Input() matchedProfile: { name: string; photo: string } | null = null;
-    @Input() myPhoto: string = 'https://i.pravatar.cc/150?img=68'; // Mock user photo
+    @Input() myPhoto: string = '';
 
     @Output() close = new EventEmitter<void>();
     @Output() startChat = new EventEmitter<void>();

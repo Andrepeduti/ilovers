@@ -15,10 +15,6 @@ export class ProfileService {
     constructor(private http: HttpClient) { }
 
     getMyProfile(): Observable<Profile> {
-        if (!environment.production) {
-            console.log('ProfileService: getMyProfile using MOCK data');
-            return of(MOCK_MY_PROFILE).pipe(delay(500));
-        }
         return this.http.get<Profile>(`${environment.apiUrl}${ApiPaths.PROFILE}`);
     }
 

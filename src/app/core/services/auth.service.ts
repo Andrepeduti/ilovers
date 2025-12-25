@@ -14,6 +14,7 @@ export class AuthService {
 
     // Signal to store user profile data
     public currentUser = signal<any>(null);
+    public currentCoverPhoto = signal<string | null>(null);
 
     constructor(private http: HttpClient) { }
 
@@ -39,6 +40,7 @@ export class AuthService {
 
     logout() {
         localStorage.removeItem('access_token');
+        this.currentUser.set(null);
     }
 
     // New method to check if session is valid ("Am I logged in?")
@@ -58,9 +60,15 @@ export class AuthService {
     getProfile(): Observable<any> {
         return this.http.get(`${environment.apiUrl}${ApiPaths.PROFILE}`).pipe(
             tap((response: any) => {
-                console.log('AuthService: getProfile using MOCK data', response);
+                console.log('AuthService: getProfile loaded', response);
                 if (response && response.data) {
                     this.currentUser.set(response.data);
+
+                    // Populate cover photo signal globally
+                    const imgs = response.data.images || response.data.photos;
+                    if (imgs && imgs.length > 0) {
+                        this.currentCoverPhoto.set(imgs[0]);
+                    }
                 }
             })
         );

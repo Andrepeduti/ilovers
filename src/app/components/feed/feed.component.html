@@ -1,34 +1,34 @@
+<app-loader *ngIf="loading && profiles.length === 0"></app-loader>
+
 <div class="feed-container" *ngIf="currentProfile; else emptyState">
     <div class="card" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
         (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
 
         <!-- Photo Indicators -->
         <div class="photo-indicators">
-            <div class="indicator-bar" *ngFor="let img of currentProfile.images; let i = index"
+            <div class="indicator-bar" *ngFor="let img of currentProfile.photos; let i = index"
                 [class.active]="i === currentPhotoIndex">
             </div>
         </div>
 
-        <img [src]="currentProfile.images[currentPhotoIndex]" [alt]="currentProfile.name" class="profile-image">
+        <img [src]="currentProfile.photos[currentPhotoIndex]" [alt]="currentProfile.displayName" class="profile-image">
 
         <div class="overlay-gradient"></div>
 
         <div class="profile-info">
-            <h1>{{ currentProfile.name }} <span class="age"><span *ngIf="currentProfile.age">- {{
-                        currentProfile.age}}</span></span></h1>
-            <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
-                currentProfile.state }}</p>
+            <h1>
+                <span class="name">{{ currentProfile.displayName }}</span>
+                <span class="age" *ngIf="currentProfile.age">{{ currentProfile.age }}</span>
+            </h1>
+            <div class="location-row">
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
+                    currentProfile.state }}</p>
 
-            <div class="tags">
-                <span class="tag" *ngFor="let hobby of currentProfile.hobbies">
-                    {{ hobby }}
-                </span>
+                <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
+                    (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
+                    <i class="fas fa-info"></i>
+                </button>
             </div>
-
-            <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
-                (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
-                <i class="fas fa-info"></i>
-            </button>
         </div>
     </div>
 
@@ -66,7 +66,8 @@
 
         <div class="details-content">
             <div class="details-header">
-                <h1>{{ currentProfile.name }} <span class="age" *ngIf="currentProfile.age">- {{ currentProfile.age
+                <h1>{{ currentProfile.displayName }} <span class="age" *ngIf="currentProfile.age">- {{
+                        currentProfile.age
                         }}</span>
                 </h1>
                 <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
@@ -80,37 +81,19 @@
                 <p class="bio-text">{{ currentProfile.bio }}</p>
             </div>
 
-            <div class="details-section">
+            <div class="details-section" *ngIf="currentProfile.hobbies && currentProfile.hobbies.length > 0">
                 <h3>Interesses</h3>
                 <div class="tags-detail">
-                    <span class="tag-detail" *ngFor="let hobby of currentProfile.hobbies">
-                        {{ hobby }}
-                    </span>
+                    <span class="tag-detail" *ngFor="let hobby of currentProfile.hobbies">{{ hobby }}</span>
                 </div>
-            </div>
-
-            <div class="details-actions">
-                <button class="action-btn-large undo" (click)="onUndo(); toggleDetails()"
-                    [disabled]="currentIndex === 0">
-                    <i class="fas fa-undo"></i>
-                </button>
-                <button class="action-btn-large reject" (click)="onReject(); toggleDetails()">
-                    <i class="fas fa-times"></i>
-                </button>
-                <button class="action-btn-large like" (click)="onLike(); toggleDetails()">
-                    <i class="fas fa-heart"></i>
-                </button>
-                <button class="action-btn-large super-like" (click)="onSuperLike(); toggleDetails()">
-                    <i class="fas fa-star"></i>
-                </button>
             </div>
         </div>
     </div>
-    <!-- Match Modal -->
-    <app-match-modal *ngIf="showMatchModal" [matchedProfile]="matchedProfileData" (close)="closeMatchModal()"
-        (startChat)="startChatFromMatch()">
-    </app-match-modal>
 </div>
+
+<app-match-modal *ngIf="showMatchModal" [matchedProfile]="matchedProfileData" [myPhoto]="myPhotoUrl"
+    (close)="closeMatchModal()" (startChat)="startChatFromMatch()">
+</app-match-modal>
 
 <ng-template #emptyState>
     <div class="empty-feed">

@@ -4,10 +4,14 @@ import { CommonModule } from '@angular/common'; // Important for *ngIf if not us
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { filter } from 'rxjs/operators';
 
+import { AuthService } from './core/services/auth.service';
+import { InteractionService } from './core/services/interaction.service';
+import { NotificationModalComponent } from './components/shared/notification-modal/notification-modal.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, FooterComponent, CommonModule],
+  imports: [RouterOutlet, FooterComponent, CommonModule, NotificationModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -15,7 +19,15 @@ export class AppComponent {
   title = 'ILovers';
   showFooter = false;
 
-  constructor(private router: Router) {
+  showNotificationModal = false;
+  currentNotification: { fromUserName: string; fromUserPhoto: string | null; interactionId: string } | null = null;
+  pendingNotifications: any[] = [];
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private interactionService: InteractionService
+  ) {
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -25,5 +37,51 @@ export class AppComponent {
         !/\/chat\/\d+/.test(event.urlAfterRedirects) &&
         !/\/profile\/\d+/.test(event.urlAfterRedirects);
     });
+
+    // Restore user state on refresh
+    if (this.authService.isAuthenticated()) {
+      if (!this.authService.currentUser()) {
+        this.authService.getProfile().subscribe({
+          next: () => this.checkNotifications(),
+          error: () => this.authService.logout()
+        });
+      } else {
+        this.checkNotifications();
+      }
+    }
+  }
+
+  checkNotifications() {
+    this.interactionService.getPendingNotifications().subscribe({
+      next: (response) => {
+        if (response.data && response.data.length > 0) {
+          this.pendingNotifications = response.data;
+          this.showNextNotification();
+        }
+      },
+      error: (err) => console.error('Error fetching notifications', err)
+    });
+  }
+
+  showNextNotification() {
+    if (this.pendingNotifications.length > 0) {
+      const next = this.pendingNotifications.shift();
+      this.currentNotification = {
+        fromUserName: next.fromUserName,
+        fromUserPhoto: next.fromUserPhoto,
+        interactionId: next.interactionId
+      };
+      this.showNotificationModal = true;
+    } else {
+      this.showNotificationModal = false;
+      this.currentNotification = null;
+    }
+  }
+
+  closeNotification() {
+    if (this.currentNotification) {
+      this.interactionService.markAsViewed(this.currentNotification.interactionId).subscribe();
+    }
+    this.showNextNotification();
   }
 }
