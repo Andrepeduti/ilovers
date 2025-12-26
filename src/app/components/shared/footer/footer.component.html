@@ -16,7 +16,12 @@
     </button>
 
     <button class="nav-btn" [class.active]="activeTab === 'chat'" (click)="navigateTo('chat')">
-        <i class="fas fa-comment"></i>
+        <div style="position: relative;">
+            <i class="fas fa-comment"></i>
+            <span class="notification-badge" *ngIf="(totalNotifications$ | async) as count" [class.show]="count > 0">
+                {{ count > 99 ? '99+' : count }}
+            </span>
+        </div>
         <span>Ações</span>
     </button>
 </div>

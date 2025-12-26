@@ -6,6 +6,9 @@ import { filter } from 'rxjs/operators';
 
 import { AuthService } from './core/services/auth.service';
 import { InteractionService } from './core/services/interaction.service';
+import { MatchService } from './services/match.service';
+import { ChatService } from './services/chat.service';
+import { ChatRealtimeService } from './services/chat-realtime.service';
 import { NotificationModalComponent } from './components/shared/notification-modal/notification-modal.component';
 
 @Component({
@@ -26,7 +29,10 @@ export class AppComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private interactionService: InteractionService
+    private interactionService: InteractionService,
+    private matchService: MatchService, // Inject
+    private chatService: ChatService,   // Inject
+    private chatRealtimeHelper: ChatRealtimeService // Inject
   ) {
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
@@ -42,13 +48,20 @@ export class AppComponent {
     if (this.authService.isAuthenticated()) {
       if (!this.authService.currentUser()) {
         this.authService.getProfile().subscribe({
-          next: () => this.checkNotifications(),
+          next: () => this.initializeApp(),
           error: () => this.authService.logout()
         });
       } else {
-        this.checkNotifications();
+        this.initializeApp();
       }
     }
+  }
+
+  initializeApp() {
+    this.checkNotifications();
+    this.chatRealtimeHelper.startConnection();
+    this.matchService.fetchMatches().subscribe();
+    this.chatService.loadChats().subscribe();
   }
 
   checkNotifications() {

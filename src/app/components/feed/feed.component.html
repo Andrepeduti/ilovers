@@ -97,8 +97,23 @@
 
 <ng-template #emptyState>
     <div class="empty-feed">
-        <h2>Não há mais perfis por perto.</h2>
-        <button (click)="currentIndex = 0">Recarregar</button>
+        <div class="radar-container">
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-core">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="empty-message">
+            <h2>Ops! Por enquanto é só.</h2>
+            <p>Estamos procurando novas pessoas incríveis perto de você. Volte em breve!</p>
+        </div>
+
+        <button class="btn-refresh" (click)="currentIndex = 0; loadFeed()">
+            <i class="fas fa-redo"></i> Tentar Novamente
+        </button>
     </div>
 </ng-template>
 

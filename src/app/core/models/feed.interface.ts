@@ -16,4 +16,5 @@ export interface FeedResponse {
 
 export interface InteractionResponse {
     isMatch: boolean;
+    chatId?: string;
 }

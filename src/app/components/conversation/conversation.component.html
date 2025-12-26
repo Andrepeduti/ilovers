@@ -1,4 +1,5 @@
 <div class="conversation-container">
+    <!-- Header -->
     <header class="chat-header">
         <div class="header">
             <button class="back-btn" (click)="goBack()">
@@ -30,10 +31,35 @@
         </div>
     </header>
 
-    <div class="messages-list">
+    <div class="messages-list" #scrollContainer (scroll)="onScroll()">
+
+        <!-- Loading Skeletons -->
+        <ng-container *ngIf="loading">
+            <!-- existing skeletons -->
+            <div class="message-bubble them skeleton">
+                <div class="shimmer-line" style="width: 150px;"></div>
+                <div class="shimmer-line" style="width: 100px;"></div>
+            </div>
+            <div class="message-bubble me skeleton">
+                <div class="shimmer-line" style="width: 120px;"></div>
+            </div>
+        </ng-container>
+
+        <!-- Loading History Spinner -->
+        <div *ngIf="loadingHistory" style="text-align: center; padding: 10px;">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+
         <div *ngFor="let msg of messages" class="message-bubble" [ngClass]="{'me': msg.isMe, 'them': !msg.isMe}">
             <p>{{ msg.text }}</p>
-            <span class="msg-time">{{ msg.time }}</span>
+            <div class="msg-meta">
+                <span class="msg-time">{{ msg.time }}</span>
+                <span *ngIf="msg.isMe" class="msg-status">
+                    <i class="far fa-clock" *ngIf="msg.status === 'sending'"></i>
+                    <i class="fas fa-check" *ngIf="msg.status === 'sent'"></i>
+                    <i class="fas fa-check-double" *ngIf="msg.status === 'read'" style="color: #4facfe;"></i>
+                </span>
+            </div>
         </div>
     </div>
 

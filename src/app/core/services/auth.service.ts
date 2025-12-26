@@ -87,4 +87,21 @@ export class AuthService {
         if (!profile) return false;
         return profile.isComplete === true;
     }
+
+    getToken(): string | null {
+        return localStorage.getItem('access_token');
+    }
+
+    getUserId(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = token.split('.')[1];
+            const decoded = JSON.parse(atob(payload));
+            return decoded.sub || decoded.nameid || null;
+        } catch (e) {
+            console.error('Failed to decode token', e);
+            return null;
+        }
+    }
 }

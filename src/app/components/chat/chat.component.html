@@ -1,4 +1,8 @@
 <div class="chat-container">
+    <div class="loader-overlay" *ngIf="loading"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center;">
+        <app-loader></app-loader>
+    </div>
     <header class="header">
         <div class="logo">
             IL<span class="heart-icon material-icons">favorite</span>vers
@@ -8,16 +12,17 @@
     <div class="matches-section">
         <h2 class="section-title">Novos Matches</h2>
         <div class="matches-scroll">
-            <div class="match-item" *ngFor="let match of matches" (click)="openChat(match.id)"
-                [class.viewed]="match.viewed">
+            <div class="match-item" *ngFor="let match of matches" (click)="openChat(match)"
+                [class.viewed]="!match.isNew">
                 <div class="avatar-wrapper">
                     <img [src]="match.photo" [alt]="match.name">
                 </div>
                 <span class="match-name">{{ match.name }}</span>
             </div>
             <!-- Empty state for matches if needed -->
-            <div class="match-item" *ngIf="matches.length === 0">
-                <span style="font-size: 0.8rem; color: #999;">Sem matches novos</span>
+            <div class="match-item" *ngIf="matches.length === 0" style="width: auto;">
+                <span style="font-size: 0.8rem; color: #000; font-weight: bold; white-space: nowrap;">Sem novos
+                    matches</span>
             </div>
         </div>
     </div>
@@ -25,7 +30,7 @@
     <div class="conversations-section">
         <h2 class="section-title">Conversas</h2>
         <div class="conversations-list">
-            <div class="conversation-item" *ngFor="let chat of conversations" (click)="openChat(chat.id)"
+            <div class="conversation-item" *ngFor="let chat of conversations" (click)="openChat(chat)"
                 [class.has-unread]="chat.unreadCount > 0">
                 <div class="avatar-wrapper">
                     <img [src]="chat.photo" [alt]="chat.name">

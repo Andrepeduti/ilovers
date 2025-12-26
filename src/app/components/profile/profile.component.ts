@@ -7,6 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { ImageService } from '../../core/services/image.service';
 import { Observable, forkJoin } from 'rxjs';
+import { ChatRealtimeService } from '../../services/chat-realtime.service';
+
 
 @Component({
   selector: 'app-profile',
@@ -25,6 +27,7 @@ export class ProfileComponent implements OnInit {
   private resizeMouseMoveListener: any;
   private resizeMouseUpListener: any;
   private authService = inject(AuthService);
+  private chatRealtimeService = inject(ChatRealtimeService);
 
   photos: (string | null)[] = [null, null, null, null, null, null, null, null];
   showAgeInfo = false;
@@ -214,6 +217,7 @@ export class ProfileComponent implements OnInit {
   }
 
   confirmLogout() {
+    this.chatRealtimeService.stopConnection();
     this.authService.logout();
     this.showLogoutModal = false;
     this.router.navigate(['/login']);

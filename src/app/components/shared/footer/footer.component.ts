@@ -5,6 +5,12 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
+import { ChatService } from '../../../services/chat.service';
+import { MatchService } from '../../../services/match.service';
+import { ChatRealtimeService } from '../../../services/chat-realtime.service';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 @Component({
   selector: 'app-footer',
   standalone: true,
@@ -18,7 +24,23 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   showDisabledTooltip = false;
 
-  constructor(private router: Router, public authService: AuthService) { }
+  totalNotifications$: Observable<number>;
+
+  constructor(
+    private router: Router,
+    public authService: AuthService,
+    private chatService: ChatService,
+    private matchService: MatchService,
+    private chatRealtimeService: ChatRealtimeService
+  ) {
+    // Initialize notification count
+    this.totalNotifications$ = combineLatest([
+      this.chatService.totalUnread$,
+      this.matchService.totalNew$
+    ]).pipe(
+      map(([unreadChats, newMatches]) => unreadChats + newMatches)
+    );
+  }
 
   ngOnInit() {
     this.updateActiveTab(this.router.url);
@@ -28,6 +50,11 @@ export class FooterComponent implements OnInit, OnDestroy {
     ).subscribe((event: NavigationEnd) => {
       this.updateActiveTab(event.urlAfterRedirects);
     });
+
+    // Ensure real-time connection and data load
+    this.chatRealtimeService.startConnection().catch(err => console.error('SignalR Init Error', err));
+    this.matchService.fetchMatches().subscribe();
+    this.chatService.loadChats().subscribe();
   }
 
   ngOnDestroy() {

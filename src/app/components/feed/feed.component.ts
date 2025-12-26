@@ -111,14 +111,16 @@ export class FeedComponent implements OnInit {
     this.feedService.like(profile.id).subscribe({
       next: (response) => {
         if (response.isMatch) {
-          this.handleMatch(profile);
+          this.handleMatch(profile, response.chatId);
         }
       },
       error: (err) => console.error('Like error', err)
     });
 
-    // Advance UI immediately
-    this.nextProfile();
+    // Advance UI with delay for animation
+    setTimeout(() => {
+      this.nextProfile();
+    }, 600);
   }
 
   onReject() {
@@ -132,7 +134,9 @@ export class FeedComponent implements OnInit {
       error: (err) => console.error('Dislike error', err)
     });
 
-    this.nextProfile();
+    setTimeout(() => {
+      this.nextProfile();
+    }, 600);
   }
 
   onSuperLike() {
@@ -145,7 +149,7 @@ export class FeedComponent implements OnInit {
     this.feedService.superLike(profile.id).subscribe({
       next: (response) => {
         if (response.isMatch) {
-          this.handleMatch(profile);
+          this.handleMatch(profile, response.chatId);
         }
       },
       error: (err) => console.error('SuperLike error', err)
@@ -158,33 +162,44 @@ export class FeedComponent implements OnInit {
 
   }
 
-  handleMatch(profile: FeedProfile) {
+  private router = inject(Router);
+
+  handleMatch(profile: FeedProfile, chatId?: string) {
     this.matchedProfileData = {
       name: profile.displayName,
       photo: profile.mainPhotoUrl || profile.photos[0]
     };
 
+    // Store chatId temporarily for the modal action
+    this.matchedChatId = chatId;
+
     this.matchService.addMatch({
       id: profile.id,
       name: profile.displayName,
       photo: profile.mainPhotoUrl,
-      viewed: false
+      isNew: true,
+      viewed: false,
+      chatId: chatId
     });
 
     this.showMatchModal = true;
   }
 
+  matchedChatId?: string;
+
   closeMatchModal() {
     this.showMatchModal = false;
+    this.matchedChatId = undefined;
     // We already moved to next profile in background
   }
 
   startChatFromMatch() {
     this.closeMatchModal();
-    if (this.matchedProfileData) {
-      // Logic for chat navigation
-      // Need to verify if route needs ID. 
-      // For now, assuming standard flow
+    if (this.matchedChatId) {
+      this.router.navigate(['/chat', this.matchedChatId]);
+    } else {
+      // Fallback: Navigate to chat list, user can find it there
+      this.router.navigate(['/chat']);
     }
   }
 

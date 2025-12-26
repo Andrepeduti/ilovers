@@ -1,52 +1,135 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Conversation, Match } from '../components/chat/models/chat.interface';
+import { Injectable, inject, effect } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { Observable, map, BehaviorSubject, tap } from 'rxjs';
+import { AuthService } from '../core/services/auth.service';
+import { ChatRealtimeService } from './chat-realtime.service';
+
+export interface ChatDto {
+    chatId: string;
+    otherUserId: string;
+    otherUserName: string;
+    otherUserPhotoUrl: string | null;
+    lastMessage: string | null;
+    lastMessageTime: string | null;
+    unreadCount: number;
+}
+
+export interface MessageDto {
+    id: string;
+    chatId: string;
+    senderUserId: string;
+    content: string;
+    createdAt: string;
+    isRead: boolean;
+}
 
 @Injectable({
     providedIn: 'root'
 })
 export class ChatService {
-    // Mock Initial Data
-    private matches: Match[] = [
-        { id: 1, name: 'Ana', photo: 'https://i.pravatar.cc/150?u=1', viewed: false },
-        { id: 2, name: 'Beatriz', photo: 'https://i.pravatar.cc/150?u=2', viewed: false },
-        { id: 3, name: 'Carla', photo: 'https://i.pravatar.cc/150?u=3', viewed: false },
-        { id: 4, name: 'Dana', photo: 'https://i.pravatar.cc/150?u=4', viewed: false },
-        { id: 5, name: 'Elisa', photo: 'https://i.pravatar.cc/150?u=5', viewed: false },
-    ];
+    private http = inject(HttpClient);
+    private chatRealtimeService = inject(ChatRealtimeService);
+    private authService = inject(AuthService); // Inject AuthService
+    private apiUrl = `${environment.apiUrl}/chats`;
 
-    private conversations: Conversation[] = [
-        { id: 6, name: 'Fernanda', photo: 'https://i.pravatar.cc/150?u=6', lastMessage: 'Oi! Adorei suas fotos 😍', time: '10:30', unreadCount: 2, isOnline: true },
-        { id: 7, name: 'Gabriela', photo: 'https://i.pravatar.cc/150?u=7', lastMessage: 'Vamos marcar algo?', time: 'Ontem', unreadCount: 0, isOnline: false },
-        { id: 8, name: 'Helena', photo: 'https://i.pravatar.cc/150?u=8', lastMessage: 'Hahaha, verdade!', time: 'Ontem', unreadCount: 0, isOnline: false },
-        { id: 9, name: 'Isabela', photo: 'https://i.pravatar.cc/150?u=9', lastMessage: 'Qual seu Instagram?', time: 'Seg', unreadCount: 0, isOnline: true },
-        { id: 10, name: 'Julia', photo: 'https://i.pravatar.cc/150?u=10', lastMessage: 'Foi ótimo conversar com vc', time: 'Dom', unreadCount: 0, isOnline: false },
-    ];
+    private chatsSubject = new BehaviorSubject<ChatDto[] | null>(null);
+    chats$ = this.chatsSubject.asObservable();
 
-    // Observables
-    private matchesSubject = new BehaviorSubject<Match[]>(this.matches);
-    matches$ = this.matchesSubject.asObservable();
+    totalUnread$ = this.chats$.pipe(
+        map(chats => chats ? chats.filter(c => c.unreadCount > 0).length : 0)
+    );
 
-    private conversationsSubject = new BehaviorSubject<Conversation[]>(this.conversations);
-    conversations$ = this.conversationsSubject.asObservable();
+    constructor() {
+        // Automatically clear cache when user logs out or changes
+        effect(() => {
+            const user = this.authService.currentUser();
+            if (!user) {
+                this.clearCache();
+            }
+        });
 
-    constructor() { }
+        // Listen for new messages to update the list cache
+        this.chatRealtimeService.messageReceived$.subscribe(msg => {
+            // ... (existing logic)
+            const currentChats = this.chatsSubject.value;
+            if (!currentChats) return;
 
-    addMatch(match: Match) {
-        if (!this.matches.find(m => m.id === match.id)) {
-            this.matches.unshift(match);
-            this.matchesSubject.next([...this.matches]);
-        }
+            const chatIndex = currentChats.findIndex(c => c.chatId === msg.chatId);
+            if (chatIndex > -1) {
+                const chat = currentChats[chatIndex];
+                const myId = this.authService.getUserId();
+                const isMyMessage = msg.senderUserId === myId;
+
+                const updatedChat = {
+                    ...chat,
+                    lastMessage: msg.content,
+                    lastMessageTime: msg.createdAt,
+                    unreadCount: isMyMessage ? chat.unreadCount : chat.unreadCount + 1
+                };
+
+                const otherChats = currentChats.filter(c => c.chatId !== msg.chatId);
+                this.chatsSubject.next([updatedChat, ...otherChats]);
+            } else {
+                // New chat started? Refresh list to get full ChatDto details (name, photo, etc.)
+                this.refreshChats();
+            }
+        });
     }
 
-    // Unified remove method
-    unmatch(id: string | number) {
-        // Remove from matches
-        this.matches = this.matches.filter(m => m.id !== id);
-        this.matchesSubject.next([...this.matches]);
+    // Cache accessor
+    get currentChatsValue(): ChatDto[] | null {
+        return this.chatsSubject.value;
+    }
 
-        // Remove from conversations
-        this.conversations = this.conversations.filter(c => c.id !== id);
-        this.conversationsSubject.next([...this.conversations]);
+    loadChats(force: boolean = false): Observable<ChatDto[]> {
+        // If we have cache and not forcing, return immediately
+        if (!force && this.chatsSubject.value) {
+            return new BehaviorSubject(this.chatsSubject.value).asObservable();
+        }
+
+        return this.http.get<any>(this.apiUrl).pipe(
+            map(response => response.value || response.data || response),
+            tap(chats => {
+                this.chatsSubject.next(chats);
+            })
+        );
+    }
+
+    refreshChats() {
+        this.loadChats(true).subscribe();
+    }
+
+    // Clear cache on logout
+    clearCache() {
+        this.chatsSubject.next(null);
+    }
+
+    getMessages(chatId: string, limit: number = 30, before?: string): Observable<MessageDto[]> {
+        let url = `${this.apiUrl}/${chatId}/messages?limit=${limit}`;
+        if (before) {
+            url += `&before=${before}`;
+        }
+        return this.http.get<any>(url).pipe(
+            map(response => {
+                return response.value || response.data || response;
+            })
+        );
+    }
+
+    markAsRead(chatId: string): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/${chatId}/read`, {}).pipe(
+            tap(() => {
+                // Optimistically update unread count in cache
+                const current = this.chatsSubject.value;
+                if (current) {
+                    const updated = current.map(c => {
+                        if (c.chatId === chatId) return { ...c, unreadCount: 0 };
+                        return c;
+                    });
+                    this.chatsSubject.next(updated);
+                }
+            })
+        );
     }
 }
