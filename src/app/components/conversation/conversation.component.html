@@ -79,7 +79,9 @@
     <div class="modal-overlay" *ngIf="showUnmatchModal">
         <div class="modal-content">
             <h3>Desfazer Match?</h3>
-            <p>Essa ação não pode ser desfeita. A conversa sumirá da sua lista.</p>
+            <p>Essa ação não pode ser desfeita. <br>A conversa sumirá da sua lista e você não verá mais esse perfil no
+                feed.
+            </p>
             <div class="modal-actions">
                 <button class="btn-secondary" (click)="closeUnmatchModal()">Cancelar</button>
                 <button class="btn-primary" (click)="confirmUnmatch()">Sim, desfazer</button>

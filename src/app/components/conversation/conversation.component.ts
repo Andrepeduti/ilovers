@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ChatService, MessageDto } from '../../services/chat.service';
+import { MatchService } from '../../services/match.service';
 import { ChatRealtimeService, ChatMessageDto } from '../../services/chat-realtime.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Subscription } from 'rxjs';
@@ -51,6 +52,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     private chatService = inject(ChatService);
     private chatRealtimeService = inject(ChatRealtimeService);
     private authService = inject(AuthService);
+    private matchService = inject(MatchService);
 
     reportReason = '';
     reportComment = '';
@@ -302,7 +304,27 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     closeReportModal() { this.showReportModal = false; }
     openUnmatchModal() { this.showUnmatchModal = true; }
     closeUnmatchModal() { this.showUnmatchModal = false; }
-    confirmUnmatch() { /* Call service unmatch */ }
+    confirmUnmatch() {
+        if (!this.chatId) return;
+        this.matchService.unmatch(this.chatId).subscribe({
+            next: () => {
+                this.chatService.removeChat(this.chatId!);
+                this.closeUnmatchModal();
+                this.router.navigate(['/chat']);
+            },
+            error: (err) => {
+                // Treat 404 as "Already Unmatched" and clean up locally
+                if (err.status === 404) {
+                    this.chatService.removeChat(this.chatId!);
+                    this.closeUnmatchModal();
+                    this.router.navigate(['/chat']);
+                    return;
+                }
+                console.error('Error unmatching', err);
+                this.closeUnmatchModal();
+            }
+        });
+    }
     submitReport() { /* Report logic */ this.closeReportModal(); }
     onEvidenceSelected(e: any) { }
     removeEvidence(i: number) { }

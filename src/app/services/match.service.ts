@@ -13,6 +13,7 @@ export interface MatchProfile {
     isNew: boolean;
     chatId?: string;
     viewed?: boolean;
+    isSuperLike?: boolean;
 }
 
 @Injectable({
@@ -21,6 +22,10 @@ export interface MatchProfile {
 export class MatchService {
     private matchesSubject = new BehaviorSubject<MatchProfile[]>([]);
     matches$ = this.matchesSubject.asObservable();
+
+    private superLikesSubject = new BehaviorSubject<MatchProfile[]>([]);
+    superLikes$ = this.superLikesSubject.asObservable();
+
     private authService = inject(AuthService);
     private chatRealtimeService = inject(ChatRealtimeService);
 
@@ -41,6 +46,7 @@ export class MatchService {
         // Listen for new matches
         this.chatRealtimeService.matchReceived$.subscribe(() => {
             this.fetchMatches().subscribe();
+            this.fetchSuperLikes().subscribe();
         });
 
         // Listen for messages (to remove match from 'New' if convo starts)
@@ -51,6 +57,7 @@ export class MatchService {
 
     clearCache() {
         this.matchesSubject.next([]);
+        this.superLikesSubject.next([]);
     }
 
     fetchMatches(): Observable<MatchProfile[]> {
@@ -65,7 +72,8 @@ export class MatchService {
                         photo: m.photoUrl,
                         isNew: m.isNew, // Backend now maps this from (currentUser == UserA && !UserAViewed)
                         chatId: m.chatId,
-                        viewed: !m.isNew
+                        viewed: !m.isNew,
+                        isSuperLike: m.isSuperLike
                     }));
                 }
                 return [];
@@ -73,6 +81,25 @@ export class MatchService {
             tap(matches => {
                 this.matchesSubject.next(matches);
             })
+        );
+    }
+
+    fetchSuperLikes(): Observable<MatchProfile[]> {
+        return this.http.get<any>(`${environment.apiUrl}/interactions/super-likes`).pipe(
+            map(response => {
+                const items = response.value || response.data || response;
+                if (Array.isArray(items)) {
+                    return items.map((m: any) => ({
+                        id: m.fromUserId,
+                        name: m.fromUserName,
+                        photo: m.fromUserPhoto,
+                        isNew: true, // Super Likes are conceptually always "new" until acted upon?
+                        matchId: m.interactionId // InteractionId
+                    }));
+                }
+                return [];
+            }),
+            tap(sl => this.superLikesSubject.next(sl))
         );
     }
 
@@ -104,6 +131,23 @@ export class MatchService {
     // Call backend to persist
     persistView(matchId: string) {
         return this.http.post(`${environment.apiUrl}/interactions/matches/${matchId}/view`, {}).subscribe();
+    }
+
+    unmatch(matchId: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/interactions/matches/${matchId}/unmatch`, {}).pipe(
+            tap(() => {
+                // Remove from local cache
+                const currentMatches = this.matchesSubject.value;
+                const updated = currentMatches.filter(m => m.matchId !== matchId && m.chatId !== matchId); // matchId vs chatId confusion, filter both
+                this.matchesSubject.next(updated);
+            })
+        );
+    }
+
+    removeSuperLike(userId: string) {
+        const current = this.superLikesSubject.value;
+        const updated = current.filter(s => s.id !== userId);
+        this.superLikesSubject.next(updated);
     }
 
     getMatches() {

@@ -1,28 +1,29 @@
 <app-loader *ngIf="loading && profiles.length === 0"></app-loader>
 
 <div class="feed-container" *ngIf="currentProfile; else emptyState">
-    <div class="card" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
+    <div class="card" *ngFor="let profile of profiles.slice(currentIndex, currentIndex + 1)"
+        [@cardAnimation]="animationState" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
         (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
 
         <!-- Photo Indicators -->
         <div class="photo-indicators">
-            <div class="indicator-bar" *ngFor="let img of currentProfile.photos; let i = index"
+            <div class="indicator-bar" *ngFor="let img of profile.photos; let i = index"
                 [class.active]="i === currentPhotoIndex">
             </div>
         </div>
 
-        <img [src]="currentProfile.photos[currentPhotoIndex]" [alt]="currentProfile.displayName" class="profile-image">
+        <img [src]="profile.photos[currentPhotoIndex]" [alt]="profile.displayName" class="profile-image">
 
         <div class="overlay-gradient"></div>
 
         <div class="profile-info">
             <h1>
-                <span class="name">{{ currentProfile.displayName }}</span>
-                <span class="age" *ngIf="currentProfile.age">{{ currentProfile.age }}</span>
+                <span class="name">{{ profile.displayName }}</span>
+                <span class="age" *ngIf="profile.age">{{ profile.age }}</span>
             </h1>
             <div class="location-row">
-                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
-                    currentProfile.state }}</p>
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{
+                    profile.state }}</p>
 
                 <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
                     (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">

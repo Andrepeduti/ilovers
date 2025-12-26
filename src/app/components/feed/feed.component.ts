@@ -7,7 +7,7 @@ import { MatchModalComponent } from '../match-modal/match-modal.component';
 import { FeedService } from '../../core/services/feed.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { FeedProfile } from '../../core/models/feed.interface';
-
+import { trigger, transition, style, animate, keyframes, state } from '@angular/animations';
 import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
@@ -15,7 +15,45 @@ import { LoaderComponent } from '../shared/loader/loader.component';
   standalone: true,
   imports: [CommonModule, MatchModalComponent, LoaderComponent],
   templateUrl: './feed.component.html',
-  styleUrl: './feed.component.scss'
+  styleUrl: './feed.component.scss',
+  animations: [
+    trigger('cardAnimation', [
+      state('idle', style({ transform: 'translate(0) rotate(0)' })),
+
+      // Fly Out Right (Like)
+      transition('* => flyOutRight', [
+        animate('0.6s ease-out', keyframes([
+          style({ transform: 'translate(0)', offset: 0 }),
+          style({ transform: 'translate(50%, 0)', opacity: 1, offset: 0.3 }),
+          style({ transform: 'translate(150%, 0)', opacity: 0, offset: 1 })
+        ]))
+      ]),
+
+      // Fly Out Left (Reject)
+      transition('* => flyOutLeft', [
+        animate('0.6s ease-out', keyframes([
+          style({ transform: 'translate(0)', offset: 0 }),
+          style({ transform: 'translate(-50%, 0)', opacity: 1, offset: 0.3 }),
+          style({ transform: 'translate(-150%, 0)', opacity: 0, offset: 1 })
+        ]))
+      ]),
+
+      // Fly Out Up (Super Like)
+      transition('* => flyOutUp', [
+        animate('0.6s ease-out', keyframes([
+          style({ transform: 'translate(0) rotate(0)', offset: 0 }),
+          style({ transform: 'translate(0, -20px) scale(1.1)', opacity: 1, offset: 0.3 }),
+          style({ transform: 'translate(0, -150%) scale(0.5)', opacity: 0, offset: 1 })
+        ]))
+      ]),
+
+      // Incoming Card (Slide In/Enter)
+      transition(':enter', [
+        style({ transform: 'scale(0.9) translateY(20px)', opacity: 0, zIndex: -1 }),
+        animate('0.4s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)', style({ transform: 'scale(1) translateY(0)', opacity: 1, zIndex: 0 }))
+      ])
+    ])
+  ]
 })
 export class FeedComponent implements OnInit {
   private feedService = inject(FeedService);
@@ -28,6 +66,9 @@ export class FeedComponent implements OnInit {
   currentPhotoIndex = 0;
   loading = false;
   myPhotoUrl: string = '';
+
+  // Animation State
+  animationState: 'idle' | 'flyOutLeft' | 'flyOutRight' | 'flyOutUp' = 'idle';
 
   isSuperLikeActive = false;
   isLikeActive = false;
@@ -88,7 +129,9 @@ export class FeedComponent implements OnInit {
   }
 
   nextProfile() {
-    // Optimistic UI Update: Move immediately
+    // Reset state first implicitly by changing index which destroys component if used with trackBy/ngFor or manually resetting
+    this.animationState = 'idle';
+
     if (this.currentIndex < this.profiles.length) {
       this.currentIndex++;
       this.currentPhotoIndex = 0;
@@ -105,6 +148,7 @@ export class FeedComponent implements OnInit {
     if (!profile) return;
 
     this.isLikeActive = true;
+    this.animationState = 'flyOutRight'; // Trigger Animation
     setTimeout(() => this.isLikeActive = false, 500);
 
     // Call API in background
@@ -120,7 +164,7 @@ export class FeedComponent implements OnInit {
     // Advance UI with delay for animation
     setTimeout(() => {
       this.nextProfile();
-    }, 600);
+    }, 400); // Sync with animation time
   }
 
   onReject() {
@@ -128,6 +172,7 @@ export class FeedComponent implements OnInit {
     if (!profile) return;
 
     this.isRejectActive = true;
+    this.animationState = 'flyOutLeft'; // Trigger Animation
     setTimeout(() => this.isRejectActive = false, 500);
 
     this.feedService.dislike(profile.id).subscribe({
@@ -136,7 +181,7 @@ export class FeedComponent implements OnInit {
 
     setTimeout(() => {
       this.nextProfile();
-    }, 600);
+    }, 400); // Sync with animation time
   }
 
   onSuperLike() {
@@ -144,6 +189,7 @@ export class FeedComponent implements OnInit {
     if (!profile) return;
 
     this.isSuperLikeActive = true;
+    this.animationState = 'flyOutUp'; // Trigger Animation
     setTimeout(() => this.isSuperLikeActive = false, 1000);
 
     this.feedService.superLike(profile.id).subscribe({
@@ -158,7 +204,7 @@ export class FeedComponent implements OnInit {
     // Delay to let animation play
     setTimeout(() => {
       this.nextProfile();
-    }, 800);
+    }, 600); // Slightly longer for super like
 
   }
 

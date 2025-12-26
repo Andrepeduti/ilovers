@@ -40,8 +40,8 @@ export class AppComponent {
       // Hide footer on login, register, and conversation detail pages
       this.showFooter = !event.urlAfterRedirects.includes('/login') &&
         !event.urlAfterRedirects.includes('/register') &&
-        !/\/chat\/\d+/.test(event.urlAfterRedirects) &&
-        !/\/profile\/\d+/.test(event.urlAfterRedirects);
+        !event.urlAfterRedirects.includes('/chat/') &&
+        !event.urlAfterRedirects.includes('/profile/');
     });
 
     // Restore user state on refresh

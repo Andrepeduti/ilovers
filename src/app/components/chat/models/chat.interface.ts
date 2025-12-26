@@ -5,6 +5,7 @@ export interface Match {
     isNew?: boolean;
     chatId?: string;
     viewed?: boolean;
+    isSuperLike?: boolean;
 }
 
 export interface Conversation {
@@ -15,4 +16,5 @@ export interface Conversation {
     time: string;
     unreadCount: number;
     isOnline: boolean;
+    isSuperLike?: boolean;
 }

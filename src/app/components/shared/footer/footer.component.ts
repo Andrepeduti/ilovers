@@ -36,9 +36,34 @@ export class FooterComponent implements OnInit, OnDestroy {
     // Initialize notification count
     this.totalNotifications$ = combineLatest([
       this.chatService.totalUnread$,
-      this.matchService.totalNew$
+      this.matchService.matches$, // Get full matches list to filter
+      this.chatService.chats$    // Get chats to check for overlaps
     ]).pipe(
-      map(([unreadChats, newMatches]) => unreadChats + newMatches)
+      map(([unreadChats, matches, chats]) => {
+        // 1. Identify "Active Chats" (visible in UI)
+        const validChats = (chats || []).filter(c => c.lastMessage && c.lastMessage.trim() !== '');
+
+        // 2. Calculate Unread Count from ONLY valid chats
+        const calculatedUnreadCount = validChats.filter(c => c.unreadCount > 0).length;
+
+        // 3. Calculate "New Matches" count
+        // Matches that are 'isNew' AND NOT in the active 'chats' list
+        // AND are NOT super likes (unless they have a chat, in which case they are handled by unreadCount of that chat)
+        const activeChatUserIds = new Set(validChats.map(c => c.otherUserId));
+
+        const newMatchesCount = matches.filter(m => {
+          // Must be New
+          if (!m.isNew) return false;
+          // Must NOT be in an active chat
+          if (activeChatUserIds.has(m.id)) return false;
+          // Must NOT be a Super Like (per user request: only count normal matches until conversation starts)
+          if (m.isSuperLike) return false;
+
+          return true;
+        }).length;
+
+        return calculatedUnreadCount + newMatchesCount;
+      })
     );
   }
 

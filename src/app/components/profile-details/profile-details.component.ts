@@ -21,13 +21,17 @@ export class ProfileDetailsComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        const id = Number(this.route.snapshot.paramMap.get('id'));
+        const id = this.route.snapshot.paramMap.get('id');
         if (id) {
-            this.profile = this.profileService.getProfile(id);
-        }
-        // If not found, handle error or redirect
-        if (!this.profile) {
-            // Fallback logic could go here
+            this.profileService.getProfile(id).subscribe({
+                next: (profile) => {
+                    this.profile = profile;
+                },
+                error: (err) => {
+                    console.error('Error loading profile', err);
+                    // Redirect or show error
+                }
+            });
         }
     }
 

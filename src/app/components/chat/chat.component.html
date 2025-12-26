@@ -9,6 +9,19 @@
         </div>
     </header>
 
+    <!-- SUPER LIKES SECTION -->
+    <div class="matches-section" *ngIf="(superLikes$ | async)?.length">
+        <div class="section-title super-like-title">SUPER LIKES 🌟</div>
+        <div class="matches-scroll" #superLikesContainer>
+            <div class="match-item" *ngFor="let sl of (superLikes$ | async)" (click)="handleSuperLikeClick(sl)">
+                <div class="avatar-wrapper super-like-glow">
+                    <img [src]="sl.photo || 'assets/placeholder.jpg'" [alt]="sl.name">
+                </div>
+                <span class="match-name">{{ sl.name }}</span>
+            </div>
+        </div>
+    </div>
+
     <div class="matches-section">
         <h2 class="section-title">Novos Matches</h2>
         <div class="matches-scroll">
@@ -31,9 +44,10 @@
         <h2 class="section-title">Conversas</h2>
         <div class="conversations-list">
             <div class="conversation-item" *ngFor="let chat of conversations" (click)="openChat(chat)"
-                [class.has-unread]="chat.unreadCount > 0">
+                [class.has-unread]="chat.unreadCount > 0" [class.is-super-like]="chat.isSuperLike">
                 <div class="avatar-wrapper">
                     <img [src]="chat.photo" [alt]="chat.name">
+                    <div class="super-like-badge" *ngIf="chat.isSuperLike">SUPER LIKE</div>
                 </div>
                 <div class="content">
                     <div class="name-row">

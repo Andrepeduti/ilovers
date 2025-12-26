@@ -13,6 +13,7 @@ export interface ChatDto {
     lastMessage: string | null;
     lastMessageTime: string | null;
     unreadCount: number;
+    isSuperLike: boolean;
 }
 
 export interface MessageDto {
@@ -131,5 +132,13 @@ export class ChatService {
                 }
             })
         );
+    }
+
+    removeChat(chatId: string) {
+        const current = this.chatsSubject.value;
+        if (current) {
+            const updated = current.filter(c => c.chatId !== chatId);
+            this.chatsSubject.next(updated);
+        }
     }
 }
