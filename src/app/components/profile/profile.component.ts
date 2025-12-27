@@ -237,11 +237,6 @@ export class ProfileComponent implements OnInit {
     this.showHelpModal = false;
   }
 
-  sendHelp() {
-    console.log('Sending help request:', { type: this.helpType, message: this.helpMessage });
-    this.closeHelpModal();
-  }
-
   updateOriginalState() {
     this.originalProfile = JSON.parse(JSON.stringify(this.profile));
     this.originalPhotos = [...this.photos];

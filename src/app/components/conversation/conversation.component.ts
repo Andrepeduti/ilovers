@@ -35,6 +35,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
     chatId: string | null = null;
     myUserId: string | null = null;
+    partnerId: string | null = null;
 
     chatPartner: { name: string; photo: string } | null = null;
 
@@ -79,6 +80,23 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
             if (this.chatId) {
                 this.loadHistory(this.chatId);
                 this.connectSignalR(this.chatId);
+
+                // Find partner ID from cached chats
+                this.chatService.chats$.subscribe(chats => {
+                    if (chats) {
+                        const chat = chats.find(c => c.chatId === this.chatId);
+                        if (chat) {
+                            this.partnerId = chat.otherUserId;
+                            // Also update header info if missing
+                            if (!this.chatPartner) {
+                                this.chatPartner = {
+                                    name: chat.otherUserName,
+                                    photo: chat.otherUserPhotoUrl || '' // Handle null photo
+                                };
+                            }
+                        }
+                    }
+                });
             }
         });
 
@@ -297,7 +315,9 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
     toggleMenu() { this.showMenu = !this.showMenu; }
     viewProfile() {
-        // Implement navigation if partnerId available
+        if (this.partnerId) {
+            this.router.navigate(['/profile', this.partnerId], { queryParams: { chatId: this.chatId } });
+        }
     }
 
     openReportModal() { this.showReportModal = true; }

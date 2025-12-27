@@ -13,6 +13,7 @@ import { Profile, ProfileService } from '../../services/profile.service';
 export class ProfileDetailsComponent implements OnInit {
     profile: Profile | undefined;
     currentPhotoIndex = 0;
+    originChatId: string | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -22,6 +23,8 @@ export class ProfileDetailsComponent implements OnInit {
 
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
+        this.originChatId = this.route.snapshot.queryParamMap.get('chatId');
+
         if (id) {
             this.profileService.getProfile(id).subscribe({
                 next: (profile) => {
@@ -36,7 +39,12 @@ export class ProfileDetailsComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/chat', this.profile?.id]);
+        if (this.originChatId) {
+            this.router.navigate(['/chat', this.originChatId]);
+        } else {
+            // Fallback if accessed directly or without chat context
+            this.router.navigate(['/chat']);
+        }
     }
 
     nextPhoto() {

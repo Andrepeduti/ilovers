@@ -30,8 +30,7 @@ export class LoginComponent implements OnInit {
 
   // Help Modal State
   showHelpModal = false;
-  helpType = 'duvida';
-  helpMessage = '';
+
   isLoading = false;
   loginError = '';
 
@@ -94,16 +93,12 @@ export class LoginComponent implements OnInit {
   // Help Modal Logic
   openHelpModal() {
     this.showHelpModal = true;
-    this.helpType = 'duvida';
-    this.helpMessage = '';
+    this.showHelpModal = true;
   }
 
   closeHelpModal() {
     this.showHelpModal = false;
   }
 
-  sendHelp() {
-    console.log('Sending help request:', { type: this.helpType, message: this.helpMessage });
-    this.closeHelpModal();
-  }
+
 }

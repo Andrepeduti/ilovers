@@ -33,11 +33,13 @@
             <p>{{ profile.bio }}</p>
         </section>
 
+        @if(profile.hobbies.length > 0){
         <section class="section">
             <h3>Interesses</h3>
             <div class="tags">
                 <span class="tag" *ngFor="let hobby of profile.hobbies">{{ hobby }}</span>
             </div>
         </section>
+        }
     </div>
 </div>

@@ -225,22 +225,14 @@
             <h3>Atendimento</h3>
 
             <div class="form-group">
-                <label>O que você precisa?</label>
-                <select [(ngModel)]="helpType">
-                    <option value="duvida">Dúvida</option>
-                    <option value="problema">Problema</option>
-                    <option value="sugestao">Sugestão</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Sua mensagem</label>
-                <textarea rows="4" [(ngModel)]="helpMessage" placeholder="Descreva aqui..."></textarea>
+                <label>Entre em contato por e-mail</label>
+                <a class="support-link" href="mailto:iloversapp@outlook.com?subject=Suporte%20iLovers">
+                    iloversapp&#64;outlook.com
+                </a>
             </div>
 
             <div class="modal-actions">
-                <button class="btn-cancel" (click)="closeHelpModal()">Cancelar</button>
-                <button class="btn-confirm" (click)="sendHelp()" [disabled]="!helpMessage.trim()">Enviar</button>
+                <button class="btn-cancel" (click)="closeHelpModal()">Entendi</button>
             </div>
         </div>
     </div>
