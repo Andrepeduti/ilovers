@@ -23,4 +23,6 @@ export interface Profile extends User {
         maxAge: number;
         distance: number;
     };
+    isPremium?: boolean;
+    premiumExpiresAt?: Date;
 }

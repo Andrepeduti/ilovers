@@ -17,4 +17,5 @@ export interface Conversation {
     unreadCount: number;
     isOnline: boolean;
     isSuperLike?: boolean;
+    otherUserId?: string;
 }

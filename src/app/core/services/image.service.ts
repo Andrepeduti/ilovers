@@ -20,11 +20,14 @@ export class ImageService {
     // Use ApiPaths to ensure consistency and avoid duplication
     private apiUrl = `${environment.apiUrl}${ApiPaths.UPLOAD_IMAGE}`;
 
-    uploadImage(file: File): Observable<string> {
+    uploadImage(file: File, addToProfile: boolean = true): Observable<string> {
         const formData = new FormData();
         formData.append('file', file);
 
-        return this.http.post<UploadResponse>(this.apiUrl, formData).pipe(
+        // Append query param
+        const url = `${this.apiUrl}?addToProfile=${addToProfile}`;
+
+        return this.http.post<UploadResponse>(url, formData).pipe(
             map(response => {
                 if (response.data) {
                     return response.data;

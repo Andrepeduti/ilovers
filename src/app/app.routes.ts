@@ -3,6 +3,7 @@ import { LoginComponent } from './components/login/login.component';
 import { FeedComponent } from './components/feed/feed.component';
 import { authGuard } from './core/guards/auth.guard';
 import { loginGuard } from './core/guards/login.guard';
+import { plansGuard } from './core/guards/plans.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -13,5 +14,6 @@ export const routes: Routes = [
     { path: 'chat/:id', loadComponent: () => import('./components/conversation/conversation.component').then(m => m.ConversationComponent), canActivate: [authGuard] },
     { path: 'profile/:id', loadComponent: () => import('./components/profile-details/profile-details.component').then(m => m.ProfileDetailsComponent), canActivate: [authGuard] },
     { path: 'profile', loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
+    { path: 'plans', loadComponent: () => import('./components/plans/plans.component').then(m => m.PlansComponent), canActivate: [authGuard, plansGuard] },
     { path: '**', redirectTo: 'feed' }
 ];

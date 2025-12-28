@@ -8,6 +8,7 @@ import { LoaderComponent } from '../shared/loader/loader.component';
 import { ImageService } from '../../core/services/image.service';
 import { Observable, forkJoin } from 'rxjs';
 import { ChatRealtimeService } from '../../services/chat-realtime.service';
+import { NavigationStateService } from '../../core/services/navigation-state.service';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class ProfileComponent implements OnInit {
   private resizeMouseUpListener: any;
   private authService = inject(AuthService);
   private chatRealtimeService = inject(ChatRealtimeService);
+  private navService = inject(NavigationStateService);
 
   photos: (string | null)[] = [null, null, null, null, null, null, null, null];
   showAgeInfo = false;
@@ -144,6 +146,7 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit() {
     this.checkAndLoadProfile();
+    console.log('Profile dps do oninit:', this.profile);
   }
 
   checkAndLoadProfile() {
@@ -163,6 +166,7 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         console.log('Profile loaded:', response);
         if (response && response.data) {
+          console.log('RAW PROFILE DATA:', response.data);
           this.populateForm(response.data);
         }
         this.updateOriginalState();
@@ -179,6 +183,7 @@ export class ProfileComponent implements OnInit {
 
 
   populateForm(data: any) {
+    console.log('Profile data:', data);
     this.profile = {
       ...this.profile,
       displayName: data.name || data.displayName || '', // Map 'name' from backend
@@ -195,7 +200,9 @@ export class ProfileComponent implements OnInit {
         max: data.ageRange?.max || null
       },
       seeAllAges: data.seeAllAges || false,
-      isComplete: data.isComplete
+      isComplete: data.isComplete,
+      isPremium: data.isPremium || data.IsPremium || false,
+      premiumExpiresAt: data.premiumExpiresAt ? new Date(data.premiumExpiresAt) : (data.PremiumExpiresAt ? new Date(data.PremiumExpiresAt) : undefined)
     };
 
     const images = data.images || data.photos; // Map 'images' from backend
@@ -497,5 +504,9 @@ export class ProfileComponent implements OnInit {
         }
       }
     });
+  }
+  navigateToPlans() {
+    this.navService.allowPlansAccess();
+    this.router.navigate(['/plans'], { queryParams: { returnUrl: '/profile' } });
   }
 }

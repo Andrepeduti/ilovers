@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
+    scroll(0, 0);
   }
 
   togglePassword() {

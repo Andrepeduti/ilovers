@@ -31,6 +31,13 @@
         </div>
     </header>
 
+    <!-- Super Like Banner -->
+    <div class="super-like-banner" *ngIf="superLikedBy">
+        <i class="fas fa-star" style="color: gold; margin-right: 5px;"></i>
+        <span *ngIf="superLikedBy === myUserId">Você deu um Super Like nessa pessoa!</span>
+        <span *ngIf="superLikedBy !== myUserId">Você recebeu um Super Like dessa pessoa!</span>
+    </div>
+
     <div class="messages-list" #scrollContainer (scroll)="onScroll()">
 
         <!-- Loading Skeletons -->
@@ -133,6 +140,22 @@
                 <button class="btn-secondary" (click)="closeReportModal()">Cancelar</button>
                 <button class="btn-primary" (click)="submitReport()"
                     [disabled]="!reportReason || reportEvidence.length === 0">Denunciar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Report Success Modal -->
+    <div class="modal-overlay" *ngIf="showReportSuccessModal">
+        <div class="modal-content success-modal">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Denúncia Recebida</h3>
+            <p>Sua denúncia foi enviada com sucesso para nossa equipe de análise.</p>
+            <p class="sub-text">Por segurança, o Match com este usuário será desfeito e a conversa será removida da sua
+                lista.</p>
+
+            <div class="modal-actions full-width">
+                <button class="btn-primary" (click)="closeReportSuccessModal()">Entendi</button>
             </div>
         </div>
     </div>

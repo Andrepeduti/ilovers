@@ -112,6 +112,16 @@
                 border-radius: 50%;
                 object-fit: cover;
             }
+
+            &.blurred-super-like img {
+                filter: blur(5px);
+            }
+
+            &.super-like-border {
+                border-color: #007aff !important;
+                border-width: 3px;
+                box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
+            }
         }
 
         &.viewed .avatar-wrapper {
@@ -128,6 +138,11 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             width: 100%;
+
+            &.blurred-name {
+                filter: blur(4px);
+                opacity: 0.8;
+            }
         }
     }
 }

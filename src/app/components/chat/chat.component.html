@@ -14,10 +14,10 @@
         <div class="section-title super-like-title">SUPER LIKES 🌟</div>
         <div class="matches-scroll" #superLikesContainer>
             <div class="match-item" *ngFor="let sl of (superLikes$ | async)" (click)="handleSuperLikeClick(sl)">
-                <div class="avatar-wrapper super-like-glow">
+                <div class="avatar-wrapper super-like-glow" [class.blurred-super-like]="!isPremium">
                     <img [src]="sl.photo || 'assets/placeholder.jpg'" [alt]="sl.name">
                 </div>
-                <span class="match-name">{{ sl.name }}</span>
+                <span class="match-name" [class.blurred-name]="!isPremium">{{ sl.name }}</span>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
         <div class="matches-scroll">
             <div class="match-item" *ngFor="let match of matches" (click)="openChat(match)"
                 [class.viewed]="!match.isNew">
-                <div class="avatar-wrapper">
+                <div class="avatar-wrapper" [class.super-like-border]="match.isSuperLike">
                     <img [src]="match.photo" [alt]="match.name">
                 </div>
                 <span class="match-name">{{ match.name }}</span>

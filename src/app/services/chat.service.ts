@@ -14,6 +14,7 @@ export interface ChatDto {
     lastMessageTime: string | null;
     unreadCount: number;
     isSuperLike: boolean;
+    superLikedBy?: string;
 }
 
 export interface MessageDto {

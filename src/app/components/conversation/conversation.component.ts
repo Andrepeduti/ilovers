@@ -6,6 +6,8 @@ import { ChatService, MessageDto } from '../../services/chat.service';
 import { MatchService } from '../../services/match.service';
 import { ChatRealtimeService, ChatMessageDto } from '../../services/chat-realtime.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ImageService } from '../../core/services/image.service';
+import { ReportService } from '../../core/services/report.service';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -36,6 +38,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     chatId: string | null = null;
     myUserId: string | null = null;
     partnerId: string | null = null;
+    superLikedBy: string | null = null;
 
     chatPartner: { name: string; photo: string } | null = null;
 
@@ -54,10 +57,110 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
     private chatRealtimeService = inject(ChatRealtimeService);
     private authService = inject(AuthService);
     private matchService = inject(MatchService);
+    private imageService = inject(ImageService);
+    private reportService = inject(ReportService);
+
+    // ... (rest is fine)
+
+    // Remove duplicates at the bottom by replacing the block that likely contains them
+    openReportModal() { this.showReportModal = true; }
+    closeReportModal() { this.showReportModal = false; }
+    openUnmatchModal() { this.showUnmatchModal = true; }
+    closeUnmatchModal() { this.showUnmatchModal = false; }
+
+    confirmUnmatch() {
+        if (!this.chatId) return;
+        this.matchService.unmatch(this.chatId).subscribe({
+            next: () => {
+                this.chatService.removeChat(this.chatId!);
+                this.closeUnmatchModal();
+                this.router.navigate(['/chat']);
+            },
+            error: (err: any) => {
+                if (err.status === 404) {
+                    this.chatService.removeChat(this.chatId!);
+                    this.closeUnmatchModal();
+                    this.router.navigate(['/chat']);
+                    return;
+                }
+                console.error('Error unmatching', err);
+                this.closeUnmatchModal();
+            }
+        });
+    }
+
 
     reportReason = '';
     reportComment = '';
-    reportEvidence: any[] = [];
+    reportEvidence: string[] = []; // Store URLs, not objects for simplicity in this MVP flow
+    isUploading = false;
+
+    // ... (constructor)
+
+    // ... (ngOnInit etc)
+
+    // Methods
+    async onEvidenceSelected(event: any) {
+        const file = event.target.files[0];
+        if (file) {
+            this.isUploading = true;
+            this.imageService.uploadImage(file, false).subscribe({
+                next: (url) => {
+                    this.reportEvidence.push(url);
+                    this.isUploading = false;
+                },
+                error: (err) => {
+                    console.error('Upload failed', err);
+                    alert('Erro ao enviar imagem.');
+                    this.isUploading = false;
+                }
+            });
+        }
+    }
+
+    removeEvidence(index: number) {
+        this.reportEvidence.splice(index, 1);
+    }
+
+    showReportSuccessModal = false;
+
+    // ...
+
+    submitReport() {
+        if (!this.partnerId) return;
+
+        const payload = {
+            reportedUserId: this.partnerId,
+            reason: this.reportReason,
+            comment: this.reportComment,
+            evidenceUrls: this.reportEvidence
+        };
+
+        this.reportService.reportUser(payload).subscribe({
+            next: () => {
+                // Remove the match silently in the background or just prepare to do it when modal closes
+                // We'll do it when they click "Entendi" to avoid navigation while reading
+                this.closeReportModal();
+                this.showReportSuccessModal = true;
+
+                // Reset form
+                this.reportReason = '';
+                this.reportComment = '';
+                this.reportEvidence = [];
+            },
+            error: (err) => {
+                console.error('Report failed', err);
+                alert('Erro ao enviar denúncia. Tente novamente.');
+            }
+        });
+    }
+
+    closeReportSuccessModal() {
+        this.showReportSuccessModal = false;
+        // Backend handles unmatch/block automatically on report creation.
+        // We just navigate back to the list.
+        this.router.navigate(['/chat']);
+    }
 
     constructor() {
         // Try to get data from State (Navigation) first
@@ -67,6 +170,9 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
                 name: navigation.extras.state['name'],
                 photo: navigation.extras.state['photo']
             };
+            if (navigation.extras.state['otherUserId']) {
+                this.partnerId = navigation.extras.state['otherUserId'];
+            }
         }
     }
 
@@ -87,6 +193,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
                         const chat = chats.find(c => c.chatId === this.chatId);
                         if (chat) {
                             this.partnerId = chat.otherUserId;
+                            this.superLikedBy = chat.superLikedBy || null; // Bind SuperLike info
                             // Also update header info if missing
                             if (!this.chatPartner) {
                                 this.chatPartner = {
@@ -176,7 +283,13 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
                         this.chatService.markAsRead(chatId).subscribe();
                     }
                 },
-                error: (err) => console.error('Error loading history', err)
+                error: (err) => {
+                    console.error('Error loading history', err);
+                    // If chat/match not found or forbidden (deleted), navigate back
+                    if (err.status === 404 || err.status === 403) {
+                        this.router.navigate(['/chat']);
+                    }
+                }
             });
     }
 
@@ -320,32 +433,5 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
         }
     }
 
-    openReportModal() { this.showReportModal = true; }
-    closeReportModal() { this.showReportModal = false; }
-    openUnmatchModal() { this.showUnmatchModal = true; }
-    closeUnmatchModal() { this.showUnmatchModal = false; }
-    confirmUnmatch() {
-        if (!this.chatId) return;
-        this.matchService.unmatch(this.chatId).subscribe({
-            next: () => {
-                this.chatService.removeChat(this.chatId!);
-                this.closeUnmatchModal();
-                this.router.navigate(['/chat']);
-            },
-            error: (err) => {
-                // Treat 404 as "Already Unmatched" and clean up locally
-                if (err.status === 404) {
-                    this.chatService.removeChat(this.chatId!);
-                    this.closeUnmatchModal();
-                    this.router.navigate(['/chat']);
-                    return;
-                }
-                console.error('Error unmatching', err);
-                this.closeUnmatchModal();
-            }
-        });
-    }
-    submitReport() { /* Report logic */ this.closeReportModal(); }
-    onEvidenceSelected(e: any) { }
-    removeEvidence(i: number) { }
+
 }

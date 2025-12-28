@@ -9,6 +9,7 @@ import { ProfileService } from '../../core/services/profile.service';
 import { FeedProfile } from '../../core/models/feed.interface';
 import { trigger, transition, style, animate, keyframes, state } from '@angular/animations';
 import { LoaderComponent } from '../shared/loader/loader.component';
+import { NavigationStateService } from '../../core/services/navigation-state.service';
 
 @Component({
   selector: 'app-feed',
@@ -60,6 +61,12 @@ export class FeedComponent implements OnInit {
   private matchService = inject(MatchService);
   private profileService = inject(ProfileService);
   private authService = inject(AuthService);
+  private navService = inject(NavigationStateService);
+
+  get isPremium(): boolean {
+    const profile = this.authService.currentUser();
+    return profile?.isPremium === true;
+  }
 
   profiles: FeedProfile[] = [];
   currentIndex = 0;
@@ -81,15 +88,45 @@ export class FeedComponent implements OnInit {
   private lastTouchTime = 0;
 
   isDetailsActive = false;
-  isUndoActive = false; // Undo disabled by default in real logic usually, unless premium
+  isUndoActive = false;
+
+
+  // Smart Limits
+  showUpgradePopover = false;
+  shakeTimer = false;
+  timeUntilReset = '';
+  private timerInterval: any;
 
   get currentProfile(): FeedProfile | undefined {
     return this.profiles[this.currentIndex];
   }
 
+  limits = { likes: 0, superLikes: 0 };
+  private interactedProfileIds = new Set<string>();
+
   ngOnInit() {
     this.loadMyProfile();
     this.loadFeed();
+    this.loadLimits();
+    this.startTimer();
+  }
+
+  ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+
+  loadLimits() {
+    this.feedService.getLimits().subscribe({
+      next: (data) => {
+        this.limits = {
+          likes: data.likesRemaining,
+          superLikes: data.superLikesRemaining
+        };
+      },
+      error: (err) => console.error('Error loading limits', err)
+    });
   }
 
   loadMyProfile() {
@@ -110,15 +147,29 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  loadFeed() {
+  loadFeed(resetIndex = false) {
     if (this.loading) return;
     this.loading = true;
+
+    if (resetIndex) {
+      this.currentIndex = 0;
+      this.profiles = []; // Clear current list if forcing refresh
+    }
+
     this.feedService.getFeed(10).subscribe({
       next: (data) => {
         // Append new profiles to the list, filtering duplicates just in case
         const existingIds = new Set(this.profiles.map(p => p.id));
-        const newProfiles = data.filter(p => !existingIds.has(p.id));
-        this.profiles = [...this.profiles, ...newProfiles];
+
+        // Filter out locally known interactions (race condition fix) AND existing items
+        const newProfiles = data.filter(p => !existingIds.has(p.id) && !this.interactedProfileIds.has(p.id));
+
+        if (resetIndex) {
+          this.profiles = newProfiles;
+        } else {
+          this.profiles = [...this.profiles, ...newProfiles];
+        }
+
         this.loading = false;
       },
       error: (err) => {
@@ -126,6 +177,10 @@ export class FeedComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  refreshFeed() {
+    this.loadFeed(true);
   }
 
   nextProfile() {
@@ -151,14 +206,24 @@ export class FeedComponent implements OnInit {
     this.animationState = 'flyOutRight'; // Trigger Animation
     setTimeout(() => this.isLikeActive = false, 500);
 
+    // Track locally
+    this.interactedProfileIds.add(profile.id);
+
     // Call API in background
     this.feedService.like(profile.id).subscribe({
       next: (response) => {
+        this.limits.likes = Math.max(0, this.limits.likes - 1); // Decrement
         if (response.isMatch) {
           this.handleMatch(profile, response.chatId);
         }
       },
-      error: (err) => console.error('Like error', err)
+      error: (err: any) => {
+        console.error('Like error', err);
+        if (err.error?.error?.code === 'Limit.LikeReached') {
+          this.limits.likes = 0; // Sync to 0 just in case
+          alert('Você atingiu o limite de likes diários (10/dia). Assine o Pro para aumentar para 30!');
+        }
+      }
     });
 
     // Advance UI with delay for animation
@@ -175,8 +240,11 @@ export class FeedComponent implements OnInit {
     this.animationState = 'flyOutLeft'; // Trigger Animation
     setTimeout(() => this.isRejectActive = false, 500);
 
+    // Track locally
+    this.interactedProfileIds.add(profile.id);
+
     this.feedService.dislike(profile.id).subscribe({
-      error: (err) => console.error('Dislike error', err)
+      error: (err: any) => console.error('Dislike error', err)
     });
 
     setTimeout(() => {
@@ -185,6 +253,19 @@ export class FeedComponent implements OnInit {
   }
 
   onSuperLike() {
+    // 1. Check Limit
+    if (this.limits.superLikes <= 0) {
+      if (!this.isPremium) {
+        // Free User -> Show Popover
+        this.showUpgradePopover = !this.showUpgradePopover;
+      } else {
+        // Premium User -> Shake Timer
+        this.shakeTimer = true;
+        setTimeout(() => this.shakeTimer = false, 500);
+      }
+      return;
+    }
+
     const profile = this.currentProfile;
     if (!profile) return;
 
@@ -192,20 +273,70 @@ export class FeedComponent implements OnInit {
     this.animationState = 'flyOutUp'; // Trigger Animation
     setTimeout(() => this.isSuperLikeActive = false, 1000);
 
+    // Track locally
+    this.interactedProfileIds.add(profile.id);
+
     this.feedService.superLike(profile.id).subscribe({
       next: (response) => {
+        this.limits.superLikes = Math.max(0, this.limits.superLikes - 1); // Decrement
         if (response.isMatch) {
           this.handleMatch(profile, response.chatId);
         }
       },
-      error: (err) => console.error('SuperLike error', err)
+      error: (err) => {
+        console.error('SuperLike error', err);
+        if (err.error?.error?.code === 'Limit.SuperLikeReached') {
+          this.limits.superLikes = 0;
+          // If backend says limit reached but frontend thought otherwise, show UI helper now
+          if (!this.isPremium) this.showUpgradePopover = true;
+        }
+      }
     });
 
     // Delay to let animation play
     setTimeout(() => {
       this.nextProfile();
     }, 600); // Slightly longer for super like
+  }
 
+  goToPlans() {
+    this.navService.allowPlansAccess();
+    this.router.navigate(['/plans'], { queryParams: { returnUrl: '/feed' } });
+  }
+
+  private startTimer() {
+    this.updateTimer(); // Initial call
+    this.timerInterval = setInterval(() => {
+      this.updateTimer();
+    }, 1000);
+  }
+
+  private updateTimer() {
+    const now = new Date();
+    const nowUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
+
+    // Tomorrow 00:00 UTC
+    const tomorrowUtc = new Date(nowUtc);
+    tomorrowUtc.setUTCDate(nowUtc.getUTCDate() + 1);
+    tomorrowUtc.setUTCHours(0, 0, 0, 0);
+
+    const diff = tomorrowUtc.getTime() - nowUtc.getTime();
+
+    if (diff <= 0) {
+      this.timeUntilReset = '00:00:00';
+      // Optionally reload limits here if we hit 0?
+      return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    this.timeUntilReset = `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(seconds)}`;
+  }
+
+  private pad(num: number): string {
+    return num < 10 ? '0' + num : num.toString();
   }
 
   private router = inject(Router);
@@ -283,6 +414,14 @@ export class FeedComponent implements OnInit {
   }
 
   onUndo() {
+    if (!this.isPremium) {
+      // Show Popover (Reusing existing popover logic, perhaps renaming variable contextually or just using it)
+      // Since the popover is tied to 'superLikes <= 0' in the HTML, we might need a separate state or just general 'showPremiumModal'
+      // But purely for Rewind, we can Reuse showUpgradePopover if we make the HTML condition check generic.
+      // Let's toggle it.
+      this.showUpgradePopover = true;
+      return;
+    }
     if (this.currentIndex > 0) {
       this.isUndoActive = true;
       setTimeout(() => this.isUndoActive = false, 500);

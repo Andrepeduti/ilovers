@@ -197,6 +197,28 @@
             </div>
         </section>
 
+        <section class="section info-section">
+            <h2>Plano</h2>
+
+            <div class="plan-status-container" [class.pro]="profile.isPremium">
+                <div class="status-row">
+                    <div class="status-badge" [class.pro]="profile.isPremium">
+                        <i class="fas" [class.fa-crown]="profile.isPremium" [class.fa-user]="!profile.isPremium"></i>
+                        {{ profile.isPremium ? 'ILovers Pro' : 'ILovers Free' }}
+                    </div>
+                    <button class="plan-action-btn" [class.pro]="profile.isPremium" [class.upgrade]="!profile.isPremium"
+                        (click)="navigateToPlans()">
+                        {{ profile.isPremium ? 'Gerenciar' : 'Seja Pro' }}
+                    </button>
+
+                </div>
+
+                <p class="plan-expiry" *ngIf="profile.isPremium && profile.premiumExpiresAt">
+                    Válido até {{ profile.premiumExpiresAt | date:'dd/MM/yyyy' }}
+                </p>
+            </div>
+        </section>
+
         <div class="footer-action">
             <button class="save-full-btn" [disabled]="!isFormValid || !isDirty" (click)="saveProfile()">Salvar
                 Perfil</button>

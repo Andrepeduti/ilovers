@@ -15,4 +15,6 @@ export interface IProfile {
     hobbies: string[];
     photos: (string | null)[];
     isComplete?: boolean;
+    isPremium?: boolean;
+    premiumExpiresAt?: Date;
 }

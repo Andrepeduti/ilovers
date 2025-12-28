@@ -31,4 +31,9 @@ export class FeedService {
         return this.http.post<{ data: InteractionResponse }>(`${this.apiUrl}/super-like`, { targetProfileId })
             .pipe(map(response => response.data));
     }
+
+    getLimits(): Observable<{ likesRemaining: number, superLikesRemaining: number }> {
+        return this.http.get<{ data: any }>(`${this.apiUrl}/limits`)
+            .pipe(map(response => response.data));
+    }
 }

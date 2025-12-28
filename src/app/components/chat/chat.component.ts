@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ChatService, ChatDto } from '../../services/chat.service';
 import { MatchService, MatchProfile } from '../../services/match.service';
 import { FeedService } from '../../core/services/feed.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Conversation, Match } from './models/chat.interface';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { combineLatest, Observable } from 'rxjs';
@@ -30,6 +31,12 @@ export class ChatComponent implements OnInit {
     private matchService = inject(MatchService);
     private chatService = inject(ChatService);
     private feedService = inject(FeedService);
+    private authService = inject(AuthService);
+
+    get isPremium(): boolean {
+        const user = this.authService.currentUser();
+        return user?.isPremium || false;
+    }
 
     constructor() {
         this.matches$ = combineLatest([
@@ -49,7 +56,8 @@ export class ChatComponent implements OnInit {
                     photo: m.photo,
                     isNew: m.isNew,
                     chatId: m.chatId,
-                    matchId: m.matchId
+                    matchId: m.matchId,
+                    isSuperLike: m.isSuperLike // Map this field
                 } as Match));
             })
         );
@@ -113,10 +121,7 @@ export class ChatComponent implements OnInit {
                     if (m.chatId && activeChatIds.has(m.chatId.toString())) {
                         return false;
                     }
-                    // Hide if is Super Like flag is true
-                    if (m.isSuperLike) {
-                        return false;
-                    }
+
                     // ROBUSTNESS: Hide if present in Super Likes list (Double check)
                     if (superLikeIds.has(m.id)) {
                         return false;
@@ -149,7 +154,8 @@ export class ChatComponent implements OnInit {
             time: this.formatTime(dto.lastMessageTime),
             unreadCount: dto.unreadCount,
             isOnline: false,
-            isSuperLike: dto.isSuperLike
+            isSuperLike: dto.isSuperLike,
+            otherUserId: dto.otherUserId
         };
     }
 
@@ -163,6 +169,7 @@ export class ChatComponent implements OnInit {
         let chatId: string | undefined;
         let name: string;
         let photo: string;
+        let otherUserId: string | undefined;
 
         // Type Guard logic
         if ('isNew' in item) {
@@ -170,6 +177,7 @@ export class ChatComponent implements OnInit {
             chatId = item.chatId; // Should exist now
             name = item.name;
             photo = item.photo;
+            otherUserId = item.id; // Correct: Match id IS the user id
 
             // Mark as viewed: Remove red dot
             if (item.isNew) {
@@ -181,11 +189,12 @@ export class ChatComponent implements OnInit {
             chatId = item.id.toString();
             name = item.name;
             photo = item.photo;
+            otherUserId = (item as Conversation).otherUserId;
         }
 
         if (chatId) {
             this.router.navigate(['chat', chatId], {
-                state: { name, photo }
+                state: { name, photo, otherUserId }
             });
         } else {
             console.error('Chat ID missing for item', item);
@@ -193,6 +202,11 @@ export class ChatComponent implements OnInit {
     }
 
     handleSuperLikeClick(sl: MatchProfile) {
+        if (!this.isPremium) {
+            alert('Funcionalidade exclusiva para usuários Pro. Assine para ver e conversar com quem te deu Super Like!');
+            return;
+        }
+
         // Auto-match (Like back) to create conversation
         this.feedService.like(sl.id).subscribe({
             next: (response) => {

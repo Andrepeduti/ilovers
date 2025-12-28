@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, Event } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Important for *ngIf if not using @if
+import { CommonModule } from '@angular/common';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { filter } from 'rxjs/operators';
 
@@ -10,6 +10,7 @@ import { MatchService } from './services/match.service';
 import { ChatService } from './services/chat.service';
 import { ChatRealtimeService } from './services/chat-realtime.service';
 import { NotificationModalComponent } from './components/shared/notification-modal/notification-modal.component';
+import { ScrollService } from './core/services/scroll.service';
 
 @Component({
   selector: 'app-root',
@@ -30,18 +31,25 @@ export class AppComponent {
     private router: Router,
     private authService: AuthService,
     private interactionService: InteractionService,
-    private matchService: MatchService, // Inject
-    private chatService: ChatService,   // Inject
-    private chatRealtimeHelper: ChatRealtimeService // Inject
+    private matchService: MatchService,
+    private chatService: ChatService,
+    private chatRealtimeHelper: ChatRealtimeService,
+    private scrollService: ScrollService
   ) {
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
+      // Force scroll to top on navigation, with a small delay to ensure view update
+      setTimeout(() => {
+        this.scrollService.scrollToTop();
+      }, 50);
+
       // Hide footer on login, register, and conversation detail pages
       this.showFooter = !event.urlAfterRedirects.includes('/login') &&
         !event.urlAfterRedirects.includes('/register') &&
         !event.urlAfterRedirects.includes('/chat/') &&
-        !event.urlAfterRedirects.includes('/profile/');
+        !event.urlAfterRedirects.includes('/profile/') &&
+        !event.urlAfterRedirects.includes('/plans');
     });
 
     // Restore user state on refresh
