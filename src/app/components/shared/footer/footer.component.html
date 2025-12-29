@@ -1,13 +1,11 @@
 <div class="nav-footer">
     <button class="nav-btn" [class.active]="activeTab === 'profile'" (click)="navigateTo('profile')">
         <i class="fas fa-user"></i>
-        <span>Perfil</span>
     </button>
 
     <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'"
         [class.disabled-nav]="!authService.isProfileComplete(authService.currentUser())" (click)="navigateTo('feed')">
         <i class="fas fa-heart"></i>
-        <span>Feed</span>
 
         <div class="tooltip-balloon" *ngIf="showDisabledTooltip" (click)="$event.stopPropagation()">
             <p>É necessário preencher todo o perfil para acessar o feed.</p>
@@ -22,6 +20,9 @@
                 {{ count > 99 ? '99+' : count }}
             </span>
         </div>
-        <span>Ações</span>
+    </button>
+
+    <button class="nav-btn" [class.active]="activeTab === 'settings'" (click)="navigateTo('settings')">
+        <i class="fas fa-cog"></i>
     </button>
 </div>

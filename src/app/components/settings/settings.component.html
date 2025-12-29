@@ -1,0 +1,75 @@
+<div class="settings-container">
+    <header class="header">
+        <h1>Configurações</h1>
+    </header>
+
+    <div class="content">
+        <!-- Plans Card -->
+        <section class="section plans-section">
+            <h2>Seu Plano</h2>
+            <div class="plan-status-container" [class.pro]="profile()?.isPremium">
+                <div class="status-row">
+                    <div class="status-badge" [class.pro]="profile()?.isPremium">
+                        <i class="fas" [class.fa-crown]="profile()?.isPremium"
+                            [class.fa-user]="!profile()?.isPremium"></i>
+                        {{ profile()?.isPremium ? 'ILovers Pro' : 'ILovers Free' }}
+                    </div>
+                    <button class="plan-action-btn" [class.pro]="profile()?.isPremium"
+                        [class.upgrade]="!profile()?.isPremium" (click)="navigateToPlans()">
+                        {{ profile()?.isPremium ? 'Gerenciar' : 'Seja Pro' }}
+                    </button>
+                </div>
+                <p class="plan-expiry" *ngIf="profile()?.isPremium && profile()?.premiumExpiresAt">
+                    Válido até {{ profile()?.premiumExpiresAt | date:'dd/MM/yyyy' }}
+                </p>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <section class="section actions-section">
+            <h2>Conta</h2>
+
+            <button class="action-btn" (click)="openHelpModal()">
+                <div class="btn-content">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Ajuda e Suporte</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <button class="action-btn logout" (click)="logout()">
+                <div class="btn-content">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair da conta</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" *ngIf="showLogoutModal">
+        <div class="modal-content">
+            <h3>Deseja realmente sair?</h3>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="cancelLogout()">Não</button>
+                <button class="btn-confirm" (click)="confirmLogout()">Sim</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" *ngIf="showHelpModal">
+        <div class="modal-content help-modal">
+            <h3>Atendimento</h3>
+            <div class="form-group">
+                <label>Entre em contato por e-mail</label>
+                <a class="support-link" href="mailto:iloversapp@outlook.com?subject=Suporte%20iLovers">
+                    iloversapp&#64;outlook.com
+                </a>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeHelpModal()">Entendi</button>
+            </div>
+        </div>
+    </div>
+</div>
