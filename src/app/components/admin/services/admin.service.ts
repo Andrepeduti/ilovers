@@ -29,6 +29,14 @@ export interface DashboardMetrics {
     };
 }
 
+export interface AdminUser {
+    id: string;
+    email: string;
+    role: string;
+    status: string;
+    createdAt: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -39,5 +47,14 @@ export class AdminService {
     getDashboardMetrics(): Observable<DashboardMetrics> {
         return this.http.get<{ data: DashboardMetrics }>(`${this.apiUrl}/dashboard`)
             .pipe(map(res => res.data));
+    }
+
+    getUsers(): Observable<AdminUser[]> {
+        return this.http.get<{ data: AdminUser[] }>(`${this.apiUrl}/users`)
+            .pipe(map(res => res.data));
+    }
+
+    deleteUser(userId: string): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
     }
 }
