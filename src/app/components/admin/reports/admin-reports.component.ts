@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService, Report } from '../services/admin.service';
 import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-admin-reports',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './admin-reports.component.html',
     styleUrls: ['./admin-reports.component.scss']
 })
@@ -26,6 +27,8 @@ export class AdminReportsComponent implements OnInit {
         return Math.ceil(this.totalCount / this.pageSize);
     }
 
+    reportStatuses = ['Pending', 'Resolved', 'Dismissed'];
+
     ngOnInit() {
         this.loadReports();
     }
@@ -42,6 +45,24 @@ export class AdminReportsComponent implements OnInit {
                 console.error('Failed to load reports', err);
                 this.error = 'Erro ao carregar denúncias.';
                 this.loading = false;
+            }
+        });
+    }
+
+    onStatusChange(report: Report, newStatus: string) {
+        if (report.status === newStatus) return;
+
+        const previousStatus = report.status;
+        report.status = newStatus;
+
+        this.adminService.updateReportStatus(report.id, newStatus).subscribe({
+            next: () => {
+                // Success feedback if needed
+            },
+            error: (err) => {
+                console.error('Failed to update status', err);
+                report.status = previousStatus;
+                alert('Erro ao atualizar status.');
             }
         });
     }

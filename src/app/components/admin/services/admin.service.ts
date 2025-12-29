@@ -89,4 +89,8 @@ export class AdminService {
         return this.http.get<{ data: ReportListResponse }>(`${this.apiUrl}/reports`, { params: { page, pageSize } })
             .pipe(map(res => res.data));
     }
+
+    updateReportStatus(reportId: string, status: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/reports/${reportId}/status`, { status });
+    }
 }
