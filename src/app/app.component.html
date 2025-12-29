@@ -1,3 +1,17 @@
+<div class="desktop-blocker" *ngIf="showDesktopBlocker">
+    <div class="blocker-content">
+        <div class="logo-container">
+            <h1 class="app-logo">IL<i class="fas fa-heart heart-beat"></i>vers</h1>
+        </div>
+        <h2>Experiência exclusiva para celular</h2>
+        <p>O iLovers foi desenhado para ser usado no seu smartphone. Baixe nosso app ou acesse pelo navegador do seu
+            celular.</p>
+        <div class="qr-code-placeholder">
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+    </div>
+</div>
+
 <router-outlet></router-outlet>
 <app-footer *ngIf="showFooter"></app-footer>
 <app-notification-modal *ngIf="showNotificationModal" [data]="currentNotification" (close)="closeNotification()">

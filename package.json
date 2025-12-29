@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:hom": "ng build --configuration homolog",
-    "start:hom": "ng serve --configuration homolog"
+    "start:hom": "ng serve --configuration homolog",
+    "start:prod": "ng serve --configuration production"
   },
   "private": true,
   "dependencies": {
