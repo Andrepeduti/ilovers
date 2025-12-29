@@ -36,6 +36,33 @@
         margin: 0;
     }
 
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        .users-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+            transition: all 0.2s;
+
+            &:hover {
+                background: #1976D2;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+            }
+        }
+    }
+
     .user-role-badge {
         background: #333;
         color: white;

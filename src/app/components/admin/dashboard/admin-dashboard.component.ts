@@ -40,4 +40,8 @@ export class AdminDashboardComponent implements OnInit {
     goBack() {
         this.router.navigate(['/feed']);
     }
+
+    goToUsers() {
+        this.router.navigate(['/admin/users']);
+    }
 }
