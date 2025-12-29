@@ -1,14 +1,21 @@
 <div class="dashboard-container">
     <div class="header">
-        <button class="back-btn" (click)="goBack()">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </button>
-        <h1>Cockpit iLovers 🚀</h1>
-        <div class="actions">
-            <button class="users-btn" (click)="goToUsers()">
-                <i class="fas fa-users-cog"></i> Gerenciar Usuários
+        <div class="header-left">
+            <button class="back-btn" (click)="goBack()">
+                <i class="fas fa-arrow-left"></i> Voltar
             </button>
             <div class="user-role-badge">Admin</div>
+        </div>
+        <h1>Cockpit iLovers 🚀</h1>
+        <div class="actions">
+            <div class="action-buttons">
+                <button class="users-btn" (click)="goToUsers()">
+                    <i class="fas fa-users-cog"></i> Gerenciar Usuários
+                </button>
+                <button class="reports-btn" (click)="goToReports()">
+                    <i class="fas fa-flag"></i> Denúncias
+                </button>
+            </div>
         </div>
     </div>
 

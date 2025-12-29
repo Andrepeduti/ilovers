@@ -1,13 +1,23 @@
 <div class="admin-users-container">
     <header>
-        <button class="back-btn" (click)="router.navigate(['/admin'])">← Voltar</button>
-        <h1>Gerenciar Usuários</h1>
-        <div class="stats">Total: {{ users.length }}</div>
+        <div class="top-row">
+            <button class="back-btn" (click)="router.navigate(['/admin'])">← Voltar</button>
+            <h1>Gerenciar Usuários</h1>
+        </div>
+
+        <div class="filters">
+            <div class="search-box">
+                <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()"
+                    placeholder="Buscar por e-mail..." />
+                <button (click)="onSearch()">Buscar</button>
+            </div>
+            <div class="stats">Total: {{ totalCount }}</div>
+        </div>
     </header>
 
     <div class="content">
         <div *ngIf="loading" class="loading">
-            <div class="spinner"></div> Carregando usuários...
+            <div class="spinner"></div> Carregando...
         </div>
 
         <div *ngIf="error" class="error-msg">{{ error }}</div>
@@ -21,13 +31,13 @@
                     </div>
                     <div class="secondary-info">
                         <span class="status" [class.active]="user.status === 'Active'">{{ user.status }}</span>
-                        <span class="date">Criado em: {{ user.createdAt | date:'dd/MM/yyyy' }}</span>
+                        <span class="date">Criado: {{ user.createdAt | date:'dd/MM/yy' }}</span>
                         <span class="id">ID: {{ user.id }}</span>
                     </div>
                 </div>
                 <div class="actions">
-                    <button class="delete-btn" (click)="deleteUser(user)" [disabled]="user.role === 'Admin'">
-                        Excluir Conta
+                    <button class="delete-btn" (click)="deleteUser(user)" [disabled]="user.id === currentUserId">
+                        Excluir
                     </button>
                 </div>
             </div>
@@ -35,6 +45,12 @@
             <div *ngIf="users.length === 0" class="empty-state">
                 Nenhum usuário encontrado.
             </div>
+        </div>
+
+        <div class="pagination" *ngIf="!loading && !error && totalCount > 0">
+            <button (click)="prevPage()" [disabled]="page === 1">Anterior</button>
+            <span class="info">Pág {{ page }} de {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="page >= totalPages">Próxima</button>
         </div>
     </div>
 </div>
