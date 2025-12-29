@@ -64,6 +64,20 @@ export class ProfileComponent implements OnInit {
 
   availableInterests = ['Fotografia', 'Viagens', 'Música', 'Arte', 'Esportes', 'Culinária', 'Leitura', 'Cinema', 'Tecnologia', 'Natureza', 'Yoga'];
 
+  tagIcons: { [key: string]: string } = {
+    'Fotografia': 'fas fa-camera',
+    'Viagens': 'fas fa-plane',
+    'Música': 'fas fa-music',
+    'Arte': 'fas fa-palette',
+    'Esportes': 'fas fa-futbol',
+    'Culinária': 'fas fa-utensils',
+    'Leitura': 'fas fa-book',
+    'Cinema': 'fas fa-film',
+    'Tecnologia': 'fas fa-laptop-code',
+    'Natureza': 'fas fa-tree',
+    'Yoga': 'fas fa-spa'
+  };
+
   private originalProfile: any;
   private originalPhotos: (string | null)[] = [];
 
@@ -484,7 +498,7 @@ export class ProfileComponent implements OnInit {
         this.updateOriginalState();
         this.toggleLoader();
         this.saveError = '';
-        // Optional: Show success message or tooltip
+        this.router.navigate(['/profile']);
       },
       error: (err) => {
         console.error('Error saving profile:', err);
@@ -492,8 +506,10 @@ export class ProfileComponent implements OnInit {
 
         const errorData = err.error?.error;
         if (errorData) {
-          if (errorData.code === 'VALIDATION_ERROR' && errorData.validationErrors?.length > 0) {
-            this.saveError = errorData.validationErrors[0].message;
+          const details = errorData.details || errorData.validationErrors;
+
+          if (errorData.code === 'VALIDATION_ERROR' && details?.length > 0) {
+            this.saveError = details[0].message;
           } else if (errorData.message) {
             this.saveError = errorData.message;
           } else {
@@ -505,6 +521,10 @@ export class ProfileComponent implements OnInit {
       }
     });
   }
+  goBack() {
+    this.router.navigate(['/profile']);
+  }
+
   navigateToPlans() {
     this.navService.allowPlansAccess();
     this.router.navigate(['/plans'], { queryParams: { returnUrl: '/profile' } });

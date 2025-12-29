@@ -13,7 +13,12 @@
             <div class="report-card" *ngFor="let report of reports">
                 <div class="report-header">
                     <span class="reason">{{ report.reason }}</span>
-                    <span class="status" [class.pending]="report.status === 'Pending'">{{ report.status }}</span>
+                    <select class="status-select" [ngModel]="report.status"
+                        (ngModelChange)="onStatusChange(report, $event)" [class.pending]="report.status === 'Pending'"
+                        [class.resolved]="report.status === 'Resolved'"
+                        [class.dismissed]="report.status === 'Dismissed'">
+                        <option *ngFor="let status of reportStatuses" [value]="status">{{ status }}</option>
+                    </select>
                 </div>
 
                 <div class="report-body">

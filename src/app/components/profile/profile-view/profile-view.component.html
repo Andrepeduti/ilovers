@@ -1,0 +1,78 @@
+<app-loader *ngIf="showLoader"></app-loader>
+
+<div class="profile-view-container" *ngIf="profile && !showLoader">
+    <div class="card" (click)="onCardClick($event)">
+
+        <!-- Photo Indicators -->
+        <div class="photo-indicators">
+            <div class="indicator-bar" *ngFor="let img of profile.photos; let i = index"
+                [class.active]="i === currentPhotoIndex">
+            </div>
+        </div>
+
+        <img [src]="profile.photos[currentPhotoIndex]" [alt]="profile.displayName" class="profile-image"
+            *ngIf="profile.photos && profile.photos.length > 0">
+        <div class="no-photo" *ngIf="!profile.photos || profile.photos.length === 0"></div>
+
+        <div class="overlay-gradient"></div>
+
+        <div class="profile-info">
+            <h1>
+                <span class="name">{{ profile.displayName }}</span>
+                <span class="age" *ngIf="profile.age && !profile.hideAge">{{ profile.age }}</span>
+            </h1>
+            <div class="location-row">
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state }}</p>
+                <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()">
+                    <i class="fas fa-info"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Edit Button (Floating) -->
+        <button class="edit-btn" (click)="$event.stopPropagation(); editProfile()">
+            <i class="fas fa-pencil-alt"></i> Editar Perfil
+        </button>
+    </div>
+
+    <!-- Expanded Profile Details Modal -->
+    <div class="profile-details-modal" [class.active]="isDetailsActive">
+        <button class="close-details-btn" (click)="toggleDetails()">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div class="details-content">
+            <div class="details-header">
+                <h1><span class="name">{{ profile.displayName }}</span> <span class="age"
+                        *ngIf="profile.age && !profile.hideAge">- {{
+                        profile.age }}</span></h1>
+                <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state
+                    }}</p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="details-section">
+                <h3>Sobre</h3>
+                <p class="bio-text">{{ profile.bio }}</p>
+            </div>
+
+            <div class="details-section" *ngIf="profile.hobbies && profile.hobbies.length > 0">
+                <h3>Interesses</h3>
+                <div class="tags-detail">
+                    <span class="tag-detail" *ngFor="let hobby of profile.hobbies">
+                        <i [class]="tagIcons[hobby] || 'fas fa-hashtag'"></i> {{ hobby }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="details-actions">
+                <button class="action-btn edit-action" (click)="editProfile()">
+                    EDITAR INFO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

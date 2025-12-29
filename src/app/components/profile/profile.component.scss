@@ -37,6 +37,10 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
         color: white;
         font-size: 1.2rem;
         cursor: pointer;
+        position: absolute;
+        left: 20px;
+
+
     }
 }
 
@@ -345,6 +349,14 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
         font-family: inherit;
         width: 100%;
     }
+
+    .char-counter {
+        text-align: right;
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 5px;
+        margin-right: 5px;
+    }
 }
 
 .row {
@@ -496,6 +508,13 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     border: 1px solid #ddd;
     background: #fff;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+        font-size: 0.9em;
+    }
 
     &.selected {
         background: linear-gradient(45deg, #ab47bc, #ef5350);
@@ -727,4 +746,16 @@ small {
 
 .save-full-btn:disabled:hover {
     background: #e0e0e0;
+}
+
+.error-banner {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.9rem;
+    border: 1px solid #ffcdd2;
+    animation: fadeIn 0.3s;
 }
