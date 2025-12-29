@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
     useMocks: false,
-    apiUrl: 'http://localhost:8080/api/v1'
+    apiUrl: 'https://5kirrqpyrd.us-east-1.awsapprunner.com/api/v1'
 };
