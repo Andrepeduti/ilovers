@@ -1,0 +1,18 @@
+<div class="launch-container">
+    <div class="content-card">
+        <div class="logo-animation">
+            <div class="heart-pulse">
+                <i class="fas fa-heart"></i>
+            </div>
+        </div>
+
+        <h1>Estamos chegando!</h1>
+
+        <div class="date-badge" *ngIf="status?.releaseDate">
+            <span>Data de lançamento em</span>
+            <span class="date">{{ status?.releaseDate }}</span>
+        </div>
+
+        <p class="footer-note">Não se preocupe! Você já está cadastrado.</p>
+    </div>
+</div>

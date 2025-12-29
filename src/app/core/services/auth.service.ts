@@ -55,6 +55,10 @@ export class AuthService {
     isAuthenticated(): boolean {
         return !!localStorage.getItem('access_token');
     }
+
+    isLoggedIn(): boolean {
+        return this.isAuthenticated();
+    }
     // Update user profile
     // Get user profile
     getProfile(): Observable<any> {

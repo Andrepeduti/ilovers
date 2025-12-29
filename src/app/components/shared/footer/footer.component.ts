@@ -89,7 +89,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   private updateActiveTab(url: string) {
-    if (url.includes('/feed')) {
+    if (url.includes('/feed') || url.includes('/coming-soon')) {
       this.activeTab = 'feed';
     } else if (url.includes('/profile')) {
       this.activeTab = 'profile';

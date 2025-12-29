@@ -1,0 +1,219 @@
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fce4ec, #f3e5f5, #e0f7fa);
+    padding: 20px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .back-btn {
+        background: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+
+    h1 {
+        flex: 1;
+        font-size: 1.8rem;
+        color: #333;
+        margin: 0;
+    }
+
+    .user-role-badge {
+        background: #333;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+}
+
+.loading-state,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    color: #666;
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #ff4b7d;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    button {
+        background: #ff4b7d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+}
+
+section {
+    margin-bottom: 40px;
+
+    h2 {
+        font-size: 1.2rem;
+        color: #555;
+        margin-bottom: 15px;
+        border-left: 4px solid #ff4b7d;
+        padding-left: 10px;
+    }
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #666;
+        background: rgba(0, 0, 0, 0.05);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.users {
+            color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        &.active {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        &.heart {
+            color: #ff4b7d;
+            background: rgba(255, 75, 125, 0.1);
+        }
+    }
+
+    .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .label {
+        font-size: 0.9rem;
+        color: #888;
+        font-weight: 500;
+    }
+
+    &.premium {
+        background: linear-gradient(135deg, #fff, #fefeff);
+        border: 2px solid #ffd700;
+
+        .icon {
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+    }
+
+    &.match {
+        .icon {
+            color: #9c27b0;
+            background: rgba(156, 39, 176, 0.1);
+        }
+    }
+
+    &.super-like {
+        .icon {
+            color: #00bfff;
+            background: rgba(0, 191, 255, 0.1);
+        }
+    }
+
+    &.rewind {
+        .icon {
+            color: #fe6e00;
+            background: rgba(254, 110, 0, 0.1);
+        }
+    }
+
+    &.dislike {
+        .icon {
+            color: #7f8c8d;
+            background: rgba(127, 140, 141, 0.1);
+        }
+    }
+
+    &.warning {
+        border-left: 4px solid #ff9800;
+
+        .value {
+            color: #ff9800;
+        }
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .cards-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

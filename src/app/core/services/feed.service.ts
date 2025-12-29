@@ -32,8 +32,12 @@ export class FeedService {
             .pipe(map(response => response.data));
     }
 
-    getLimits(): Observable<{ likesRemaining: number, superLikesRemaining: number }> {
+    getLimits(): Observable<{ likesRemaining: number, superLikesRemaining: number, rewindsRemaining: number }> {
         return this.http.get<{ data: any }>(`${this.apiUrl}/limits`)
             .pipe(map(response => response.data));
+    }
+
+    rewind(): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/rewind`, {});
     }
 }

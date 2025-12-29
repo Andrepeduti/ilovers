@@ -101,7 +101,7 @@ export class FeedComponent implements OnInit {
     return this.profiles[this.currentIndex];
   }
 
-  limits = { likes: 0, superLikes: 0 };
+  limits = { likes: 0, superLikes: 0, rewinds: 0 };
   private interactedProfileIds = new Set<string>();
 
   ngOnInit() {
@@ -122,7 +122,8 @@ export class FeedComponent implements OnInit {
       next: (data) => {
         this.limits = {
           likes: data.likesRemaining,
-          superLikes: data.superLikesRemaining
+          superLikes: data.superLikesRemaining,
+          rewinds: data.rewindsRemaining
         };
       },
       error: (err) => console.error('Error loading limits', err)
@@ -190,6 +191,8 @@ export class FeedComponent implements OnInit {
     if (this.currentIndex < this.profiles.length) {
       this.currentIndex++;
       this.currentPhotoIndex = 0;
+      // Allow undoing this new action if premium
+      this.canUndo = true;
     }
 
     // Check buffer
@@ -413,22 +416,50 @@ export class FeedComponent implements OnInit {
     if (this.currentPhotoIndex > 0) this.currentPhotoIndex--;
   }
 
+  // New state for Undo limit
+  canUndo = false;
+  showUndoPopover = false;
+
   onUndo() {
+    // 1. Check if we can physically undo (index > 0)
+    if (this.currentIndex <= 0) return;
+
+    // 2. Check Permissions/Limits
     if (!this.isPremium) {
-      // Show Popover (Reusing existing popover logic, perhaps renaming variable contextually or just using it)
-      // Since the popover is tied to 'superLikes <= 0' in the HTML, we might need a separate state or just general 'showPremiumModal'
-      // But purely for Rewind, we can Reuse showUpgradePopover if we make the HTML condition check generic.
-      // Let's toggle it.
-      this.showUpgradePopover = true;
+      this.showUndoPopover = !this.showUndoPopover;
       return;
     }
-    if (this.currentIndex > 0) {
-      this.isUndoActive = true;
-      setTimeout(() => this.isUndoActive = false, 500);
 
-      this.currentIndex--;
-      this.currentPhotoIndex = 0;
+    // Premium Logic
+    if (this.limits.rewinds <= 0) {
+      // Limit Reached -> Show Timer (Shake)
+      this.shakeTimer = true;
+      setTimeout(() => this.shakeTimer = false, 500);
+      return;
     }
+
+    // Check if current card allows undo (fresh swiped)
+    if (!this.canUndo) {
+      // Already used undo for this card or invalid state
+      return;
+    }
+
+    // 3. Perform Undo
+    this.isUndoActive = true;
+    setTimeout(() => this.isUndoActive = false, 500);
+
+    this.feedService.rewind().subscribe({
+      next: () => {
+        this.limits.rewinds = Math.max(0, this.limits.rewinds - 1);
+      },
+      error: (err) => console.error(err)
+    });
+
+    this.currentIndex--;
+    this.currentPhotoIndex = 0;
+
+    // Consume the undo allowance
+    this.canUndo = false;
   }
 
   toggleDetails() {

@@ -1,0 +1,88 @@
+.launch-container {
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #ff4b1f 0%, #ff9068 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+}
+
+.content-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.logo-animation {
+    margin-bottom: 2rem;
+
+    .heart-pulse {
+        font-size: 4rem;
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.message {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+.date-badge {
+    background: white;
+    color: #ff4b1f;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    span:first-child {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .date {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+}
+
+.footer-note {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

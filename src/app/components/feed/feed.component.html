@@ -42,12 +42,28 @@
     <!-- Actions Bar - Moved inside a wrapper for overlay -->
     <div class="card-overlay-actions">
         <div class="actions-bar">
-            <button class="action-btn undo" (click)="onUndo()" [class.rotate-back]="isUndoActive"
-                [disabled]="currentIndex === 0 || !isPremium"
-                [title]="!isPremium ? 'Disponível apenas para Pro' : 'Desfazer'"
-                [style.opacity]="(currentIndex === 0 || !isPremium) ? '0.5' : '1'">
-                <i class="fas fa-undo"></i>
-            </button>
+            <div class="action-btn-wrapper">
+                <span class="limit-badge undo-badge" *ngIf="isPremium">{{ limits.rewinds }}</span>
+                <button class="action-btn undo" (click)="onUndo()" [class.rotate-back]="isUndoActive"
+                    [disabled]="currentIndex === 0" [class.fake-disabled]="isPremium && limits.rewinds <= 0"
+                    [title]="!isPremium ? 'Recurso Pro' : 'Desfazer'"
+                    [style.opacity]="(currentIndex === 0 || !isPremium || (isPremium && limits.rewinds <= 0)) ? '0.5' : '1'">
+                    <i class="fas fa-undo"></i>
+                </button>
+
+                <!-- Popover for Free Plan (Undo) -->
+                <div class="upgrade-popover" *ngIf="showUndoPopover && !isPremium">
+                    <p>Recurso Pro</p>
+                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
+                    <div class="arrow-down"></div>
+                </div>
+
+                <!-- Timer for Pro Plan (Undo Limit) -->
+                <div *ngIf="isPremium && currentIndex > 0 && (limits.rewinds <= 0 || !canUndo)" class="reset-timer"
+                    [class.shake]="shakeTimer">
+                    <span>Renova em {{ timeUntilReset }}</span>
+                </div>
+            </div>
             <button class="action-btn reject" (click)="onReject()" [class.shake-x]="isRejectActive">
                 <i class="fas fa-times"></i>
             </button>
@@ -73,12 +89,7 @@
                     <div class="arrow-down"></div>
                 </div>
 
-                <!-- Popover for Rewind -->
-                <div class="upgrade-popover rewind-popover" *ngIf="showUpgradePopover && limits.superLikes > 0">
-                    <p>Recurso Pro</p>
-                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
-                    <div class="arrow-down"></div>
-                </div>
+
 
                 <!-- Timer for Pro Plan -->
                 <div *ngIf="isPremium && limits.superLikes <= 0" class="reset-timer" [class.shake]="shakeTimer">
