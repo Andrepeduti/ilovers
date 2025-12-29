@@ -1,0 +1,195 @@
+.admin-reports-container {
+    width: 100%;
+    min-height: 100vh;
+    background: #0f0f13;
+    color: #fff;
+    padding: 20px;
+    font-family: 'Outfit', sans-serif;
+
+    header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+            }
+        }
+    }
+
+    .report-card {
+        background: #1a1a20;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+
+        &:hover {
+            border-color: rgba(255, 64, 129, 0.3);
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+
+            .reason {
+                font-weight: 700;
+                color: #FF4081;
+                font-size: 1.1rem;
+            }
+
+            .status {
+                padding: 2px 8px;
+                border-radius: 4px;
+                background: #333;
+                font-size: 0.8rem;
+
+                &.pending {
+                    color: #FF9800;
+                    background: rgba(255, 152, 0, 0.1);
+                }
+            }
+        }
+
+        .report-body {
+            .users-involved {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                background: rgba(0, 0, 0, 0.2);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+
+                .user {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+
+                    label {
+                        font-size: 0.75rem;
+                        color: #888;
+                    }
+
+                    .email {
+                        font-weight: 600;
+                    }
+
+                    .reported {
+                        color: #f44336;
+                    }
+                }
+
+                .arrow {
+                    color: #555;
+                    font-size: 1.2rem;
+                }
+            }
+
+            .comment {
+                margin-bottom: 1rem;
+
+                label {
+                    display: block;
+                    font-size: 0.75rem;
+                    color: #888;
+                    margin-bottom: 4px;
+                }
+
+                p {
+                    background: #222;
+                    padding: 10px;
+                    border-radius: 6px;
+                    color: #ddd;
+                    margin: 0;
+                }
+            }
+
+            .evidence {
+                label {
+                    display: block;
+                    font-size: 0.75rem;
+                    color: #888;
+                    margin-bottom: 4px;
+                }
+
+                .imgs {
+                    display: flex;
+                    gap: 10px;
+                    overflow-x: auto;
+
+                    img {
+                        height: 80px;
+                        border-radius: 4px;
+                        border: 1px solid #333;
+                        transition: transform 0.2s;
+
+                        &:hover {
+                            transform: scale(1.1);
+                        }
+                    }
+                }
+            }
+        }
+
+        .report-footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #666;
+
+            .id {
+                font-family: monospace;
+            }
+        }
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+
+        button {
+            background: #1a1a20;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+
+            &:disabled {
+                opacity: 0.3;
+            }
+        }
+    }
+}

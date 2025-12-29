@@ -1,0 +1,64 @@
+<div class="admin-reports-container">
+    <header>
+        <button class="back-btn" (click)="router.navigate(['/admin'])">← Voltar</button>
+        <h1>Denúncias</h1>
+        <div class="stats">Total: {{ totalCount }}</div>
+    </header>
+
+    <div class="content">
+        <div *ngIf="loading" class="loading">Carregando...</div>
+        <div *ngIf="error" class="error-msg">{{ error }}</div>
+
+        <div class="reports-list" *ngIf="!loading && !error">
+            <div class="report-card" *ngFor="let report of reports">
+                <div class="report-header">
+                    <span class="reason">{{ report.reason }}</span>
+                    <span class="status" [class.pending]="report.status === 'Pending'">{{ report.status }}</span>
+                </div>
+
+                <div class="report-body">
+                    <div class="users-involved">
+                        <div class="user">
+                            <label>Denunciante:</label>
+                            <span class="email">{{ report.reporterEmail }}</span>
+                        </div>
+                        <div class="arrow">➔</div>
+                        <div class="user">
+                            <label>Denunciado:</label>
+                            <span class="email reported">{{ report.reportedEmail }}</span>
+                        </div>
+                    </div>
+
+                    <div class="comment" *ngIf="report.comment">
+                        <label>Comentário:</label>
+                        <p>{{ report.comment }}</p>
+                    </div>
+
+                    <div class="evidence" *ngIf="report.evidenceUrls && report.evidenceUrls.length > 0">
+                        <label>Evidências:</label>
+                        <div class="imgs">
+                            <a *ngFor="let url of report.evidenceUrls" [href]="url" target="_blank">
+                                <img [src]="url" alt="Evidence" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-footer">
+                    <span class="date">{{ report.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <span class="id">ID: {{ report.id }}</span>
+                </div>
+            </div>
+
+            <div *ngIf="reports.length === 0" class="empty-state">
+                Nenhuma denúncia encontrada.
+            </div>
+        </div>
+
+        <div class="pagination" *ngIf="!loading && !error && totalCount > 0">
+            <button (click)="prevPage()" [disabled]="page === 1">Anterior</button>
+            <span class="info">Pág {{ page }} de {{ totalPages }}</span>
+            <button (click)="nextPage()" [disabled]="page >= totalPages">Próxima</button>
+        </div>
+    </div>
+</div>

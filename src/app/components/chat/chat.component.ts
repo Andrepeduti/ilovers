@@ -57,7 +57,8 @@ export class ChatComponent implements OnInit {
                     isNew: m.isNew,
                     chatId: m.chatId,
                     matchId: m.matchId,
-                    isSuperLike: m.isSuperLike // Map this field
+                    isSuperLike: m.isSuperLike, // Map this field
+                    superLikedBy: m.isSuperLike ? m.id : undefined
                 } as Match));
             })
         );
@@ -108,7 +109,7 @@ export class ChatComponent implements OnInit {
                 this.conversations = activeDtos.map(d => this.mapToConversation(d));
 
                 // 2. Process Matches
-                this.allMatches = matches.map(m => ({ ...m } as Match));
+                this.allMatches = matches.map(m => ({ ...m, superLikedBy: m.isSuperLike ? m.id : undefined } as Match));
 
                 // 3. Filter
                 this.conversationsLoaded = true;
@@ -155,6 +156,7 @@ export class ChatComponent implements OnInit {
             unreadCount: dto.unreadCount,
             isOnline: false,
             isSuperLike: dto.isSuperLike,
+            superLikedBy: dto.superLikedBy,
             otherUserId: dto.otherUserId
         };
     }
@@ -193,8 +195,9 @@ export class ChatComponent implements OnInit {
         }
 
         if (chatId) {
+            const superLikedBy = item.superLikedBy;
             this.router.navigate(['chat', chatId], {
-                state: { name, photo, otherUserId }
+                state: { name, photo, otherUserId, superLikedBy }
             });
         } else {
             console.error('Chat ID missing for item', item);
@@ -213,7 +216,7 @@ export class ChatComponent implements OnInit {
                 if (response.isMatch && response.chatId) {
                     // Navigate to the new chat
                     this.router.navigate(['chat', response.chatId], {
-                        state: { name: sl.name, photo: sl.photo }
+                        state: { name: sl.name, photo: sl.photo, superLikedBy: sl.id }
                     });
                 } else {
                     // Fallback: Just view profile if for some reason it didn't match

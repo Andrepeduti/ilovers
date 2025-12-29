@@ -147,6 +147,10 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
                 this.reportReason = '';
                 this.reportComment = '';
                 this.reportEvidence = [];
+
+                if (this.chatId) {
+                    this.chatService.removeChat(this.chatId);
+                }
             },
             error: (err) => {
                 console.error('Report failed', err);
@@ -172,6 +176,9 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
             };
             if (navigation.extras.state['otherUserId']) {
                 this.partnerId = navigation.extras.state['otherUserId'];
+            }
+            if (navigation.extras.state['superLikedBy']) {
+                this.superLikedBy = navigation.extras.state['superLikedBy'];
             }
         }
     }

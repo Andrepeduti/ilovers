@@ -36,6 +36,30 @@ export interface AdminUser {
     status: string;
     createdAt: string;
 }
+export interface UserListResponse {
+    items: AdminUser[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+}
+
+export interface Report {
+    id: string;
+    reporterEmail: string;
+    reportedEmail: string;
+    reason: string;
+    comment?: string;
+    evidenceUrls: string[];
+    status: string;
+    createdAt: string;
+}
+
+export interface ReportListResponse {
+    items: Report[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -49,12 +73,20 @@ export class AdminService {
             .pipe(map(res => res.data));
     }
 
-    getUsers(): Observable<AdminUser[]> {
-        return this.http.get<{ data: AdminUser[] }>(`${this.apiUrl}/users`)
+    getUsers(page = 1, pageSize = 20, search = ''): Observable<UserListResponse> {
+        let params: any = { page, pageSize };
+        if (search) params.search = search;
+
+        return this.http.get<{ data: UserListResponse }>(`${this.apiUrl}/users`, { params })
             .pipe(map(res => res.data));
     }
 
     deleteUser(userId: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/users/${userId}`);
+    }
+
+    getReports(page = 1, pageSize = 20): Observable<ReportListResponse> {
+        return this.http.get<{ data: ReportListResponse }>(`${this.apiUrl}/reports`, { params: { page, pageSize } })
+            .pipe(map(res => res.data));
     }
 }

@@ -1,32 +1,49 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService, AdminUser } from '../services/admin.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-admin-users',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './admin-users.component.html',
     styleUrls: ['./admin-users.component.scss']
 })
 export class AdminUsersComponent implements OnInit {
     private adminService = inject(AdminService);
+    private authService = inject(AuthService);
     public router = inject(Router);
+
+    currentUserId: string | null = null;
 
     users: AdminUser[] = [];
     loading = true;
     error: string | null = null;
 
+    // Pagination & Search
+    searchTerm = '';
+    page = 1;
+    pageSize = 10;
+    totalCount = 0;
+
+    get totalPages(): number {
+        return Math.ceil(this.totalCount / this.pageSize);
+    }
+
     ngOnInit() {
+        this.currentUserId = this.authService.getUserId();
         this.loadUsers();
     }
 
     loadUsers() {
         this.loading = true;
-        this.adminService.getUsers().subscribe({
+        this.adminService.getUsers(this.page, this.pageSize, this.searchTerm).subscribe({
             next: (data) => {
-                this.users = data;
+                this.users = data.items;
+                this.totalCount = data.totalCount;
                 this.loading = false;
             },
             error: (err) => {
@@ -35,6 +52,25 @@ export class AdminUsersComponent implements OnInit {
                 this.loading = false;
             }
         });
+    }
+
+    onSearch() {
+        this.page = 1;
+        this.loadUsers();
+    }
+
+    nextPage() {
+        if (this.page < this.totalPages) {
+            this.page++;
+            this.loadUsers();
+        }
+    }
+
+    prevPage() {
+        if (this.page > 1) {
+            this.page--;
+            this.loadUsers();
+        }
     }
 
     deleteUser(user: AdminUser) {
