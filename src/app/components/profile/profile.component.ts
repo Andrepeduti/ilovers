@@ -402,7 +402,7 @@ export class ProfileComponent implements OnInit {
 
   onCropConfirm(blob: Blob) {
     if (this.currentIndexForUpload !== -1 && blob) {
-      const file = new File([blob], 'cropped-profile.png', { type: 'image/png' });
+      const file = new File([blob], 'cropped-profile.jpg', { type: 'image/jpeg' });
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.photos[this.currentIndexForUpload] = e.target.result;

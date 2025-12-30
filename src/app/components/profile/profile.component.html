@@ -183,7 +183,7 @@
 
             <div class="selected-tags">
                 <span class="tag selected" *ngFor="let tag of profile.hobbies">
-                    <i [class]="tagIcons[tag] || 'fas fa-hashtag'"></i> {{ tag }} <i class="fas fa-times"
+                    <i *ngIf="tagIcons[tag]" [class]="tagIcons[tag]"></i> {{ tag }} <i class="fas fa-times"
                         (click)="removeHobby(tag)"></i>
                 </span>
             </div>

@@ -58,7 +58,7 @@ import { DomSanitizer } from '@angular/platform-browser';
       top: 0;
       left: 0;
       width: 100vw;
-      height: 100vh;
+      height: 100dvh; /* Dynamic Height */
       background: rgba(0,0,0,0.95);
       z-index: 10000;
       display: flex;
@@ -70,14 +70,19 @@ import { DomSanitizer } from '@angular/platform-browser';
       background: white;
       width: 100%;
       height: 100%;
+      max-height: 100dvh; /* Ensure it respects screen */
       display: flex;
       flex-direction: column;
       
+      padding-bottom: env(safe-area-inset-bottom); /* Fix for iPhone X+ / Android Bars */
+
       @media(min-width: 768px) {
         width: 500px;
-        height: 96vh;
+        height: 90vh; /* Slightly smaller on desktop */
+        max-height: 900px;
         border-radius: 12px;
         overflow: hidden;
+        padding-bottom: 0; /* Reset on desktop */
       }
     }
 
@@ -167,6 +172,7 @@ import { DomSanitizer } from '@angular/platform-browser';
     .controls {
         background: white;
         padding: 10px 15px; /* Reduced vertical padding */
+        margin-bottom: 50px;
         display: flex;
         align-items: center;
         gap: 15px;
