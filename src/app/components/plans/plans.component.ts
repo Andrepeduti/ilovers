@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Plan, PlanService, ProcessPaymentRequest } from '../../core/services/plan.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { environment } from '../../../environments/environment';
 
 declare const MercadoPago: any;
 
@@ -45,7 +46,7 @@ export class PlansComponent implements OnInit {
         this.loadPlans();
         this.loadProfile();
         // Initialize Mercado Pago instance with Public Key
-        this.mp = new MercadoPago('TEST-12d330bf-6495-4378-85ad-4b4583a83a69', {
+        this.mp = new MercadoPago(environment.mercadoPagoPublicKey, {
             locale: 'pt-BR'
         });
         this.bricksBuilder = this.mp.bricks();
