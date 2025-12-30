@@ -215,7 +215,24 @@ export class FeedComponent implements OnInit {
     }
   }
 
+  // New state for Like limit
+  showLikeUpgradePopover = false;
+
+  private closeAllPopovers() {
+    this.showUndoPopover = false;
+    this.showUpgradePopover = false; // Super Like
+    this.showLikeUpgradePopover = false;
+  }
+
   onLike() {
+    // 1. Check Limit
+    if (this.limits.likes <= 0) {
+      const wasOpen = this.showLikeUpgradePopover;
+      this.closeAllPopovers();
+      this.showLikeUpgradePopover = !wasOpen;
+      return;
+    }
+
     const profile = this.currentProfile;
     if (!profile) return;
 
@@ -238,7 +255,8 @@ export class FeedComponent implements OnInit {
         console.error('Like error', err);
         if (err.error?.error?.code === 'Limit.LikeReached') {
           this.limits.likes = 0; // Sync to 0 just in case
-          alert('Você atingiu o limite de likes diários (10/dia). Assine o Pro para aumentar para 30!');
+          this.closeAllPopovers();
+          this.showLikeUpgradePopover = true;
         }
       }
     });
@@ -250,6 +268,7 @@ export class FeedComponent implements OnInit {
   }
 
   onReject() {
+    this.closeAllPopovers();
     const profile = this.currentProfile;
     if (!profile) return;
 
@@ -274,7 +293,9 @@ export class FeedComponent implements OnInit {
     if (this.limits.superLikes <= 0) {
       if (!this.isPremium) {
         // Free User -> Show Popover
-        this.showUpgradePopover = !this.showUpgradePopover;
+        const wasOpen = this.showUpgradePopover;
+        this.closeAllPopovers();
+        this.showUpgradePopover = !wasOpen;
       } else {
         // Premium User -> Shake Timer
         this.shakeTimer = true;
@@ -305,7 +326,10 @@ export class FeedComponent implements OnInit {
         if (err.error?.error?.code === 'Limit.SuperLikeReached') {
           this.limits.superLikes = 0;
           // If backend says limit reached but frontend thought otherwise, show UI helper now
-          if (!this.isPremium) this.showUpgradePopover = true;
+          if (!this.isPremium) {
+            this.closeAllPopovers();
+            this.showUpgradePopover = true;
+          }
         }
       }
     });
@@ -440,7 +464,9 @@ export class FeedComponent implements OnInit {
 
     // 2. Check Permissions/Limits
     if (!this.isPremium) {
-      this.showUndoPopover = !this.showUndoPopover;
+      const wasOpen = this.showUndoPopover;
+      this.closeAllPopovers();
+      this.showUndoPopover = !wasOpen;
       return;
     }
 
