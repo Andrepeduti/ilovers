@@ -70,10 +70,16 @@
             <div class="action-btn-wrapper">
                 <span class="limit-badge" *ngIf="limits.likes < 100">{{ limits.likes }}</span>
                 <button class="action-btn like" (click)="onLike()" [class.pulse-heart]="isLikeActive"
-                    [disabled]="limits.likes <= 0"
-                    [title]="limits.likes <= 0 ? 'Limite diário de Likes atingido' : 'Like'">
+                    [class.fake-disabled]="limits.likes <= 0">
                     <i class="fas fa-heart"></i>
                 </button>
+
+                <!-- Popover for Like Limit -->
+                <div class="upgrade-popover" *ngIf="showLikeUpgradePopover && limits.likes <= 0">
+                    <p>por hoje é só!</p>
+                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
+                    <div class="arrow-down"></div>
+                </div>
             </div>
             <div class="action-btn-wrapper">
                 <span class="limit-badge super-like-badge">{{ limits.superLikes }}</span>

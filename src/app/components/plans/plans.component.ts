@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Plan, PlanService, ProcessPaymentRequest } from '../../core/services/plan.service';
 import { ProfileService } from '../../core/services/profile.service';
@@ -21,6 +21,7 @@ export class PlansComponent implements OnInit {
     private planService = inject(PlanService);
     private profileService = inject(ProfileService);
     private router = inject(Router);
+    private ngZone = inject(NgZone);
 
     plans: Plan[] = [];
     isLoading = true;
@@ -160,29 +161,33 @@ export class PlansComponent implements OnInit {
 
                             this.planService.processPayment(request).subscribe({
                                 next: (result) => {
-                                    this.isProcessingPayment = false; // Stop Loading
-                                    console.log('Payment Result:', result);
-                                    if (result.status === 'approved') {
-                                        this.verifyPremiumStatus();
-                                        resolve();
-                                    } else if (result.qrCodeBase64 && result.qrCode) {
-                                        // Pix Flow
-                                        this.pixQrCodeBase64 = result.qrCodeBase64;
-                                        this.pixQrCodeCopyPaste = result.qrCode;
-                                        if (result.paymentId) {
-                                            this.startPolling(result.paymentId.toString());
+                                    this.ngZone.run(() => {
+                                        this.isProcessingPayment = false; // Stop Loading
+                                        console.log('Payment Result:', result);
+                                        if (result.status === 'approved') {
+                                            this.verifyPremiumStatus();
+                                            resolve();
+                                        } else if (result.qrCodeBase64 && result.qrCode) {
+                                            // Pix Flow
+                                            this.pixQrCodeBase64 = result.qrCodeBase64;
+                                            this.pixQrCodeCopyPaste = result.qrCode;
+                                            if (result.paymentId) {
+                                                this.startPolling(result.paymentId.toString());
+                                            }
+                                            resolve();
+                                        } else {
+                                            alert('Pagamento pendente ou rejeitado.');
+                                            resolve();
                                         }
-                                        resolve();
-                                    } else {
-                                        alert('Pagamento pendente ou rejeitado.');
-                                        resolve();
-                                    }
+                                    });
                                 },
                                 error: (error) => {
-                                    this.isProcessingPayment = false; // Stop Loading
-                                    console.error('API Error:', error);
-                                    alert('Erro ao processar pagamento. Verifique o console.');
-                                    reject();
+                                    this.ngZone.run(() => {
+                                        this.isProcessingPayment = false; // Stop Loading
+                                        console.error('API Error:', error);
+                                        alert('Erro ao processar pagamento. Verifique o console.');
+                                        reject();
+                                    });
                                 }
                             });
                         } catch (e) {

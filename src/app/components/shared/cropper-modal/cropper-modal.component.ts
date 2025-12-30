@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -246,6 +246,7 @@ export class CropperModalComponent implements AfterViewInit {
   lastMouseY = 0;
   isProcessing = false;
 
+  private ngZone = inject(NgZone);
   constructor(private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
@@ -410,12 +411,14 @@ export class CropperModalComponent implements AfterViewInit {
     );
 
     canvas.toBlob((blob) => {
-      if (blob) {
-        this.cropConfirm.emit(blob);
-        this.cropCancel.emit(); // Close the modal after confirming
-      }
-      this.isProcessing = false; // Reset just in case
-    }, 'image/jpeg', 0.9);
+      this.ngZone.run(() => {
+        if (blob) {
+          this.cropConfirm.emit(blob);
+          this.cropCancel.emit(); // Close the modal after confirming
+        }
+        this.isProcessing = false; // Reset just in case
+      });
+    }, 'image/jpeg', 0.85);
   }
 
   cancel() {
