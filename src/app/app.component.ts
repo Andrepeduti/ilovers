@@ -39,7 +39,7 @@ export class AppComponent {
     private chatRealtimeHelper: ChatRealtimeService,
     private scrollService: ScrollService
   ) {
-    this.checkDeviceAndEnvironment();
+    //this.checkDeviceAndEnvironment();
 
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
