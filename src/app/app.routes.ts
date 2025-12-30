@@ -25,6 +25,7 @@ export const routes: Routes = [
     { path: 'profile/edit', loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
     { path: 'profile', loadComponent: () => import('./components/profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent), canActivate: [authGuard], pathMatch: 'full' },
     { path: 'profile/:id', loadComponent: () => import('./components/profile-details/profile-details.component').then(m => m.ProfileDetailsComponent), canActivate: [authGuard] },
+    { path: 'settings', loadComponent: () => import('./components/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard] },
     { path: 'plans', loadComponent: () => import('./components/plans/plans.component').then(m => m.PlansComponent), canActivate: [authGuard, plansGuard] },
     { path: '**', redirectTo: 'feed' }
 ];

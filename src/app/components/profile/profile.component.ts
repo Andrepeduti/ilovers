@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CropperModalComponent } from '../shared/cropper-modal/cropper-modal.component';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IProfile } from './models/profile.interfaces';
@@ -14,7 +15,7 @@ import { NavigationStateService } from '../../core/services/navigation-state.ser
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent, CropperModalComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -383,6 +384,9 @@ export class ProfileComponent implements OnInit {
 
   private pendingFiles: Map<number, File> = new Map();
 
+  showCropper = false;
+  imageChangedEvent: any = '';
+
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file && this.currentIndexForUpload !== -1) {
@@ -391,16 +395,28 @@ export class ProfileComponent implements OnInit {
         this.fileInput.nativeElement.value = '';
         return;
       }
+      this.imageChangedEvent = event;
+      this.showCropper = true;
+    }
+  }
 
-      // Show local preview immediately
+  onCropConfirm(blob: Blob) {
+    if (this.currentIndexForUpload !== -1 && blob) {
+      const file = new File([blob], 'cropped-profile.png', { type: 'image/png' });
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.photos[this.currentIndexForUpload] = e.target.result;
         this.pendingFiles.set(this.currentIndexForUpload, file);
-        this.fileInput.nativeElement.value = '';
+        this.showCropper = false;
+        this.fileInput.nativeElement.value = ''; // clear input
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(blob);
     }
+  }
+
+  onCropCancel() {
+    this.showCropper = false;
+    this.fileInput.nativeElement.value = ''; // clear input to allow re-selecting same file
   }
 
   startResize(event: MouseEvent) {
@@ -443,7 +459,7 @@ export class ProfileComponent implements OnInit {
 
       this.pendingFiles.forEach((file, index) => {
         indexes.push(index);
-        uploadObservables.push(this.imageService.uploadImage(file));
+        uploadObservables.push(this.imageService.uploadImage(file, false));
       });
 
       // Use forkJoin to upload all in parallel

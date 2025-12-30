@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd, Event } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { filter } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 import { AuthService } from './core/services/auth.service';
 import { InteractionService } from './core/services/interaction.service';
@@ -27,6 +28,8 @@ export class AppComponent {
   currentNotification: { fromUserName: string; fromUserPhoto: string | null; interactionId: string } | null = null;
   pendingNotifications: any[] = [];
 
+  showDesktopBlocker = false;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -36,6 +39,8 @@ export class AppComponent {
     private chatRealtimeHelper: ChatRealtimeService,
     private scrollService: ScrollService
   ) {
+    this.checkDeviceAndEnvironment();
+
     this.router.events.pipe(
       filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
@@ -61,6 +66,16 @@ export class AppComponent {
         });
       } else {
         this.initializeApp();
+      }
+    }
+  }
+
+  checkDeviceAndEnvironment() {
+    // Only block if we are in PRODUCTION environment
+    if (environment.production) {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (!isMobile) {
+        this.showDesktopBlocker = true;
       }
     }
   }

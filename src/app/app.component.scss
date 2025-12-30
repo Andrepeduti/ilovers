@@ -1,0 +1,179 @@
+$text-light: #ffffff;
+
+.desktop-blocker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    color: $text-light;
+    z-index: 1;
+    margin-bottom: 2rem;
+
+    .logo-container {
+        margin-bottom: 1rem;
+        // Replacing the Rocket circle with text logo
+    }
+
+    .logo {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+
+        .heart-icon {
+            font-size: 2.5rem; // Match text size mostly
+            color: $text-light; // Or red? Let's keep it white to match text or maybe Red for contrast?
+            // "O do Lovers é um coração" usually acts as the O.
+            // Let's make it Red? No, white usually looks cleaner on that BG, but let's try a soft pink or just white.
+            // User said "pulsando, como se estivesse vivo".
+            animation: pulse 1.5s infinite;
+        }
+    }
+
+    h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+
+    p {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+}
+
+.blocker-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    animation: fadeIn 0.5s ease-out;
+
+    .app-logo {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0 0 10px 0; // Reduced margin
+        background: linear-gradient(45deg, #9c27b0, #ff2d55);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        line-height: 1;
+
+        i {
+            font-size: 0.8em; // Slightly smaller relative to text
+            background: linear-gradient(45deg, #9c27b0, #ff2d55);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .heart-beat {
+            animation: pulse-heart 1.5s infinite;
+        }
+    }
+
+    h2 {
+        font-size: 1.5rem; // Slightly smaller than before
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .qr-code-placeholder {
+        width: 100px;
+        height: 100px;
+        background: #f8bbd0;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+
+        i {
+            font-size: 3rem;
+            color: #c2185b;
+            animation: pulse 2s infinite;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse-heart {
+    0% {
+        transform: scale(1);
+    }
+
+    15% {
+        transform: scale(1.3);
+    }
+
+    30% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.3);
+    }
+
+    60% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

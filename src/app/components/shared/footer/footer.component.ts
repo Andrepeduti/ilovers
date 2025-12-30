@@ -95,6 +95,8 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.activeTab = 'profile';
     } else if (url.includes('/chat')) {
       this.activeTab = 'chat';
+    } else if (url.includes('/settings')) {
+      this.activeTab = 'settings';
     }
   }
 
@@ -110,6 +112,8 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.router.navigate(['/feed']);
     } else if (tab === 'chat') {
       this.router.navigate(['/chat']);
+    } else if (tab === 'settings') {
+      this.router.navigate(['/settings']);
     }
   }
 

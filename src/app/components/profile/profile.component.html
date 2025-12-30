@@ -202,27 +202,7 @@
             </div>
         </section>
 
-        <section class="section info-section">
-            <h2>Plano</h2>
 
-            <div class="plan-status-container" [class.pro]="profile.isPremium">
-                <div class="status-row">
-                    <div class="status-badge" [class.pro]="profile.isPremium">
-                        <i class="fas" [class.fa-crown]="profile.isPremium" [class.fa-user]="!profile.isPremium"></i>
-                        {{ profile.isPremium ? 'ILovers Pro' : 'ILovers Free' }}
-                    </div>
-                    <button class="plan-action-btn" [class.pro]="profile.isPremium" [class.upgrade]="!profile.isPremium"
-                        (click)="navigateToPlans()">
-                        {{ profile.isPremium ? 'Gerenciar' : 'Seja Pro' }}
-                    </button>
-
-                </div>
-
-                <p class="plan-expiry" *ngIf="profile.isPremium && profile.premiumExpiresAt">
-                    Válido até {{ profile.premiumExpiresAt | date:'dd/MM/yyyy' }}
-                </p>
-            </div>
-        </section>
 
         <div class="footer-action">
             <div class="error-banner" *ngIf="saveError">
@@ -230,42 +210,18 @@
             </div>
             <button class="save-full-btn" [disabled]="!isFormValid || !isDirty" (click)="saveProfile()">Salvar
                 Perfil</button>
-            <button class="logout-btn" (click)="logout()">Sair</button>
-            <button class="help-btn" (click)="openHelpModal()">Dúvidas, problemas ou sugestões?</button>
         </div>
+
+        <app-cropper-modal *ngIf="showCropper" [imageChangedEvent]="imageChangedEvent"
+            (cropConfirm)="onCropConfirm($event)" (cropCancel)="onCropCancel()">
+        </app-cropper-modal>
 
         <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
 
         <div style="height: 80px;"></div>
     </div>
 
-    <div class="modal-overlay" *ngIf="showLogoutModal">
-        <div class="modal-content">
-            <h3>Deseja realmente sair?</h3>
-            <div class="modal-actions">
-                <button class="btn-cancel" (click)="cancelLogout()">Não</button>
-                <button class="btn-confirm" (click)="confirmLogout()">Sim</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Help Modal -->
-    <div class="modal-overlay" *ngIf="showHelpModal">
-        <div class="modal-content help-modal">
-            <h3>Atendimento</h3>
-
-            <div class="form-group">
-                <label>Entre em contato por e-mail</label>
-                <a class="support-link" href="mailto:iloversapp@outlook.com?subject=Suporte%20iLovers">
-                    iloversapp&#64;outlook.com
-                </a>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-cancel" (click)="closeHelpModal()">Entendi</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Loader Test Button & Component -->
     <!-- <button (click)="toggleLoader()"

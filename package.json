@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:hom": "ng build --configuration homolog",
-    "start:hom": "ng serve --configuration homolog"
+    "start:hom": "ng serve --configuration homolog",
+    "start:prod": "ng serve --configuration production"
   },
   "private": true,
   "dependencies": {
@@ -23,6 +24,7 @@
     "@angular/router": "^19.2.0",
     "@microsoft/signalr": "^10.0.0",
     "jwt-decode": "^4.0.0",
+    "ngx-image-cropper": "^9.1.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
