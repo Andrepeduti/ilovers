@@ -104,6 +104,20 @@ export class FeedComponent implements OnInit {
   limits = { likes: 0, superLikes: 0, rewinds: 0 };
   private interactedProfileIds = new Set<string>();
 
+  tagIcons: { [key: string]: string } = {
+    'Fotografia': 'fas fa-camera',
+    'Viagens': 'fas fa-plane',
+    'Música': 'fas fa-music',
+    'Arte': 'fas fa-palette',
+    'Esportes': 'fas fa-futbol',
+    'Culinária': 'fas fa-utensils',
+    'Leitura': 'fas fa-book',
+    'Cinema': 'fas fa-film',
+    'Tecnologia': 'fas fa-laptop-code',
+    'Natureza': 'fas fa-tree',
+    'Yoga': 'fas fa-spa'
+  };
+
   ngOnInit() {
     this.loadMyProfile();
     this.loadFeed();

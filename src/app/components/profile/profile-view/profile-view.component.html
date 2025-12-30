@@ -61,7 +61,7 @@
                 <h3>Interesses</h3>
                 <div class="tags-detail">
                     <span class="tag-detail" *ngFor="let hobby of profile.hobbies">
-                        <i [class]="tagIcons[hobby] || 'fas fa-hashtag'"></i> {{ hobby }}
+                        <i *ngIf="tagIcons[hobby]" [class]="tagIcons[hobby]"></i> {{ hobby }}
                     </span>
                 </div>
             </div>
