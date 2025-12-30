@@ -119,13 +119,30 @@ export class FeedComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.loadMyProfile();
-    this.loadFeed();
+    this.initialLoad();
     this.loadLimits();
     this.startTimer();
   }
 
+  initialLoad() {
+    this.loadMyProfile();
+
+    // Check for saved state
+    const savedState = this.feedService.getState();
+    if (savedState) {
+      this.profiles = savedState.profiles;
+      this.currentIndex = savedState.index;
+      // If we restore state, we assume loading is done
+      this.loading = false;
+    } else {
+      this.loadFeed();
+    }
+  }
+
   ngOnDestroy() {
+    // Save state before leaving
+    this.feedService.saveState(this.profiles, this.currentIndex);
+
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
@@ -195,6 +212,7 @@ export class FeedComponent implements OnInit {
   }
 
   refreshFeed() {
+    this.feedService.clearState();
     this.loadFeed(true);
   }
 
