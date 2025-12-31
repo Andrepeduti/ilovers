@@ -108,4 +108,22 @@ export class AuthService {
             return null;
         }
     }
+
+    getUserRole(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = token.split('.')[1];
+            const decoded = JSON.parse(atob(payload));
+            // Common claim names for role
+            return decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    isAdmin(): boolean {
+        const role = this.getUserRole();
+        return role === 'Admin';
+    }
 }
