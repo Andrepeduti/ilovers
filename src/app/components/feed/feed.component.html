@@ -23,7 +23,7 @@
             </h1>
             <div class="location-row">
                 <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{
-                    profile.state }}</p>
+                    profile.state | uppercase }}</p>
 
                 <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
                     (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
@@ -119,7 +119,7 @@
                         }}</span>
                 </h1>
                 <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
-                    currentProfile.state }}</p>
+                    currentProfile.state | uppercase }}</p>
             </div>
 
             <hr class="divider">
