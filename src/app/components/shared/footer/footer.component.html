@@ -13,10 +13,20 @@
         </div>
     </button>
 
+    <button class="nav-btn" [class.active]="activeTab === 'actions'" (click)="navigateTo('actions')">
+        <div style="position: relative;">
+            <i class="fas fa-bolt"></i>
+            <span class="notification-badge" *ngIf="(totalActions$ | async) as count" [class.show]="count > 0">
+                {{ count > 99 ? '99+' : count }}
+            </span>
+        </div>
+    </button>
+
     <button class="nav-btn" [class.active]="activeTab === 'chat'" (click)="navigateTo('chat')">
         <div style="position: relative;">
             <i class="fas fa-comment"></i>
-            <span class="notification-badge" *ngIf="(totalNotifications$ | async) as count" [class.show]="count > 0">
+            <span class="notification-badge" *ngIf="(totalChatNotifications$ | async) as count"
+                [class.show]="count > 0">
                 {{ count > 99 ? '99+' : count }}
             </span>
         </div>

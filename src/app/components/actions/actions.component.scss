@@ -1,0 +1,255 @@
+.actions-container {
+    position: relative; // For absolute loader
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding-bottom: 70px; // Footer space
+
+    .header {
+        padding: 15px 20px;
+        background: #fff;
+        border-bottom: 1px solid #f0f0f0;
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 700;
+        }
+    }
+
+    .scroll-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .section {
+        margin-bottom: 30px;
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+
+            .count {
+                background: #e91e63; // Primary color
+                color: white;
+                font-size: 0.8rem;
+                padding: 2px 8px;
+                border-radius: 12px;
+                margin-left: 8px;
+            }
+        }
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); // Adaptive grid
+        gap: 12px;
+    }
+
+    .grid-item {
+        aspect-ratio: 3 / 4; // Portrait card ratio
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        &.super-like-item {
+            border: 2px solid #2196f3; // Blue for Super Like
+        }
+
+        &.like-item {
+            // border: 1px solid #ddd;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            position: relative;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: filter 0.3s;
+            }
+
+            .overlay-info {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+                color: white;
+                padding: 8px;
+                font-size: 0.9rem;
+                font-weight: 600;
+
+                .name {
+                    text-transform: capitalize;
+                }
+
+                .age {
+                    font-weight: 400;
+                }
+            }
+
+            // Blurred State
+            &.blurred {
+                img {
+                    filter: blur(15px);
+                }
+
+                .overlay-info {
+                    display: none; // Hide info if blurred
+                }
+            }
+
+            .blur-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .lock-icon {
+                    font-size: 1.5rem;
+                    color: #fff;
+                    opacity: 0.8;
+                }
+            }
+        }
+    }
+
+    .super-like-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #2196f3;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: #888;
+        padding: 20px 0;
+    }
+
+    .upgrade-cta {
+        margin-top: 20px;
+        background: #fff0f5; // Light pink
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+
+        p {
+            font-weight: 700;
+            color: #d81b60;
+            margin-bottom: 10px;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(45deg, #ff4081, #d81b60);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
+        }
+    }
+
+    .central-heart {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 2rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        opacity: 0.9;
+        z-index: 5;
+    }
+}
+
+// Fixed Premium Floating CTA
+.premium-floating-cta {
+    position: fixed;
+    bottom: 80px; // Above footer
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 12px 20px;
+    z-index: 100;
+    border: 1px solid rgba(255, 75, 43, 0.2);
+    animation: slideUp 0.3s ease-out;
+
+    .cta-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(90deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(255, 65, 108, 0.4);
+            transition: transform 0.2s;
+
+            &:active {
+                transform: scale(0.95);
+            }
+        }
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}

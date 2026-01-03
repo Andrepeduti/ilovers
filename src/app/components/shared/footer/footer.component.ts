@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, Event } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -24,7 +25,8 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   showDisabledTooltip = false;
 
-  totalNotifications$: Observable<number>;
+  totalChatNotifications$: Observable<number>;
+  totalActions$: Observable<number>;
 
   constructor(
     private router: Router,
@@ -33,36 +35,42 @@ export class FooterComponent implements OnInit, OnDestroy {
     private matchService: MatchService,
     private chatRealtimeService: ChatRealtimeService
   ) {
-    // Initialize notification count
-    this.totalNotifications$ = combineLatest([
-      this.chatService.totalUnread$,
-      this.matchService.matches$, // Get full matches list to filter
-      this.chatService.chats$    // Get chats to check for overlaps
+    // 1. Chat Notifications: ONLY Unread Chats (User Request: "quando for resposta de conversa")
+    this.totalChatNotifications$ = this.chatService.totalUnread$;
+
+    // 2. Actions Notifications: Super Likes + Received Likes + Matches (User Request: "matches tem q estar no raio")
+    // Also: Only count Received Likes and Super Likes IF Premium.
+    const user$ = toObservable(this.authService.currentUser);
+
+    this.totalActions$ = combineLatest([
+      this.matchService.superLikes$,
+      this.matchService.receivedLikes$,
+      this.matchService.matches$,
+      this.chatService.chats$,
+      user$
     ]).pipe(
-      map(([unreadChats, matches, chats]) => {
-        // 1. Identify "Active Chats" (visible in UI)
+      map(([superLikes, receivedLikes, matches, chats, user]) => {
+        const isPremium = user?.isPremium || false;
+
+        // Filter Matches: Only those NOT in active chats need to be counted here?
         const validChats = (chats || []).filter(c => c.lastMessage && c.lastMessage.trim() !== '');
-
-        // 2. Calculate Unread Count from ONLY valid chats
-        const calculatedUnreadCount = validChats.filter(c => c.unreadCount > 0).length;
-
-        // 3. Calculate "New Matches" count
-        // Matches that are 'isNew' AND NOT in the active 'chats' list
-        // AND are NOT super likes (unless they have a chat, in which case they are handled by unreadCount of that chat)
         const activeChatUserIds = new Set(validChats.map(c => c.otherUserId));
 
         const newMatchesCount = matches.filter(m => {
-          // Must be New
-          if (!m.isNew) return false;
-          // Must NOT be in an active chat
           if (activeChatUserIds.has(m.id)) return false;
-          // Must NOT be a Super Like (per user request: only count normal matches until conversation starts)
-          if (m.isSuperLike) return false;
-
+          if (!m.isNew) return false;
           return true;
         }).length;
 
-        return calculatedUnreadCount + newMatchesCount;
+        // Likes and SuperLikes checks
+        const newSuperLikes = (superLikes || []).filter(s => s.isNew).length;
+        const newReceivedLikes = (receivedLikes || []).filter(l => l.isNew).length;
+
+        // Condition: If NOT premium, do NOT count likes/superlikes in the badge.
+        const effectiveSuperLikes = isPremium ? newSuperLikes : 0;
+        const effectiveReceivedLikes = isPremium ? newReceivedLikes : 0;
+
+        return effectiveSuperLikes + effectiveReceivedLikes + newMatchesCount;
       })
     );
   }
@@ -80,6 +88,8 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.chatRealtimeService.startConnection().catch(err => console.error('SignalR Init Error', err));
     this.matchService.fetchMatches().subscribe();
     this.chatService.loadChats().subscribe();
+    this.matchService.fetchSuperLikes().subscribe();
+    this.matchService.fetchReceivedLikes().subscribe();
   }
 
   ngOnDestroy() {
@@ -97,6 +107,8 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.activeTab = 'chat';
     } else if (url.includes('/settings')) {
       this.activeTab = 'settings';
+    } else if (url.includes('/actions')) {
+      this.activeTab = 'actions';
     }
   }
 
@@ -114,6 +126,8 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.router.navigate(['/chat']);
     } else if (tab === 'settings') {
       this.router.navigate(['/settings']);
+    } else if (tab === 'actions') {
+      this.router.navigate(['/actions']);
     }
   }
 

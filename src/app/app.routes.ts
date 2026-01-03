@@ -23,6 +23,7 @@ export const routes: Routes = [
     { path: 'admin', loadComponent: () => import('./components/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent), canActivate: [adminGuard] },
     { path: 'admin/users', loadComponent: () => import('./components/admin/users/admin-users.component').then(m => m.AdminUsersComponent), canActivate: [adminGuard] },
     { path: 'admin/reports', loadComponent: () => import('./components/admin/reports/admin-reports.component').then(m => m.AdminReportsComponent), canActivate: [adminGuard] },
+    { path: 'actions', loadComponent: () => import('./components/actions/actions.component').then(m => m.ActionsComponent), canActivate: [authGuard] },
     { path: 'profile/edit', loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
     { path: 'profile', loadComponent: () => import('./components/profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent), canActivate: [authGuard], pathMatch: 'full' },
     { path: 'profile/:id', loadComponent: () => import('./components/profile-details/profile-details.component').then(m => m.ProfileDetailsComponent), canActivate: [authGuard] },
