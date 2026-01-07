@@ -132,8 +132,9 @@ export class FeedComponent implements OnInit {
 
     // Check backend for eligibility every time
     this.feedbackService.checkEligibility().subscribe({
-      next: (res) => {
-        if (res.eligible) {
+      next: (res: any) => {
+        const data = res.data || res;
+        if (data.eligible) {
           // Schedule random index
           this.feedbackIndex = Math.floor(Math.random() * 5) + 2;
           console.log('Feedback eligible. Scheduled at:', this.feedbackIndex);
@@ -268,13 +269,12 @@ export class FeedComponent implements OnInit {
     console.log('Feedback completed:', event);
     this.showingFeedback = false;
 
-    if (event.action === 'skipped') {
+    if (event.action === 'skip') {
       this.feedbackService.submitFeedback(null, null, true).subscribe(); // Log skip to backend
-    } else if (event.action === 'submitted') {
+    } else if (event.action === 'submit') {
       this.feedbackService.submitFeedback(event.score, event.comment, false).subscribe({
         error: err => console.error('Feedback submit error', err)
       });
-      this.feedbackService.submitFeedback(null, null, true).subscribe();
     }
   }
 

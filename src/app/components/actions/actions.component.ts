@@ -6,6 +6,8 @@ import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FeedService } from '../../core/services/feed.service';
 import { Observable, combineLatest, map } from 'rxjs';
+import { FeedbackService } from '../shared/feedback.service';
+import { FeedbackCardComponent } from '../shared/feedback-card/feedback-card.component';
 
 @Component({
     selector: 'app-actions',
@@ -19,12 +21,14 @@ export class ActionsComponent implements OnInit {
     matches$: Observable<MatchProfile[]>;
     receivedLikes: MatchProfile[] = [];
     loadingLikes = true;
+    showFeedback = false;
 
     private router = inject(Router);
     private matchService = inject(MatchService);
     private chatService = inject(ChatService);
     private authService = inject(AuthService);
     private feedService = inject(FeedService);
+    private feedbackService = inject(FeedbackService);
 
     get isPremium(): boolean {
         const user = this.authService.currentUser();
@@ -51,54 +55,20 @@ export class ActionsComponent implements OnInit {
     ngOnInit() {
         this.matchService.fetchSuperLikes().subscribe();
         this.matchService.fetchMatches().subscribe();
-
-        // Initial load from cache checks
-        // If we already have data in the service subject, don't show full loader
-        // access the observable directly as we did, but also subscription.
-        // Actually, let's just subscribe.
         this.fetchLikes();
     }
 
     fetchLikes() {
-        // If we already have cached values in the service, we might not need to show the spinner 
-        // strictly or we can assume it loads fast.
-        // But user asked to "store status" or "not show loader if nothing changed".
-        // The service logic I added earlier does clear cache on logout.
-        // I can detect if the service's receivedLikesSubject has value? 
-        // It's private in service but accessible via observable.
-        // Let's rely on the property we already have. 
-
-        // If we already have receivedLikes from a previous fetch (and component was not destroyed? no, component is destroyed on nav)
-        // But the Service is Singleton.
-
-        // BETTER: Use matchService.receivedLikes$ observable with 'startWith'?
-        // The service uses BehaviorSubject, so it always emits last value on subscription.
-
         this.matchService.receivedLikes$.subscribe(likes => {
             this.receivedLikes = likes;
-            // If we have likes (or empty array but confirmed fetched), stop loading.
-            // Issue: Initial state of BehaviorSubject is []. 
-            // how to differentiate "Not Fetched Yet" [] vs "Fetched and Empty" []?
-            // Valid point. 
-            // However, upon navigation, we can just start fetch.
-            // If I set loadingLikes = false initially, then only set true if I really need to wait?
-            // If I set loading to false, the template shows empty state immediately.
-
-            // Simplest fix for "toda vez q eu clico aparece o load":
-            // If likes.length > 0, definitely stop loading.
             if (this.receivedLikes.length > 0) {
                 this.loadingLikes = false;
             }
         });
 
-        // Trigger fetch in background.
-        // Only set loading to TRUE if we really don't have anything?
         if (this.receivedLikes.length === 0) {
-            // this.loadingLikes = true; // Don't force true if we want to avoid flickering?
-            // User says "mesmo sem ter mudado nada".
-            // If cache is empty, we must load.
+            // loading...
         } else {
-            // If we have data, don't show loader overlay.
             this.loadingLikes = false;
         }
 

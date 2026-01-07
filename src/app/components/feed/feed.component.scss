@@ -169,7 +169,10 @@
 
     h1 {
         margin: 0;
-        /* Reset margin handled by container */
+        flex: 1;
+        /* Take available space */
+        min-width: 0;
+        /* Enable text truncation inside flex item */
     }
 }
 

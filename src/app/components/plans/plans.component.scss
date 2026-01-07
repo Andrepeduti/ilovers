@@ -263,6 +263,13 @@
         ::ng-deep span[class*="value-prop-"] {
             display: none !important;
         }
+
+        /* Force Interaction Fix for Iframes */
+        ::ng-deep iframe {
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 1;
+        }
     }
 }
 
@@ -326,9 +333,24 @@
     }
 }
 
+.plans-grid {
+    /* ... existing styles ... */
+    position: relative;
+    z-index: 5;
+    /* Lower than payment wrapper */
+}
+
 .payment-wrapper {
     position: relative;
-    min-height: 400px; // Ensure height to cover
+    z-index: 20;
+    /* Ensure this is on top */
+    min-height: 400px;
+
+    /* Improve touch response */
+    touch-action: manipulation;
+
+    /* Ensure clicks go through */
+    pointer-events: auto;
 }
 
 .payment-loading-overlay {

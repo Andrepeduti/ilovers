@@ -60,4 +60,8 @@ export class AdminDashboardComponent implements OnInit {
     goToReports() {
         this.router.navigate(['/admin/reports']);
     }
+
+    goToFeedback() {
+        this.router.navigate(['/admin/feedback']);
+    }
 }

@@ -1,0 +1,62 @@
+<div class="feedback-container">
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+        <h1>Avaliações dos Usuários</h1>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Carregando avaliações...</p>
+    </div>
+
+    <div class="content" *ngIf="!loading && stats">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="card total">
+                <h3>Total</h3>
+                <div class="value">{{ stats.total }}</div>
+            </div>
+            <div class="card bad">
+                <h3>Ruim</h3>
+                <div class="value">{{ stats.bad }}</div>
+            </div>
+            <div class="card good">
+                <h3>Bom</h3>
+                <div class="value">{{ stats.good }}</div>
+            </div>
+            <div class="card great">
+                <h3>Ótimo</h3>
+                <div class="value">{{ stats.great }}</div>
+            </div>
+        </div>
+
+        <!-- Feedbacks List -->
+        <div class="feedbacks-list">
+            <h2>Comentários Recentes</h2>
+
+            <div class="feedback-item" *ngFor="let item of feedbacks">
+                <div class="item-header">
+                    <span class="email">{{ item.userEmail }}</span>
+                    <span class="date">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+
+                <div class="score-badge" [ngClass]="getScoreClass(item.score)">
+                    {{ getScoreLabel(item.score) }}
+                </div>
+
+                <div class="comment" *ngIf="item.comment">
+                    "{{ item.comment }}"
+                </div>
+                <div class="no-comment" *ngIf="!item.comment">
+                    Sem comentário
+                </div>
+            </div>
+
+            <div class="empty-state" *ngIf="feedbacks.length === 0">
+                Nenhuma avaliação encontrada.
+            </div>
+        </div>
+    </div>
+</div>
