@@ -1,9 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core'; // Added inject
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiPaths } from '../enums/api-paths.enum';
 import { AuthResponse } from '../models/user.interface';
+import { FeedService } from './feed.service'; // Added FeedService import
 // import { MOCK_AUTH_RESPONSE } from '../mocks/auth.mock';
 import { delay, tap, map, catchError } from 'rxjs/operators';
 
@@ -38,9 +39,12 @@ export class AuthService {
         );
     }
 
+    private feedService = inject(FeedService);
+
     logout() {
         localStorage.removeItem('access_token');
         this.currentUser.set(null);
+        this.feedService.clearState();
     }
 
     // New method to check if session is valid ("Am I logged in?")

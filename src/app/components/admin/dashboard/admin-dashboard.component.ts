@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService, DashboardMetrics } from '../services/admin.service';
+import { FeedbackService } from '../../shared/feedback.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -20,6 +21,17 @@ export class AdminDashboardComponent implements OnInit {
 
     ngOnInit() {
         this.loadMetrics();
+        this.loadFeedbackStats();
+    }
+
+    feedbackStats: any = null;
+    private feedbackService = inject(FeedbackService); // Need to import
+
+    loadFeedbackStats() {
+        this.feedbackService.getStats().subscribe({
+            next: (data) => this.feedbackStats = data,
+            error: (err) => console.error(err)
+        });
     }
 
     loadMetrics() {

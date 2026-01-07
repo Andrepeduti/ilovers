@@ -1,6 +1,7 @@
 .actions-container {
-    position: relative; // For absolute loader
-    height: 100vh;
+    position: relative;
+    min-height: 100%;
+    /* Grow with content */
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -21,7 +22,7 @@
 
     .scroll-content {
         flex: 1;
-        overflow-y: auto;
+        /* overflow-y: auto;  <-- Removed internal scroll */
         padding: 20px;
     }
 
@@ -35,6 +36,12 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
+            transition: opacity 0.3s ease;
+
+            &.faded {
+                opacity: 0.4;
+                // font-weight: 400; // Optional: make it thinner? User just said "aspecto de apagado"
+            }
 
             .count {
                 background: #e91e63; // Primary color

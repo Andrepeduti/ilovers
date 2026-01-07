@@ -50,12 +50,19 @@ export class RegisterComponent {
     }
 
     updatePasswordRules() {
+        this.clearError();
         this.isPasswordDirty = true;
         const p = this.password;
         this.passwordRules.minLength = p.length >= 8;
         this.passwordRules.upper = /[A-Z]/.test(p);
         this.passwordRules.lower = /[a-z]/.test(p);
         this.passwordRules.special = /[!@#$%^&*(),.?":{}|<>]/.test(p);
+    }
+
+    clearError() {
+        if (this.registerError) {
+            this.registerError = '';
+        }
     }
 
     get isFormValid(): boolean {
@@ -79,9 +86,18 @@ export class RegisterComponent {
         return !!this.confirmEmail && this.email !== this.confirmEmail;
     }
 
+    emailError = '';
+    passwordError = '';
+    confirmPasswordError = '';
+    confirmEmailError = '';
+    bankIdError = '';
+    termsError = false;
+    bankEmployeeError = false;
+
     onCreateAccount() {
-        this.registerError = '';
-        if (this.isFormValid) {
+        this.resetErrors();
+
+        if (this.validateForm()) {
             this.isLoading = true;
             const registrationData = {
                 email: this.email,
@@ -93,7 +109,6 @@ export class RegisterComponent {
 
             this.authService.register(registrationData).subscribe({
                 next: () => {
-                    // isLoading stays true while navigating
                     this.router.navigate(['/profile']);
                 },
                 error: (err) => {
@@ -113,7 +128,75 @@ export class RegisterComponent {
         }
     }
 
+    resetErrors() {
+        this.emailError = '';
+        this.passwordError = '';
+        this.confirmPasswordError = '';
+        this.bankIdError = '';
+        this.termsError = false;
+        this.bankEmployeeError = false;
+        this.registerError = '';
+    }
+
+    validateForm(): boolean {
+        let isValid = true;
+        this.registerError = '';
+
+        if (!this.email) {
+            this.registerError = 'E-mail é obrigatório.';
+            return false;
+        } else if (!this.email.includes('@')) {
+            this.registerError = 'E-mail inválido.';
+            return false;
+        } else if (this.email !== this.confirmEmail) {
+            this.registerError = 'Os e-mails não coincidem.';
+            return false;
+        }
+
+        if (!this.password) {
+            this.registerError = 'Senha é obrigatória.';
+            return false;
+        } else if (!Object.values(this.passwordRules).every(r => r)) {
+            this.registerError = 'A senha não atende aos requisitos.';
+            return false;
+        }
+
+        if (this.password !== this.confirmPassword) {
+            this.registerError = 'As senhas devem ser iguais.';
+            return false;
+        }
+
+        if (!this.bankId) {
+            this.registerError = 'Funcional é obrigatório.';
+            return false;
+        } else if (this.bankId.length !== 9) {
+            this.registerError = 'O código deve conter 9 números.';
+            return false;
+        }
+
+        if (!this.termsAccepted) {
+            this.registerError = 'Você deve aceitar os termos.';
+            return false;
+        }
+
+        if (!this.bankEmployee) {
+            this.registerError = 'É necessário declarar vínculo com a instituição.';
+            return false;
+        }
+
+        return isValid;
+    }
+
+    scrollToField(fieldName: string) {
+        const element = document.getElementById(fieldName);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus();
+        }
+    }
+
     onBankIdInput(event: Event) {
+        this.clearError();
         const input = event.target as HTMLInputElement;
 
         let value = input.value.replace(/\D/g, '');

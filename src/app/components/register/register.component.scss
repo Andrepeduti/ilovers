@@ -57,7 +57,6 @@ small {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    animation: shake 0.4s ease-in-out;
 
     .material-icons {
         font-size: 1.2rem;
@@ -252,4 +251,9 @@ small {
     &::after {
         margin-left: 15px;
     }
+}
+
+// Shake Animation Class (triggered by TS)
+.shake-animation {
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }

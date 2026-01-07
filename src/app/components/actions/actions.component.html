@@ -4,9 +4,35 @@
     </div>
     <div class="scroll-content">
 
+        <!-- MATCHES SECTION -->
+        <section class="section">
+            <h2 class="section-title" [class.faded]="(matches$ | async)?.length === 0">Matches <span class="count"
+                    *ngIf="(matches$ | async)?.length">{{ (matches$ |
+                    async)?.length }}</span></h2>
+
+            <div class="grid-container">
+                <div class="grid-item" *ngFor="let match of (matches$ | async)" (click)="handleMatchClick(match)">
+                    <div class="card-image">
+                        <img [src]="match.photo || 'assets/placeholder.jpg'" [alt]="match.name">
+                        <div class="overlay-info">
+                            <span class="name">{{ match.name }}</span>
+                            <span class="age" *ngIf="match.age">, {{ match.age }}</span>
+                        </div>
+                        <div class="super-like-badge" *ngIf="match.isSuperLike">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <!-- NO Badge for regular matches as requested -->
+                    </div>
+                </div>
+                <div class="empty-state" *ngIf="(matches$ | async)?.length === 0">
+                </div>
+            </div>
+        </section>
+
         <!-- SUPER LIKES SECTION -->
         <section class="section">
-            <h2 class="section-title">Super Likes <span class="count" *ngIf="(superLikes$ | async)?.length">{{
+            <h2 class="section-title" [class.faded]="(superLikes$ | async)?.length === 0">Super Likes <span
+                    class="count" *ngIf="(superLikes$ | async)?.length">{{
                     (superLikes$ | async)?.length }}</span></h2>
             <div class="grid-container">
                 <div class="grid-item super-like-item" *ngFor="let like of (superLikes$ | async)"
@@ -22,14 +48,14 @@
                     </div>
                 </div>
                 <div class="empty-state" *ngIf="(superLikes$ | async)?.length === 0">
-                    <p>Nenhum Super Like recebido ainda.</p>
                 </div>
             </div>
         </section>
 
         <!-- RECEIVED LIKES SECTION -->
         <section class="section">
-            <h2 class="section-title">Likes Recebidos <span class="count" *ngIf="receivedLikes.length">{{
+            <h2 class="section-title" [class.faded]="!loadingLikes && receivedLikes.length === 0">Likes Recebidos <span
+                    class="count" *ngIf="receivedLikes.length">{{
                     receivedLikes.length }}</span></h2>
             <div class="grid-container">
                 <div class="grid-item like-item" *ngFor="let like of receivedLikes" (click)="handleLikeClick(like)">
@@ -49,37 +75,11 @@
                 </div>
 
                 <div class="empty-state" *ngIf="!loadingLikes && receivedLikes.length === 0">
-                    <p>Sem likes novos no momento.</p>
                 </div>
 
                 <!-- Skeleton Loading -->
                 <div class="grid-container" *ngIf="loadingLikes">
                     <div class="grid-item skeleton" *ngFor="let i of [1,2,3]"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MATCHES SECTION -->
-        <section class="section">
-            <h2 class="section-title">Matches <span class="count" *ngIf="(matches$ | async)?.length">{{ (matches$ |
-                    async)?.length }}</span></h2>
-
-            <div class="grid-container">
-                <div class="grid-item" *ngFor="let match of (matches$ | async)" (click)="handleMatchClick(match)">
-                    <div class="card-image">
-                        <img [src]="match.photo || 'assets/placeholder.jpg'" [alt]="match.name">
-                        <div class="overlay-info">
-                            <span class="name">{{ match.name }}</span>
-                            <span class="age" *ngIf="match.age">, {{ match.age }}</span>
-                        </div>
-                        <div class="super-like-badge" *ngIf="match.isSuperLike">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <!-- NO Badge for regular matches as requested -->
-                    </div>
-                </div>
-                <div class="empty-state" *ngIf="(matches$ | async)?.length === 0">
-                    <p>Você ainda não tem matches.</p>
                 </div>
             </div>
         </section>

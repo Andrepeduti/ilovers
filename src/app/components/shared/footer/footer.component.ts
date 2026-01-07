@@ -23,7 +23,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   activeTab: string = 'feed';
   private routerSubscription: Subscription | undefined;
 
-  showDisabledTooltip = false;
+
 
   totalChatNotifications$: Observable<number>;
   totalActions$: Observable<number>;
@@ -116,11 +116,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (tab === 'profile') {
       this.router.navigate(['/profile']);
     } else if (tab === 'feed') {
-      const user = this.authService.currentUser();
-      if (!this.authService.isProfileComplete(user)) {
-        this.showDisabledTooltip = !this.showDisabledTooltip;
-        return;
-      }
       this.router.navigate(['/feed']);
     } else if (tab === 'chat') {
       this.router.navigate(['/chat']);
@@ -131,13 +126,4 @@ export class FooterComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (this.showDisabledTooltip) {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.feed-btn')) {
-        this.showDisabledTooltip = false;
-      }
-    }
-  }
 }

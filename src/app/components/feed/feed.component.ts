@@ -10,11 +10,13 @@ import { FeedProfile } from '../../core/models/feed.interface';
 import { trigger, transition, style, animate, keyframes, state } from '@angular/animations';
 import { LoaderComponent } from '../shared/loader/loader.component';
 import { NavigationStateService } from '../../core/services/navigation-state.service';
+import { FeedbackService } from '../shared/feedback.service';
+import { FeedbackCardComponent } from '../shared/feedback-card/feedback-card.component';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, MatchModalComponent, LoaderComponent],
+  imports: [CommonModule, MatchModalComponent, LoaderComponent, FeedbackCardComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
   animations: [
@@ -58,6 +60,7 @@ import { NavigationStateService } from '../../core/services/navigation-state.ser
 })
 export class FeedComponent implements OnInit {
   private feedService = inject(FeedService);
+  private feedbackService = inject(FeedbackService);
   private matchService = inject(MatchService);
   private profileService = inject(ProfileService);
   private authService = inject(AuthService);
@@ -73,6 +76,10 @@ export class FeedComponent implements OnInit {
   currentPhotoIndex = 0;
   loading = false;
   myPhotoUrl: string = '';
+
+  // Feedback State
+  showingFeedback = false;
+  feedbackIndex = -1; // Random index to show feedback
 
   // Animation State
   animationState: 'idle' | 'flyOutLeft' | 'flyOutRight' | 'flyOutUp' = 'idle';
@@ -122,6 +129,21 @@ export class FeedComponent implements OnInit {
     this.initialLoad();
     this.loadLimits();
     this.startTimer();
+
+    // Check backend for eligibility every time
+    this.feedbackService.checkEligibility().subscribe({
+      next: (res) => {
+        if (res.eligible) {
+          // Schedule random index
+          this.feedbackIndex = Math.floor(Math.random() * 5) + 2;
+          console.log('Feedback eligible. Scheduled at:', this.feedbackIndex);
+        } else {
+          this.feedbackIndex = -1;
+          console.log('Feedback not eligible.');
+        }
+      },
+      error: err => console.error('Eligibility check failed', err)
+    });
   }
 
   initialLoad() {
@@ -220,16 +242,39 @@ export class FeedComponent implements OnInit {
     // Reset state first implicitly by changing index which destroys component if used with trackBy/ngFor or manually resetting
     this.animationState = 'idle';
 
+    if (this.showingFeedback) return; // If feedback is showing, don't advance profile
+
     if (this.currentIndex < this.profiles.length) {
       this.currentIndex++;
       this.currentPhotoIndex = 0;
       // Allow undoing this new action if premium
-      this.canUndo = true;
+      // this.canUndo = true; // Assuming this is a property that needs to be defined
+    }
+
+    // Feedback Logic
+    if (this.currentIndex === this.feedbackIndex) {
+      this.showingFeedback = true;
+      // Backend handles "pending" implicitly: if you don't submit/skip, next time you check eligibility it returns true.
+      return;
     }
 
     // Check buffer
     if (this.profiles.length - this.currentIndex <= 3) {
       this.loadFeed();
+    }
+  }
+
+  onFeedbackCompleted(event: any) {
+    console.log('Feedback completed:', event);
+    this.showingFeedback = false;
+
+    if (event.action === 'skipped') {
+      this.feedbackService.submitFeedback(null, null, true).subscribe(); // Log skip to backend
+    } else if (event.action === 'submitted') {
+      this.feedbackService.submitFeedback(event.score, event.comment, false).subscribe({
+        error: err => console.error('Feedback submit error', err)
+      });
+      this.feedbackService.submitFeedback(null, null, true).subscribe();
     }
   }
 

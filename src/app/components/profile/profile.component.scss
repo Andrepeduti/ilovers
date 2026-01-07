@@ -9,6 +9,14 @@ $purple-gradient: linear-gradient(90deg, #9c27b0, #e91e63);
     min-height: 100vh;
     font-family: 'Poppins', sans-serif;
     padding-top: 60px;
+    touch-action: auto !important;
+    /* Force scroll */
+}
+
+.scroll-content {
+    padding: 20px;
+    touch-action: auto !important;
+    /* Force scroll */
 }
 
 .header {

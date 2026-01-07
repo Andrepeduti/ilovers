@@ -1,108 +1,117 @@
 <app-loader *ngIf="loading && profiles.length === 0"></app-loader>
 
 <div class="feed-container" *ngIf="currentProfile">
-    <div class="card" *ngFor="let profile of profiles.slice(currentIndex, currentIndex + 1)"
-        [@cardAnimation]="animationState" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
-        (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <!-- Profile Card Stack (Only if NOT showing feedback) -->
+    <ng-container *ngIf="!showingFeedback">
+        <div class="card" *ngFor="let profile of profiles.slice(currentIndex, currentIndex + 1)"
+            [@cardAnimation]="animationState" (mousedown)="onTouchStart($event)" (mouseup)="onTouchEnd($event)"
+            (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
 
-        <!-- Photo Indicators -->
-        <div class="photo-indicators">
-            <div class="indicator-bar" *ngFor="let img of profile.photos; let i = index"
-                [class.active]="i === currentPhotoIndex">
-            </div>
-        </div>
-
-        <img [src]="profile.photos[currentPhotoIndex]" [alt]="profile.displayName" class="profile-image">
-
-        <div class="overlay-gradient"></div>
-
-        <div class="profile-info">
-            <h1>
-                <span class="name">{{ profile.displayName }}</span>
-                <span class="age" *ngIf="profile.age">{{ profile.age }}</span>
-            </h1>
-            <div class="location-row">
-                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{
-                    profile.state | uppercase }}</p>
-
-                <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()"
-                    (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
-                    <i class="fas fa-info"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Super Like Animation Element -->
-    <div class="super-like-overlay" *ngIf="isSuperLikeActive">
-        <i class="fas fa-star super-star"></i>
-        <h1 class="super-like-text">SUPER LIKE!</h1>
-    </div>
-
-    <!-- Actions Bar - Moved inside a wrapper for overlay -->
-    <div class="card-overlay-actions">
-        <div class="actions-bar">
-            <div class="action-btn-wrapper">
-                <span class="limit-badge undo-badge" *ngIf="isPremium">{{ limits.rewinds }}</span>
-                <button class="action-btn undo" (click)="onUndo()" [class.rotate-back]="isUndoActive"
-                    [disabled]="currentIndex === 0" [class.fake-disabled]="isPremium && limits.rewinds <= 0"
-                    [title]="!isPremium ? 'Recurso Pro' : 'Desfazer'"
-                    [style.opacity]="(currentIndex === 0 || !isPremium || (isPremium && limits.rewinds <= 0)) ? '0.5' : '1'">
-                    <i class="fas fa-undo"></i>
-                </button>
-
-                <!-- Popover for Free Plan (Undo) -->
-                <div class="upgrade-popover" *ngIf="showUndoPopover && !isPremium">
-                    <p>Recurso Pro</p>
-                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
-                    <div class="arrow-down"></div>
-                </div>
-
-                <!-- Timer for Pro Plan (Undo Limit) -->
-                <div *ngIf="isPremium && currentIndex > 0 && (limits.rewinds <= 0 || !canUndo)" class="reset-timer"
-                    [class.shake]="shakeTimer">
-                    <span>Renova em {{ timeUntilReset }}</span>
+            <!-- Photo Indicators -->
+            <div class="photo-indicators">
+                <div class="indicator-bar" *ngFor="let img of profile.photos; let i = index"
+                    [class.active]="i === currentPhotoIndex">
                 </div>
             </div>
-            <button class="action-btn reject" (click)="onReject()" [class.shake-x]="isRejectActive">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="action-btn-wrapper">
-                <span class="limit-badge" *ngIf="limits.likes < 100">{{ limits.likes }}</span>
-                <button class="action-btn like" (click)="onLike()" [class.pulse-heart]="isLikeActive"
-                    [class.fake-disabled]="limits.likes <= 0">
-                    <i class="fas fa-heart"></i>
-                </button>
 
-                <!-- Popover for Like Limit -->
-                <div class="upgrade-popover" *ngIf="showLikeUpgradePopover && limits.likes <= 0">
-                    <p>por hoje é só!</p>
-                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
-                    <div class="arrow-down"></div>
-                </div>
-            </div>
-            <div class="action-btn-wrapper">
-                <span class="limit-badge super-like-badge">{{ limits.superLikes }}</span>
-                <button class="action-btn super-like" (click)="onSuperLike()"
-                    [class.fake-disabled]="limits.superLikes <= 0">
-                    <i class="fas fa-star"></i>
-                </button>
+            <img [src]="profile.photos[currentPhotoIndex]" [alt]="profile.displayName" class="profile-image">
 
-                <!-- Popover for Free Plan (Super Like) -->
-                <div class="upgrade-popover" *ngIf="showUpgradePopover && limits.superLikes <= 0">
-                    <p>por hoje é só!</p>
-                    <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
-                    <div class="arrow-down"></div>
+            <div class="overlay-gradient"></div>
+
+            <div class="profile-info">
+                <div class="info-header">
+                    <h1>
+                        <span class="name">{{ profile.displayName }}</span>
+                        <span class="age" *ngIf="profile.age">{{ profile.age }}</span>
+                    </h1>
+
+                    <button class="info-btn-modern" (click)="$event.stopPropagation(); toggleDetails()"
+                        (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
                 </div>
 
-
-
-                <!-- Timer for Pro Plan -->
-                <div *ngIf="isPremium && limits.superLikes <= 0" class="reset-timer" [class.shake]="shakeTimer">
-                    <span>Renova em {{ timeUntilReset }}</span>
+                <div class="location-row">
+                    <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{
+                        profile.state | uppercase }}</p>
                 </div>
             </div>
         </div>
+
+        <!-- Super Like Animation Element -->
+        <div class="super-like-overlay" *ngIf="isSuperLikeActive">
+            <i class="fas fa-star super-star"></i>
+            <h1 class="super-like-text">SUPER LIKE!</h1>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="card-overlay-actions">
+            <div class="actions-bar">
+                <div class="action-btn-wrapper">
+                    <span class="limit-badge undo-badge" *ngIf="isPremium">{{ limits.rewinds }}</span>
+                    <button class="action-btn undo" (click)="onUndo()" [class.rotate-back]="isUndoActive"
+                        [disabled]="currentIndex === 0" [class.fake-disabled]="isPremium && limits.rewinds <= 0"
+                        [title]="!isPremium ? 'Recurso Pro' : 'Desfazer'"
+                        [style.opacity]="(currentIndex === 0 || !isPremium || (isPremium && limits.rewinds <= 0)) ? '0.5' : '1'">
+                        <i class="fas fa-undo"></i>
+                    </button>
+
+                    <!-- Popover for Free Plan (Undo) -->
+                    <div class="upgrade-popover" *ngIf="showUndoPopover && !isPremium">
+                        <p>Recurso Pro</p>
+                        <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
+                        <div class="arrow-down"></div>
+                    </div>
+
+                    <!-- Timer for Pro Plan (Undo Limit) -->
+                    <div *ngIf="isPremium && currentIndex > 0 && (limits.rewinds <= 0 || !canUndo)" class="reset-timer"
+                        [class.shake]="shakeTimer">
+                        <span>Renova em {{ timeUntilReset }}</span>
+                    </div>
+                </div>
+                <button class="action-btn reject" (click)="onReject()" [class.shake-x]="isRejectActive">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="action-btn-wrapper">
+                    <span class="limit-badge" *ngIf="limits.likes < 100">{{ limits.likes }}</span>
+                    <button class="action-btn like" (click)="onLike()" [class.pulse-heart]="isLikeActive"
+                        [class.fake-disabled]="limits.likes <= 0">
+                        <i class="fas fa-heart"></i>
+                    </button>
+
+                    <!-- Popover for Like Limit -->
+                    <div class="upgrade-popover" *ngIf="showLikeUpgradePopover && limits.likes <= 0">
+                        <p>por hoje é só!</p>
+                        <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
+                        <div class="arrow-down"></div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper">
+                    <span class="limit-badge super-like-badge">{{ limits.superLikes }}</span>
+                    <button class="action-btn super-like" (click)="onSuperLike()"
+                        [class.fake-disabled]="limits.superLikes <= 0">
+                        <i class="fas fa-star"></i>
+                    </button>
+
+                    <!-- Popover for Free Plan (Super Like) -->
+                    <div class="upgrade-popover" *ngIf="showUpgradePopover && limits.superLikes <= 0">
+                        <p>por hoje é só!</p>
+                        <button class="upgrade-btn" (click)="goToPlans()">Seja Pro</button>
+                        <div class="arrow-down"></div>
+                    </div>
+
+                    <!-- Timer for Pro Plan -->
+                    <div *ngIf="isPremium && limits.superLikes <= 0" class="reset-timer" [class.shake]="shakeTimer">
+                        <span>Renova em {{ timeUntilReset }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Feedback Card (Isolated) -->
+    <div class="card feedback-overlay" *ngIf="showingFeedback" style="z-index: 100;">
+        <app-feedback-card (completed)="onFeedbackCompleted($event)"></app-feedback-card>
     </div>
 
 
