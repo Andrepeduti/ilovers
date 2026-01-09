@@ -152,6 +152,19 @@ $text-light: #ffffff;
     }
 }
 
+.global-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999999;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @keyframes pulse-heart {
     0% {
         transform: scale(1);

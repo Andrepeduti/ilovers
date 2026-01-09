@@ -1,9 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core'; // Added inject
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiPaths } from '../enums/api-paths.enum';
 import { AuthResponse } from '../models/user.interface';
+import { FeedService } from './feed.service'; // Added FeedService import
 // import { MOCK_AUTH_RESPONSE } from '../mocks/auth.mock';
 import { delay, tap, map, catchError } from 'rxjs/operators';
 
@@ -38,9 +39,12 @@ export class AuthService {
         );
     }
 
+    private feedService = inject(FeedService);
+
     logout() {
         localStorage.removeItem('access_token');
         this.currentUser.set(null);
+        this.feedService.clearState();
     }
 
     // New method to check if session is valid ("Am I logged in?")
@@ -64,7 +68,6 @@ export class AuthService {
     getProfile(): Observable<any> {
         return this.http.get(`${environment.apiUrl}${ApiPaths.PROFILE}`).pipe(
             tap((response: any) => {
-                console.log('AuthService: getProfile loaded', response);
                 if (response && response.data) {
                     this.currentUser.set(response.data);
 
@@ -107,5 +110,23 @@ export class AuthService {
             console.error('Failed to decode token', e);
             return null;
         }
+    }
+
+    getUserRole(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+            const payload = token.split('.')[1];
+            const decoded = JSON.parse(atob(payload));
+            // Common claim names for role
+            return decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    isAdmin(): boolean {
+        const role = this.getUserRole();
+        return role === 'Admin';
     }
 }

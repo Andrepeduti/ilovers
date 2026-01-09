@@ -84,7 +84,6 @@ export class LoginComponent implements OnInit {
 
   sendResetLink() {
     if (this.forgotEmail) {
-      console.log(`Sending reset link to: ${this.forgotEmail}`);
       // Simulate API call
       this.resetSent = true;
     }

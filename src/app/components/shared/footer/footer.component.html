@@ -3,20 +3,24 @@
         <i class="fas fa-user"></i>
     </button>
 
-    <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'"
-        [class.disabled-nav]="!authService.isProfileComplete(authService.currentUser())" (click)="navigateTo('feed')">
+    <button class="nav-btn feed-btn" [class.active]="activeTab === 'feed'" (click)="navigateTo('feed')">
         <i class="fas fa-heart"></i>
+    </button>
 
-        <div class="tooltip-balloon" *ngIf="showDisabledTooltip" (click)="$event.stopPropagation()">
-            <p>É necessário preencher todo o perfil para acessar o feed.</p>
-            <div class="arrow-down"></div>
+    <button class="nav-btn" [class.active]="activeTab === 'actions'" (click)="navigateTo('actions')">
+        <div style="position: relative;">
+            <i class="fas fa-bolt"></i>
+            <span class="notification-badge" *ngIf="(totalActions$ | async) as count" [class.show]="count > 0">
+                {{ count > 99 ? '99+' : count }}
+            </span>
         </div>
     </button>
 
     <button class="nav-btn" [class.active]="activeTab === 'chat'" (click)="navigateTo('chat')">
         <div style="position: relative;">
             <i class="fas fa-comment"></i>
-            <span class="notification-badge" *ngIf="(totalNotifications$ | async) as count" [class.show]="count > 0">
+            <span class="notification-badge" *ngIf="(totalChatNotifications$ | async) as count"
+                [class.show]="count > 0">
                 {{ count > 99 ? '99+' : count }}
             </span>
         </div>

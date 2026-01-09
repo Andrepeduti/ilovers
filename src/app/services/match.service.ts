@@ -14,6 +14,7 @@ export interface MatchProfile {
     chatId?: string;
     viewed?: boolean;
     isSuperLike?: boolean;
+    age?: number;
 }
 
 @Injectable({
@@ -25,6 +26,9 @@ export class MatchService {
 
     private superLikesSubject = new BehaviorSubject<MatchProfile[]>([]);
     superLikes$ = this.superLikesSubject.asObservable();
+
+    private receivedLikesSubject = new BehaviorSubject<MatchProfile[]>([]);
+    receivedLikes$ = this.receivedLikesSubject.asObservable();
 
     private authService = inject(AuthService);
     private chatRealtimeService = inject(ChatRealtimeService);
@@ -47,6 +51,7 @@ export class MatchService {
         this.chatRealtimeService.matchReceived$.subscribe(() => {
             this.fetchMatches().subscribe();
             this.fetchSuperLikes().subscribe();
+            this.fetchReceivedLikes().subscribe();
         });
 
         // Listen for messages (to remove match from 'New' if convo starts)
@@ -58,12 +63,35 @@ export class MatchService {
     clearCache() {
         this.matchesSubject.next([]);
         this.superLikesSubject.next([]);
+        this.receivedLikesSubject.next([]);
+    }
+
+    private extractValue(response: any): any[] {
+        if (!response) return [];
+        let r = response;
+        // Unwrap potential multiple layers of "value" or "data"
+        // E.g. { isSuccess: true, value: { isSuccess: true, value: [] } }
+        // Attempt to find the array.
+
+        if (Array.isArray(r)) return r;
+
+        if (r.value && Array.isArray(r.value)) return r.value;
+        if (r.data && Array.isArray(r.data)) return r.data;
+
+        if (r.value && typeof r.value === 'object') {
+            // Second layer?
+            if (Array.isArray(r.value.value)) return r.value.value;
+            // Third layer? (Just in case)
+            if (r.value.value && Array.isArray(r.value.value.value)) return r.value.value.value;
+        }
+
+        return [];
     }
 
     fetchMatches(): Observable<MatchProfile[]> {
         return this.http.get<any>(`${environment.apiUrl}/interactions/matches`).pipe(
             map(response => {
-                const items = response.value || response.data || response;
+                const items = this.extractValue(response);
                 if (Array.isArray(items)) {
                     return items.map((m: any) => ({
                         id: m.userId,
@@ -87,7 +115,7 @@ export class MatchService {
     fetchSuperLikes(): Observable<MatchProfile[]> {
         return this.http.get<any>(`${environment.apiUrl}/interactions/super-likes`).pipe(
             map(response => {
-                const items = response.value || response.data || response;
+                const items = this.extractValue(response);
                 if (Array.isArray(items)) {
                     return items.map((m: any) => ({
                         id: m.fromUserId,
@@ -103,6 +131,26 @@ export class MatchService {
         );
     }
 
+    fetchReceivedLikes(): Observable<MatchProfile[]> {
+        return this.http.get<any>(`${environment.apiUrl}/interactions/likes-received`).pipe(
+            map(response => {
+                const items = this.extractValue(response);
+                if (Array.isArray(items)) {
+                    return items.map((m: any) => ({
+                        id: m.fromUserId,
+                        name: m.fromUserName,
+                        photo: m.fromUserPhoto,
+                        age: m.age,
+                        isNew: true,
+                        matchId: m.interactionId
+                    }));
+                }
+                return [];
+            }),
+            tap(likes => this.receivedLikesSubject.next(likes))
+        );
+    }
+
     addMatch(profile: MatchProfile) {
         const currentMatches = this.matchesSubject.value;
         if (!currentMatches.find(m => m.id === profile.id)) {
@@ -110,27 +158,46 @@ export class MatchService {
         }
     }
 
-    markAsViewed(userId: string) {
-        // Optimistic update
-        const currentMatches = this.matchesSubject.value;
-        const index = currentMatches.findIndex(m => m.id === userId);
+    markAsViewed(userId: string, type: 'match' | 'like' | 'superlike' = 'match') {
+        if (type === 'match') {
+            const currentMatches = this.matchesSubject.value;
+            const index = currentMatches.findIndex(m => m.id === userId);
 
-        if (index !== -1 && currentMatches[index].isNew) {
-            const match = currentMatches[index];
-            const updated = [...currentMatches];
-            updated[index] = { ...match, isNew: false, viewed: true };
-            this.matchesSubject.next(updated);
+            if (index !== -1 && currentMatches[index].isNew) {
+                const updated = [...currentMatches];
+                updated[index] = { ...updated[index], isNew: false, viewed: true };
+                this.matchesSubject.next(updated);
 
-            // Access matchId to call backend
-            if (match.matchId) {
-                this.persistView(match.matchId);
+                if (updated[index].matchId) {
+                    this.persistView(updated[index].matchId!);
+                }
+            }
+        } else if (type === 'like') {
+            const current = this.receivedLikesSubject.value;
+            const index = current.findIndex(m => m.id === userId);
+            if (index !== -1 && current[index].isNew) {
+                const updated = [...current];
+                updated[index] = { ...updated[index], isNew: false };
+                this.receivedLikesSubject.next(updated);
+                // No backend persist for likes view yet, usually transient or specific endpoint
+                // Assuming local state is enough for session
+            }
+        } else if (type === 'superlike') {
+            const current = this.superLikesSubject.value;
+            const index = current.findIndex(m => m.id === userId);
+            if (index !== -1 && current[index].isNew) {
+                const updated = [...current];
+                updated[index] = { ...updated[index], isNew: false };
+                this.superLikesSubject.next(updated);
             }
         }
     }
 
     // Call backend to persist
     persistView(matchId: string) {
-        return this.http.post(`${environment.apiUrl}/interactions/matches/${matchId}/view`, {}).subscribe();
+        return this.http.post(`${environment.apiUrl}/interactions/matches/${matchId}/view`, {}).subscribe({
+            error: err => console.error('Failed to mark match as viewed', err)
+        });
     }
 
     unmatch(matchId: string): Observable<any> {

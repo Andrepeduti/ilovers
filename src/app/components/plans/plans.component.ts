@@ -135,10 +135,8 @@ export class PlansComponent implements OnInit {
             },
             callbacks: {
                 onReady: () => {
-                    // console.log('Brick ready');
                 },
                 onSubmit: async (cardFormData: any) => {
-                    console.log('onSubmit triggered', cardFormData);
                     this.isProcessingPayment = true; // Start Loading
 
                     return new Promise<void>((resolve, reject) => {
@@ -157,13 +155,10 @@ export class PlansComponent implements OnInit {
                                 description: `Assinatura ${plan.name}`
                             };
 
-                            console.log('Sending Payment Request:', request);
-
                             this.planService.processPayment(request).subscribe({
                                 next: (result) => {
                                     this.ngZone.run(() => {
                                         this.isProcessingPayment = false; // Stop Loading
-                                        console.log('Payment Result:', result);
                                         if (result.status === 'approved') {
                                             this.verifyPremiumStatus();
                                             resolve();
@@ -231,14 +226,11 @@ export class PlansComponent implements OnInit {
         this.stopPolling(); // Clear existing
         this.currentExternalPaymentId = externalId;
 
-        console.log('Starting polling for payment:', externalId);
-
         this.paymentPollingInterval = setInterval(() => {
             if (!this.currentExternalPaymentId) return;
 
             this.planService.getPaymentStatus(this.currentExternalPaymentId).subscribe({
                 next: (result) => {
-                    console.log('Polling status:', result.status);
                     if (result.status === 'approved') {
                         this.stopPolling();
                         this.showSuccessModal = true;

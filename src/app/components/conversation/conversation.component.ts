@@ -430,7 +430,23 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
 
     // ... Navigation & Modals preserved
     goBack() {
-        this.router.navigate(['/chat']);
+        // Logic requested:
+        // 1. If chat started from Actions (no previous messages) AND no message sent -> go back to Actions.
+        // 2. If message sent -> go to Chat list.
+        // 3. If came from Chat list -> go to Chat list.
+
+        // How do we know if we came from Actions?
+        // We can check history state or router.
+        // Simplified logic: If we have messages, go to Chat. If empty, go to Actions (assuming it was a "Pending Match").
+        // But what if it's an old empty chat? (Unlikely to exist in Chat list if empty, usually filtered).
+
+        if (this.messages.length > 0) {
+            this.router.navigate(['/chat']);
+        } else {
+            // Empty chat. Likely just opened from Matches/Actions.
+            // Go back to Actions.
+            this.router.navigate(['/actions']);
+        }
     }
 
     toggleMenu() { this.showMenu = !this.showMenu; }
@@ -439,6 +455,7 @@ export class ConversationComponent implements OnInit, OnDestroy, AfterViewChecke
             this.router.navigate(['/profile', this.partnerId], { queryParams: { chatId: this.chatId } });
         }
     }
+
 
 
 }

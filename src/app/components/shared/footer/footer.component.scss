@@ -85,6 +85,10 @@
     i.fa-user {
         animation: bounceUser 2s ease-in-out infinite;
     }
+
+    i.fa-bolt {
+        animation: electricPulse 1.2s ease-in-out infinite;
+    }
 }
 
 /* Keyframes */
@@ -164,6 +168,21 @@
 
     100% {
         transform: translateY(0);
+    }
+}
+
+@keyframes electricPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+        filter: brightness(1.1);
+    }
+
+    100% {
+        transform: scale(1);
     }
 }
 
@@ -258,8 +277,8 @@
 /* NOTIFICATION BADGE */
 .notification-badge {
     position: absolute;
-    top: -5px;
-    right: -8px;
+    top: -8px;
+    right: -12px;
     background-color: #ff3b30;
     color: white;
     width: 18px;

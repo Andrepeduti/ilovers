@@ -20,7 +20,6 @@ export class ProfileService {
 
     updateProfile(data: Partial<Profile>): Observable<Profile> {
         if (!environment.production) {
-            console.log('ProfileService: updateProfile using MOCK data');
             return of({ ...MOCK_MY_PROFILE, ...data }).pipe(delay(1000));
         }
         return this.http.put<Profile>(`${environment.apiUrl}${ApiPaths.PROFILE}`, data);
@@ -28,7 +27,6 @@ export class ProfileService {
 
     getProfileDetails(id: number): Observable<Profile> {
         if (!environment.production) {
-            console.log(`ProfileService: getProfileDetails(${id}) using MOCK data`);
             // For mock, just return my profile as a placeholder or create a specific one if needed
             return of(MOCK_MY_PROFILE).pipe(delay(500));
         }

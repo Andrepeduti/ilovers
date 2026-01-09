@@ -1,0 +1,31 @@
+<div class="feedback-card">
+    <div class="card-content">
+        <h2>Ajude-nos a melhorar</h2>
+        <p class="subtitle">O que você está achando do ILovers?</p>
+
+        <div class="emojis-container">
+            <button class="emoji-btn" [class.selected]="selectedScore === 1" (click)="selectScore(1)">
+                <span class="emoji">😕</span>
+                <span class="label">Ruim</span>
+            </button>
+            <button class="emoji-btn" [class.selected]="selectedScore === 2" (click)="selectScore(2)">
+                <span class="emoji">🙂</span>
+                <span class="label">Bom</span>
+            </button>
+            <button class="emoji-btn" [class.selected]="selectedScore === 3" (click)="selectScore(3)">
+                <span class="emoji">😍</span>
+                <span class="label">Ótimo</span>
+            </button>
+        </div>
+
+        <div class="comment-section" *ngIf="showComment">
+            <textarea [(ngModel)]="comment" placeholder="Conte mais detalhes..." rows="3">
+            </textarea>
+        </div>
+
+        <div class="actions">
+            <button class="btn-secondary" (click)="skip()">Depois</button>
+            <button class="btn-primary" [disabled]="!isSubmitEnabled" (click)="submit()">Enviar</button>
+        </div>
+    </div>
+</div>

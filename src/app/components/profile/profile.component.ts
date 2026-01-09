@@ -10,6 +10,7 @@ import { ImageService } from '../../core/services/image.service';
 import { Observable, forkJoin } from 'rxjs';
 import { ChatRealtimeService } from '../../services/chat-realtime.service';
 import { NavigationStateService } from '../../core/services/navigation-state.service';
+import { LoaderService } from '../../core/services/loader.service';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private chatRealtimeService = inject(ChatRealtimeService);
   private navService = inject(NavigationStateService);
+  private loaderService = inject(LoaderService);
 
   photos: (string | null)[] = [null, null, null, null, null, null, null, null];
   showAgeInfo = false;
@@ -51,7 +53,9 @@ export class ProfileComponent implements OnInit {
     },
     seeAllAges: false,
     hobbies: [] as string[],
-    photos: [] as (string | null)[]
+    photos: [] as (string | null)[],
+    bank: '',
+    preferredBankFilter: ''
   };
   cachedProfile = this.authService.currentUser;
   newHobby = '';
@@ -64,6 +68,20 @@ export class ProfileComponent implements OnInit {
   saveError = '';
 
   availableInterests = ['Fotografia', 'Viagens', 'Música', 'Arte', 'Esportes', 'Culinária', 'Leitura', 'Cinema', 'Tecnologia', 'Natureza', 'Yoga'];
+
+  // Bank Options (for display/filtering)
+  banks = [
+    { name: 'Banco do Brasil', id: 'BB', type: 'traditional' },
+    { name: 'Bradesco', id: 'BRADESCO', type: 'traditional' },
+    { name: 'Itaú', id: 'ITAU', type: 'traditional' },
+    { name: 'Santander', id: 'SANTANDER', type: 'traditional' },
+    { name: 'Caixa', id: 'CAIXA', type: 'traditional' },
+    { name: 'Nubank', id: 'NUBANK', type: 'digital' },
+    { name: 'Inter', id: 'INTER', type: 'digital' },
+    { name: 'C6 Bank', id: 'C6', type: 'digital' },
+    { name: 'BTG Pactual', id: 'BTG', type: 'digital' },
+    { name: 'Outros', id: 'OUTROS', type: 'other' }
+  ];
 
   tagIcons: { [key: string]: string } = {
     'Fotografia': 'fas fa-camera',
@@ -160,13 +178,12 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loaderService.hide(); // Ensure global loader is hidden when profile loads
     this.checkAndLoadProfile();
-    console.log('Profile dps do oninit:', this.profile);
   }
 
   checkAndLoadProfile() {
     if (this.cachedProfile()) {
-      console.log('Loading profile from signal cache', this.cachedProfile());
       this.populateForm(this.cachedProfile());
       this.updateOriginalState();
     } else {
@@ -179,9 +196,7 @@ export class ProfileComponent implements OnInit {
     this.toggleLoader();
     this.authService.getProfile().subscribe({
       next: (response) => {
-        console.log('Profile loaded:', response);
         if (response && response.data) {
-          console.log('RAW PROFILE DATA:', response.data);
           this.populateForm(response.data);
         }
         this.updateOriginalState();
@@ -198,7 +213,6 @@ export class ProfileComponent implements OnInit {
 
 
   populateForm(data: any) {
-    console.log('Profile data:', data);
     this.profile = {
       ...this.profile,
       displayName: data.name || data.displayName || '', // Map 'name' from backend
@@ -217,7 +231,10 @@ export class ProfileComponent implements OnInit {
       seeAllAges: data.seeAllAges || false,
       isComplete: data.isComplete,
       isPremium: data.isPremium || data.IsPremium || false,
-      premiumExpiresAt: data.premiumExpiresAt ? new Date(data.premiumExpiresAt) : (data.PremiumExpiresAt ? new Date(data.PremiumExpiresAt) : undefined)
+      premiumExpiresAt: data.premiumExpiresAt ? new Date(data.premiumExpiresAt) : (data.PremiumExpiresAt ? new Date(data.PremiumExpiresAt) : undefined),
+      bank: data.bank || '',
+      preferredBankFilter: data.preferredBankFilter || data.PreferredBankFilter || '',
+      lastBankFilterUpdate: data.lastBankFilterUpdate ? new Date(data.lastBankFilterUpdate) : (data.LastBankFilterUpdate ? new Date(data.LastBankFilterUpdate) : undefined)
     };
 
     const images = data.images || data.photos; // Map 'images' from backend
@@ -232,7 +249,142 @@ export class ProfileComponent implements OnInit {
     if (this.photos[0]) {
       this.authService.currentCoverPhoto.set(this.photos[0]);
     }
+    if (this.photos[0]) {
+      this.authService.currentCoverPhoto.set(this.photos[0]);
+    }
   }
+
+  get canEditBankFilter(): boolean {
+    if (this.profile.isPremium) return true;
+    if (!this.profile.isComplete) return true;
+    if (!this.profile.lastBankFilterUpdate) return true;
+
+    const lastUpdate = new Date(this.profile.lastBankFilterUpdate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - lastUpdate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays >= 30;
+  }
+
+  get daysUntilUnlock(): number {
+    if (!this.profile.lastBankFilterUpdate) return 0;
+    const lastUpdate = new Date(this.profile.lastBankFilterUpdate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - lastUpdate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, 30 - diffDays);
+  }
+
+  get previewBanks(): string[] {
+    if (!this.profile.preferredBankFilter) {
+      return [];
+    }
+    if (this.profile.preferredBankFilter === 'Todos') {
+      return ['Todos'];
+    }
+    return this.profile.preferredBankFilter.split(',').filter(b => b.trim() !== '');
+  }
+
+  get filterButtonText(): string {
+    const banks = this.previewBanks;
+    if (banks.length === 0) {
+      return 'Selecione a Instituição';
+    }
+    if (banks.includes('Todos')) {
+      return 'Selecionados: Todos';
+    }
+    if (banks.length === 1) {
+      return `Selecionado: ${banks.length}`;
+    }
+    return `Selecionados: ${banks.length}`;
+  }
+
+  selectBankFilter(bankId: string) {
+    if (!this.canEditBankFilter) return;
+    this.profile.preferredBankFilter = bankId;
+  }
+
+  // Bank Filter Modal Logic
+  isBankFilterModalOpen = false;
+  tempSelectedBanks: string[] = [];
+
+  openBankFilterModal() {
+    if (!this.canEditBankFilter) return;
+
+    this.isBankFilterModalOpen = true;
+
+    // Parse current filter string into array
+    if (!this.profile.preferredBankFilter) {
+      this.tempSelectedBanks = [];
+    } else if (this.profile.preferredBankFilter === 'Todos') {
+      this.tempSelectedBanks = ['Todos'];
+    } else {
+      this.tempSelectedBanks = this.profile.preferredBankFilter.split(',').map(b => b.trim());
+    }
+  }
+
+  closeBankFilterModal() {
+    this.isBankFilterModalOpen = false;
+  }
+
+  toggleBankSelection(bankName: string) {
+    if (bankName === 'Todos') {
+      if (this.tempSelectedBanks.includes('Todos')) {
+        this.tempSelectedBanks = [];
+      } else {
+        this.tempSelectedBanks = ['Todos'];
+      }
+      return;
+    }
+
+    // If selecting a specific bank, remove 'Todos' if present
+    if (this.tempSelectedBanks.includes('Todos')) {
+      this.tempSelectedBanks = [];
+    }
+
+    const index = this.tempSelectedBanks.indexOf(bankName);
+    if (index > -1) {
+      this.tempSelectedBanks.splice(index, 1);
+    } else {
+      this.tempSelectedBanks.push(bankName);
+    }
+  }
+
+  saveBankFilter() {
+    const filterString = this.tempSelectedBanks.join(',');
+    this.profile.preferredBankFilter = filterString;
+    this.closeBankFilterModal();
+  }
+
+  updateBankFilter(filter: string) {
+    if (!this.canEditBankFilter) return;
+    if (filter === this.profile.preferredBankFilter) return;
+
+    this.authService.updateProfile({
+      ...this.profile,
+      preferredBankFilter: filter
+    } as IProfile).subscribe({
+      next: (response: any) => {
+        // Handle response structure wrapper
+        const updatedProfile = response.data || response;
+
+        this.profile = updatedProfile;
+        // Fix potential date strings
+        if (typeof this.profile.lastBankFilterUpdate === 'string') {
+          this.profile.lastBankFilterUpdate = new Date(this.profile.lastBankFilterUpdate);
+        }
+
+        this.initialProfile = JSON.parse(JSON.stringify(updatedProfile));
+        // Recalculate canEditBankFilter implicitly via getter
+      },
+      error: (err) => console.error('Error updating bank filter', err)
+    });
+  }
+
+  // Define initialProfile if it was missing or use originalProfile logic
+  private initialProfile: any;
+
 
   logout() {
     this.showLogoutModal = true;
@@ -491,8 +643,6 @@ export class ProfileComponent implements OnInit {
 
   private performProfileUpdate() {
     this.profile.photos = this.photos;
-
-    console.log('Saving profile:', this.profile);
 
     this.authService.updateProfile(this.profile).subscribe({
       next: (response: any) => {

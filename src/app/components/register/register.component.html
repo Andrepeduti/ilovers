@@ -7,36 +7,31 @@
 
         <form (ngSubmit)="onCreateAccount()">
 
-            <!-- Error Message -->
-            <div class="error-banner" *ngIf="registerError">
-                <span class="material-icons">error_outline</span>
-                {{ registerError }}
-            </div>
+            <!-- Error Banner Moved to Bottom -->
 
             <!-- Email -->
-            <div class="form-group">
+            <div class="form-group" id="email">
                 <label>E-mail</label>
                 <div class="input-wrapper">
-                    <input type="email" [(ngModel)]="email" name="email" placeholder="seu@email.com">
+                    <input type="email" (input)="clearError()" [(ngModel)]="email" name="email"
+                        placeholder="seu@email.com">
                     <i class="fas fa-envelope icon-suffix"></i>
                 </div>
             </div>
 
             <!-- Confirm Email -->
-            <div class="form-group">
+            <div class="form-group" id="confirmEmail">
                 <label>Confirmar E-mail</label>
                 <div class="input-wrapper">
-                    <input type="email" [(ngModel)]="confirmEmail" name="confirmEmail"
+                    <input type="email" (input)="clearError()" [(ngModel)]="confirmEmail" name="confirmEmail"
                         placeholder="Confirme seu e-mail">
                     <i class="fas fa-check-circle icon-suffix" [class.success]="email && email === confirmEmail"
                         *ngIf="emailsMatch"></i>
                 </div>
-                <p *ngIf="showEmailMismatchError" style="color: #e74c3c; font-size: 0.8rem; margin-top: 5px;">Os e-mails
-                    não coincidem</p>
             </div>
 
             <!-- Password -->
-            <div class="form-group">
+            <div class="form-group" id="password">
                 <label>Senha</label>
                 <div class="input-wrapper">
                     <input [type]="passwordVisible ? 'text' : 'password'" [(ngModel)]="password" name="password"
@@ -47,6 +42,20 @@
                 </div>
             </div>
 
+
+            <!-- Confirm Password -->
+            <div class="form-group" id="confirmPassword">
+                <label>Confirmar Senha</label>
+                <div class="input-wrapper">
+                    <input [type]="confirmPasswordVisible ? 'text' : 'password'" (input)="clearError()"
+                        [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirme sua senha">
+                    <span class="material-icons suffix-icon interactive" (click)="toggleConfirmPasswordVisibility()">
+                        {{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bank ID -->
             <!-- Password Rules -->
             <div class="password-rules">
                 <div class="rule-item" [class.valid]="passwordRules.minLength"
@@ -74,49 +83,51 @@
                     <span>Pelo menos um caractere especial</span>
                 </div>
                 <div class="rule-item" [class.valid]="passwordsMatch"
-                    [class.invalid]="isPasswordDirty && !passwordsMatch">
+                    [class.invalid]="confirmPassword && !passwordsMatch">
                     <div class="circle" [class.active]="passwordsMatch"
-                        [class.error]="isPasswordDirty && !passwordsMatch"></div>
+                        [class.error]="confirmPassword && !passwordsMatch"></div>
                     <span>As senhas devem ser iguais</span>
                 </div>
             </div>
 
+            <!-- Bank Selection -->
+            <div class="form-group" id="bankSelection">
+                <label>Em qual instituição você trabalha?</label>
 
-            <!-- Confirm Password -->
-            <div class="form-group">
-                <label>Confirmar Senha</label>
-                <div class="input-wrapper">
-                    <input [type]="confirmPasswordVisible ? 'text' : 'password'" [(ngModel)]="confirmPassword"
-                        name="confirmPassword" placeholder="Confirme sua senha">
-                    <span class="material-icons suffix-icon interactive" (click)="toggleConfirmPasswordVisibility()">
-                        {{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}
-                    </span>
+                <!-- Button trigger for modal -->
+                <button type="button" class="filter-btn" (click)="openBankModal()">
+                    <i class="fas fa-university"></i>
+                    {{ selectedBankName }}
+                </button>
+
+                <div class="error-msg" *ngIf="registerError && !selectedBank">
+                    Selecione seu banco
                 </div>
             </div>
 
-            <!-- Bank ID -->
-            <div class="form-group">
-                <label>Funcional</label>
-                <div class="input-wrapper">
-                    <input type="text" (input)="onBankIdInput($event)" inputmode="numeric" [(ngModel)]="bankId"
-                        name="bankId" placeholder="Digite sua funcional">
-                    <i class="fas fa-id-card icon-suffix"></i>
-                </div>
-                <small *ngIf="bankIdInvalid">
-                    O código deve conter 9 números
-                </small>
-            </div>
+
 
             <!-- Terms -->
-            <div class="checkbox-wrapper">
-                <input type="checkbox" id="terms" [(ngModel)]="termsAccepted" name="terms">
-                <label for="terms">Eu concordo com os <a href="#" (click)="openModal('terms', $event)">Termos de Uso</a>
+            <div class="checkbox-wrapper" id="terms">
+                <input type="checkbox" (change)="clearError()" id="terms-check" [(ngModel)]="termsAccepted"
+                    name="terms">
+                <label for="terms-check">Eu concordo com os <a href="#" (click)="openModal('terms', $event)">Termos de
+                        Uso</a>
                     e <a href="#" (click)="openModal('privacy', $event)">Política de Privacidade</a></label>
             </div>
-            <div class="checkbox-wrapper">
-                <input type="checkbox" id="terms" [(ngModel)]="bankEmployee" name="terms">
-                <label for="terms">Declaro, sob minha responsabilidade, que possuo vínculo profissional com a
-                    instituição à qual este aplicativo se destina.</label>
+
+            <div class="checkbox-wrapper" id="bankEmployee">
+                <input type="checkbox" (change)="clearError()" id="bank-emp" [(ngModel)]="bankEmployee"
+                    name="bankEmployee">
+                <label for="bank-emp">Declaro, sob minha responsabilidade, que
+                    possuo vínculo profissional com a
+                    instituição mencionado acima por mim.</label>
+            </div>
+
+            <!-- Error Message (Bottom) -->
+            <div class="error-banner" *ngIf="registerError">
+                <span class="material-icons">error_outline</span>
+                {{ registerError }}
             </div>
 
             <!-- Submit Button -->
@@ -137,6 +148,45 @@
         </form>
     </div>
 
+    <!-- Full Screen Loader Removed (Global Loader used) -->
+
+
     <!-- Info Modal -->
     <app-info-modal *ngIf="showModal" [type]="modalType" (close)="closeModal()"></app-info-modal>
+
+    <!-- Bank Selection Modal -->
+    <div class="modal-backdrop" *ngIf="isBankModalOpen" (click)="closeBankModal()">
+        <div class="modal-content filter-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Selecione sua Instituição</h3>
+                <button class="close-btn" (click)="closeBankModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="bank-list">
+                    <ng-container *ngFor="let bank of banks">
+                        <div class="bank-option" [class.selected]="tempSelectedBank === bank.name"
+                            (click)="toggleBankSelection(bank.name)">
+                            <div class="checkbox-custom">
+                                <i class="fas fa-check" *ngIf="tempSelectedBank === bank.name"></i>
+                            </div>
+                            <span>{{ bank.name }}</span>
+                        </div>
+                    </ng-container>
+
+                    <!-- Custom Bank Input -->
+                    <div class="custom-bank-input" *ngIf="tempSelectedBank === 'Outros'">
+                        <input type="text" [(ngModel)]="otherBankName" placeholder="Qual o nome do banco?"
+                            name="otherBankName" maxlength="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeBankModal()">Cancelar</button>
+                <button class="btn-save" (click)="confirmBankSelection()"
+                    [disabled]="!tempSelectedBank || (tempSelectedBank === 'Outros' && !otherBankName.trim())">Confirmar</button>
+            </div>
+        </div>
+    </div>
 </div>

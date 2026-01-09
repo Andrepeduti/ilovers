@@ -40,4 +40,24 @@ export class FeedService {
     rewind(): Observable<void> {
         return this.http.post<void>(`${this.apiUrl}/rewind`, {});
     }
+    // State Persistence
+    private savedProfiles: FeedProfile[] = [];
+    private savedIndex: number = 0;
+
+    saveState(profiles: FeedProfile[], index: number) {
+        this.savedProfiles = profiles;
+        this.savedIndex = index;
+    }
+
+    getState(): { profiles: FeedProfile[], index: number } | null {
+        if (this.savedProfiles.length > 0) {
+            return { profiles: this.savedProfiles, index: this.savedIndex };
+        }
+        return null;
+    }
+
+    clearState() {
+        this.savedProfiles = [];
+        this.savedIndex = 0;
+    }
 }

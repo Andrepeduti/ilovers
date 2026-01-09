@@ -15,6 +15,7 @@ export interface Profile {
     gender?: string;
     interestedIn?: string;
     hideAge?: boolean;
+    bank?: string;
 }
 
 interface ApiResponse<T> {

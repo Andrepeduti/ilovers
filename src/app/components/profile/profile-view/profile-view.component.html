@@ -22,10 +22,15 @@
                 <span class="age" *ngIf="profile.age && !profile.hideAge">{{ profile.age }}</span>
             </h1>
             <div class="location-row">
-                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state }}</p>
+                <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state |
+                    uppercase }}</p>
                 <button class="info-btn" (click)="$event.stopPropagation(); toggleDetails()">
                     <i class="fas fa-info"></i>
                 </button>
+            </div>
+
+            <div class="bank-tag-view" *ngIf="profile.bank">
+                <i class="fas fa-briefcase"></i> {{ profile.bank }}
             </div>
         </div>
 
@@ -46,8 +51,13 @@
                 <h1><span class="name">{{ profile.displayName }}</span> <span class="age"
                         *ngIf="profile.age && !profile.hideAge">- {{
                         profile.age }}</span></h1>
-                <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state
+                <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state |
+                    uppercase
                     }}</p>
+
+                <div class="bank-tag-detail" *ngIf="profile.bank">
+                    <i class="fas fa-briefcase"></i> {{ profile.bank }}
+                </div>
             </div>
 
             <hr class="divider">

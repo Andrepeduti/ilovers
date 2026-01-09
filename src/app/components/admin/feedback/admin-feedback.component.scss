@@ -1,0 +1,186 @@
+.feedback-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fce4ec, #f3e5f5, #e0f7fa);
+    padding: 2rem;
+    font-family: 'Outfit', sans-serif;
+    color: #333;
+
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: #333;
+        }
+
+        .back-btn {
+            background: white;
+            border: none;
+            color: #555;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+        }
+    }
+
+    .loading-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 300px;
+        color: #666;
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ddd;
+            border-top-color: #ff4b6a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: translateY(-5px);
+            }
+
+            h3 {
+                margin: 0 0 0.5rem;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #888;
+            }
+
+            .value {
+                font-size: 2.5rem;
+                font-weight: 700;
+            }
+
+            &.total .value {
+                color: #333;
+            }
+
+            &.bad .value {
+                color: #fe4a49;
+            }
+
+            &.good .value {
+                color: #f5a623;
+            }
+
+            &.great .value {
+                color: #1fb141;
+            }
+        }
+    }
+
+    .feedbacks-list {
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            color: #333;
+        }
+
+        .feedback-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: background 0.2s;
+
+            &:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+
+            .item-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 0.8rem;
+                font-size: 0.9rem;
+
+                .email {
+                    color: #333;
+                    font-weight: 600;
+                }
+
+                .date {
+                    color: #888;
+                }
+            }
+
+            .score-badge {
+                display: inline-block;
+                padding: 0.3rem 0.8rem;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-bottom: 0.8rem;
+
+                &.bad {
+                    color: #fe4a49;
+                    background: rgba(254, 74, 73, 0.1);
+                }
+
+                &.good {
+                    color: #f5a623;
+                    background: rgba(245, 166, 35, 0.1);
+                }
+
+                &.great {
+                    color: #1fb141;
+                    background: rgba(31, 177, 65, 0.1);
+                }
+            }
+
+            .comment {
+                color: #555;
+                font-style: italic;
+                line-height: 1.5;
+            }
+
+            .no-comment {
+                color: #aaa;
+                font-style: italic;
+                font-size: 0.9rem;
+            }
+        }
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

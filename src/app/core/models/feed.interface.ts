@@ -8,6 +8,7 @@ export interface FeedProfile {
     mainPhotoUrl: string;
     photos: string[];
     hobbies: string[];
+    bank?: string;
 }
 
 export interface FeedResponse {
