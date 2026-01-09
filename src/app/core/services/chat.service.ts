@@ -16,7 +16,6 @@ export class ChatService {
 
     getConversations(): Observable<Conversation[]> {
         if (!environment.production) {
-            console.log('ChatService: getConversations using MOCK data');
             return of(MOCK_CONVERSATIONS).pipe(delay(500));
         }
         return this.http.get<Conversation[]>(`${environment.apiUrl}${ApiPaths.CONVERSATIONS}`);
@@ -24,7 +23,6 @@ export class ChatService {
 
     getNewMatches(): Observable<Match[]> {
         if (!environment.production) {
-            console.log('ChatService: getNewMatches using MOCK data');
             return of(MOCK_MATCHES).pipe(delay(500));
         }
         return this.http.get<Match[]>(`${environment.apiUrl}${ApiPaths.MATCHES}`);
@@ -32,7 +30,6 @@ export class ChatService {
 
     reportUser(userId: number, reason: string): Observable<void> {
         if (!environment.production) {
-            console.log(`ChatService: reportUser(${userId}, "${reason}") using MOCK data`);
             return of(void 0).pipe(delay(1000));
         }
         return this.http.post<void>(`${environment.apiUrl}${ApiPaths.REPORT}`, { userId, reason });
@@ -40,7 +37,6 @@ export class ChatService {
 
     unmatchUser(userId: number): Observable<void> {
         if (!environment.production) {
-            console.log(`ChatService: unmatchUser(${userId}) using MOCK data`);
             return of(void 0).pipe(delay(800));
         }
         return this.http.post<void>(`${environment.apiUrl}${ApiPaths.UNMATCH}`, { userId });

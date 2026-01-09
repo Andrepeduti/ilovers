@@ -26,6 +26,10 @@
         <div class="main-info">
             <h1>{{ profile.name }} <span class="age" *ngIf="profile.age">, {{ profile.age }}</span></h1>
             <p class="location"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{ profile.state }}</p>
+
+            <div class="bank-tag" *ngIf="profile.bank">
+                <i class="fas fa-briefcase"></i> {{ profile.bank }}
+            </div>
         </div>
 
         <section class="section">

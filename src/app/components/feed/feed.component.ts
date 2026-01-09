@@ -137,10 +137,8 @@ export class FeedComponent implements OnInit {
         if (data.eligible) {
           // Schedule random index
           this.feedbackIndex = Math.floor(Math.random() * 5) + 2;
-          console.log('Feedback eligible. Scheduled at:', this.feedbackIndex);
         } else {
           this.feedbackIndex = -1;
-          console.log('Feedback not eligible.');
         }
       },
       error: err => console.error('Eligibility check failed', err)
@@ -266,7 +264,6 @@ export class FeedComponent implements OnInit {
   }
 
   onFeedbackCompleted(event: any) {
-    console.log('Feedback completed:', event);
     this.showingFeedback = false;
 
     if (event.action === 'skip') {
@@ -476,12 +473,7 @@ export class FeedComponent implements OnInit {
 
   startChatFromMatch() {
     this.closeMatchModal();
-    if (this.matchedChatId) {
-      this.router.navigate(['/chat', this.matchedChatId]);
-    } else {
-      // Fallback: Navigate to chat list, user can find it there
-      this.router.navigate(['/chat']);
-    }
+    this.router.navigate(['/actions']);
   }
 
   // Carousel & Touch Logic (Simplified/Kept similar)

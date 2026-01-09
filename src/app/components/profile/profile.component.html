@@ -162,7 +162,73 @@
                 <input type="checkbox" id="seeAllAges" [(ngModel)]="profile.seeAllAges" (change)="onSeeAllAgesChange()">
                 <label for="seeAllAges">Ver todas as idades</label>
             </div>
+
+            <!-- Bank Filter Section -->
+            <br>
+            <p class="subtitle">Quero ver essas Instituições no feed: <i class="fas fa-lock"
+                    *ngIf="!canEditBankFilter"></i></p>
+            <div class="bank-filter-container" [class.locked]="!canEditBankFilter">
+                <div class="lock-overlay" *ngIf="!canEditBankFilter">
+                    <span>Disponível em {{ daysUntilUnlock }} dias</span>
+                    <small *ngIf="!profile.isPremium">(Premium altera diariamente)</small>
+                </div>
+
+                <div class="form-group">
+                    <button class="filter-btn" (click)="openBankFilterModal()" [disabled]="!canEditBankFilter">
+                        <i class="fas fa-university"></i>
+                        {{ filterButtonText }} <span class="required" *ngIf="!profile.preferredBankFilter">*</span>
+                    </button>
+                    <small style="color: black;" *ngIf="profile.preferredBankFilter && !profile.isPremium">
+                        Essa escolha só poderá ser desfeita depois de 30 dias.
+                    </small>
+                    <div class="current-filter-preview" *ngIf="profile.preferredBankFilter">
+                        <div class="preview-tags">
+                            <span class="preview-tag" *ngFor="let bank of previewBanks">{{ bank }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
+
+        <!-- Bank Filter Modal -->
+        <div class="modal-backdrop" *ngIf="isBankFilterModalOpen" (click)="closeBankFilterModal()">
+            <div class="modal-content filter-modal" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Filtrar Feed</h3>
+                    <button class="close-btn" (click)="closeBankFilterModal()">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="bank-list">
+                        <!-- Option 'Todos' -->
+                        <div class="bank-option" [class.selected]="tempSelectedBanks.includes('Todos')"
+                            (click)="toggleBankSelection('Todos')">
+                            <div class="checkbox-custom">
+                                <i class="fas fa-check" *ngIf="tempSelectedBanks.includes('Todos')"></i>
+                            </div>
+                            <span>Ver Todos</span>
+                        </div>
+
+                        <!-- Other Banks -->
+                        <ng-container *ngFor="let bank of banks">
+                            <div class="bank-option" *ngIf="bank.name !== 'Outros'"
+                                [class.selected]="tempSelectedBanks.includes(bank.name)"
+                                (click)="toggleBankSelection(bank.name)">
+                                <div class="checkbox-custom">
+                                    <i class="fas fa-check" *ngIf="tempSelectedBanks.includes(bank.name)"></i>
+                                </div>
+                                <span>{{ bank.name }}</span>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-cancel" (click)="closeBankFilterModal()">Cancelar</button>
+                    <button class="btn-save" (click)="saveBankFilter()">Salvar Filtro</button>
+                </div>
+            </div>
+        </div>
 
         <section class="section tags-section">
             <h2>Seus Interesses</h2>
@@ -207,16 +273,16 @@
 
         <div style="height: 80px;"></div>
     </div>
+</div>
 
 
 
-    <!-- Loader Test Button & Component -->
-    <!-- <button (click)="toggleLoader()"
+<!-- Loader Test Button & Component -->
+<!-- <button (click)="toggleLoader()"
         style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; padding: 10px 20px; background: #9c27b0; color: white; border: none; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;">
         Testar Loader
     </button> -->
-    <div *ngIf="showLoader" (click)="toggleLoader()"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; cursor: pointer;">
-        <app-loader></app-loader>
-    </div>
+<div *ngIf="showLoader" (click)="toggleLoader()"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; cursor: pointer;">
+    <app-loader></app-loader>
 </div>

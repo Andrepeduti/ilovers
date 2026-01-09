@@ -35,6 +35,10 @@
                     <p class="distance"><i class="fas fa-map-marker-alt"></i> {{ profile.city }} - {{
                         profile.state | uppercase }}</p>
                 </div>
+
+                <div class="bank-tag-feed" *ngIf="profile.bank">
+                    <i class="fas fa-briefcase"></i> {{ profile.bank }}
+                </div>
             </div>
         </div>
 
@@ -129,6 +133,10 @@
                 </h1>
                 <p class="distance-detail"><i class="fas fa-map-marker-alt"></i> {{ currentProfile.city }} - {{
                     currentProfile.state | uppercase }}</p>
+
+                <div class="bank-tag" *ngIf="currentProfile.bank">
+                    <i class="fas fa-briefcase"></i> {{ currentProfile.bank }}
+                </div>
             </div>
 
             <hr class="divider">

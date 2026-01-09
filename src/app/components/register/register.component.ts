@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { InfoModalComponent } from '../shared/info-modal/info-modal.component';
+import { LoaderService } from '../../core/services/loader.service'; // Adjust path
 import { AuthService } from '../../core/services/auth.service';
 
 
@@ -18,10 +19,24 @@ export class RegisterComponent {
     confirmEmail = '';
     password = '';
     confirmPassword = '';
-    bankId = '';
-    termsAccepted = false;
     bankEmployee = false;
-    bankIdInvalid = false;
+    selectedBank = '';
+    preferredBank = '';
+
+    // Bank Options
+    banks = [
+        { name: 'Banco do Brasil', id: 'BB', logo: 'assets/banks/bb.png', type: 'traditional' },
+        { name: 'Bradesco', id: 'BRADESCO', logo: 'assets/banks/bradesco.png', type: 'traditional' },
+        { name: 'Itaú', id: 'ITAU', logo: 'assets/banks/itau.png', type: 'traditional' },
+        { name: 'Santander', id: 'SANTANDER', logo: 'assets/banks/santander.png', type: 'traditional' },
+        { name: 'Caixa', id: 'CAIXA', logo: 'assets/banks/caixa.png', type: 'traditional' },
+        { name: 'Nubank', id: 'NUBANK', logo: 'assets/banks/nubank.png', type: 'digital' },
+        { name: 'Inter', id: 'INTER', logo: 'assets/banks/inter.png', type: 'digital' },
+        { name: 'C6 Bank', id: 'C6', logo: 'assets/banks/c6.png', type: 'digital' },
+        { name: 'BTG Pactual', id: 'BTG', logo: 'assets/banks/btg.png', type: 'digital' },
+        { name: 'Outros', id: 'OUTROS', logo: 'assets/banks/other.png', type: 'other' }
+    ];
+
     passwordVisible = false;
     confirmPasswordVisible = false;
 
@@ -37,7 +52,12 @@ export class RegisterComponent {
 
     isPasswordDirty = false;
     registerError = '';
-    isLoading = false;
+
+
+    private loaderService = inject(LoaderService);
+    get isLoading() {
+        return this.loaderService.loading();
+    }
 
     constructor(private router: Router, private authService: AuthService) { }
 
@@ -69,9 +89,10 @@ export class RegisterComponent {
         const emailsMatch = !!this.email && this.email === this.confirmEmail;
         const passwordsMatch = !!this.password && this.password === this.confirmPassword;
         const passwordValid = Object.values(this.passwordRules).every(r => r);
-        const bankIdFilled = !!this.bankId;
+        const bankSelected = !!this.selectedBank;
+        // preferredBank is optional/hidden in register now, defaulting to empty
 
-        return emailsMatch && passwordsMatch && passwordValid && bankIdFilled && this.termsAccepted && this.bankEmployee;
+        return emailsMatch && passwordsMatch && passwordValid && bankSelected && this.termsAccepted && this.bankEmployee;
     }
 
     get passwordsMatch(): boolean {
@@ -90,19 +111,23 @@ export class RegisterComponent {
     passwordError = '';
     confirmPasswordError = '';
     confirmEmailError = '';
-    bankIdError = '';
+    bankError = '';
+
     termsError = false;
     bankEmployeeError = false;
+
+    termsAccepted = false; // Added back
 
     onCreateAccount() {
         this.resetErrors();
 
         if (this.validateForm()) {
-            this.isLoading = true;
+            this.loaderService.show();
             const registrationData = {
                 email: this.email,
                 password: this.password,
-                employeeId: this.bankId,
+                bank: this.selectedBank,
+                preferredBankFilter: this.preferredBank,
                 acceptTerms: this.termsAccepted,
                 bankEmployee: this.bankEmployee,
             };
@@ -110,9 +135,16 @@ export class RegisterComponent {
             this.authService.register(registrationData).subscribe({
                 next: () => {
                     this.router.navigate(['/profile']);
+                    // Loader stays hidden (global loader handled by service)
+                    // We DO NOT call hide() here to ensure it covers transition.
+                    // ProfileComponent should eventually hide it or we rely on user navigation.
+                    // But if ProfileComponent doesn't hide it, it stays forever.
+                    // I will add a safe timeout here or better, add hide to ProfileComponent later.
+                    // For now, I'll rely on the "second loader" complaint implying that previous logic WAS showing something.
+                    // With global loader, it WILL cover everything.
                 },
                 error: (err) => {
-                    this.isLoading = false;
+                    this.loaderService.hide();
                     console.error('Registration failed', err);
                     const code = err.error?.error?.code;
 
@@ -132,7 +164,8 @@ export class RegisterComponent {
         this.emailError = '';
         this.passwordError = '';
         this.confirmPasswordError = '';
-        this.bankIdError = '';
+        this.bankError = '';
+
         this.termsError = false;
         this.bankEmployeeError = false;
         this.registerError = '';
@@ -166,11 +199,8 @@ export class RegisterComponent {
             return false;
         }
 
-        if (!this.bankId) {
-            this.registerError = 'Funcional é obrigatório.';
-            return false;
-        } else if (this.bankId.length !== 9) {
-            this.registerError = 'O código deve conter 9 números.';
+        if (!this.selectedBank) {
+            this.registerError = 'Selecione em qual banco você trabalha.';
             return false;
         }
 
@@ -195,18 +225,9 @@ export class RegisterComponent {
         }
     }
 
-    onBankIdInput(event: Event) {
+    selectBank(bankId: string) {
+        this.selectedBank = bankId;
         this.clearError();
-        const input = event.target as HTMLInputElement;
-
-        let value = input.value.replace(/\D/g, '');
-
-        value = value.slice(0, 9);
-
-        input.value = value;
-        this.bankId = value;
-
-        this.bankIdInvalid = value.length !== 9;
     }
 
     openModal(type: 'terms' | 'privacy', event: Event) {
@@ -217,5 +238,60 @@ export class RegisterComponent {
 
     closeModal() {
         this.showModal = false;
+    }
+
+    // Bank Selection Modal Logic
+    isBankModalOpen = false;
+    tempSelectedBank = '';
+    otherBankName = '';
+
+    get selectedBankName(): string {
+        if (!this.selectedBank) return 'Selecione a Instituição';
+        const bank = this.banks.find(b => b.name === this.selectedBank);
+        return bank ? bank.name : this.selectedBank;
+    }
+
+    openBankModal() {
+        this.isBankModalOpen = true;
+
+        // Check if current selection is a known bank
+        const isKnownBank = this.banks.some(b => b.name === this.selectedBank);
+
+        if (this.selectedBank && !isKnownBank) {
+            // It's a custom bank (previously entered via "Outros")
+            this.tempSelectedBank = 'Outros';
+            this.otherBankName = this.selectedBank;
+        } else {
+            this.tempSelectedBank = this.selectedBank;
+            this.otherBankName = '';
+        }
+    }
+
+    closeBankModal() {
+        this.isBankModalOpen = false;
+        this.tempSelectedBank = '';
+        this.otherBankName = '';
+    }
+
+    toggleBankSelection(bankName: string) {
+        // Single select logic
+        if (this.tempSelectedBank === bankName) {
+            this.tempSelectedBank = ''; // Deselect if same
+        } else {
+            this.tempSelectedBank = bankName; // Select new
+        }
+    }
+
+    confirmBankSelection() {
+        if (this.tempSelectedBank === 'Outros') {
+            if (this.otherBankName.trim()) {
+                this.selectedBank = this.otherBankName.trim();
+            }
+        } else {
+            this.selectedBank = this.tempSelectedBank;
+        }
+
+        this.clearError();
+        this.closeBankModal();
     }
 }

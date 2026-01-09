@@ -73,7 +73,6 @@ export class ChatRealtimeService {
 
         try {
             await this.hubConnection.start();
-            console.log('SignalR Connected');
             this.connectionStatusSubject.next(HubConnectionState.Connected);
         } catch (err) {
             console.error('SignalR Connection Error', err);

@@ -90,18 +90,22 @@
                 </div>
             </div>
 
-            <!-- Bank ID -->
-            <div class="form-group" id="bankId">
-                <label>Funcional</label>
-                <div class="input-wrapper">
-                    <input type="text" (input)="onBankIdInput($event)" inputmode="numeric" [(ngModel)]="bankId"
-                        name="bankId" placeholder="Digite sua funcional">
-                    <i class="fas fa-id-card icon-suffix"></i>
+            <!-- Bank Selection -->
+            <div class="form-group" id="bankSelection">
+                <label>Em qual instituição você trabalha?</label>
+
+                <!-- Button trigger for modal -->
+                <button type="button" class="filter-btn" (click)="openBankModal()">
+                    <i class="fas fa-university"></i>
+                    {{ selectedBankName }}
+                </button>
+
+                <div class="error-msg" *ngIf="registerError && !selectedBank">
+                    Selecione seu banco
                 </div>
-                <small *ngIf="bankIdInvalid">
-                    O código deve conter 9 números
-                </small>
             </div>
+
+
 
             <!-- Terms -->
             <div class="checkbox-wrapper" id="terms">
@@ -117,7 +121,7 @@
                     name="bankEmployee">
                 <label for="bank-emp">Declaro, sob minha responsabilidade, que
                     possuo vínculo profissional com a
-                    instituição à qual este aplicativo se destina.</label>
+                    instituição mencionado acima por mim.</label>
             </div>
 
             <!-- Error Message (Bottom) -->
@@ -127,7 +131,7 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="create-btn" [disabled]="!isFormValid || !!registerError || isLoading">
+            <button type="submit" class="create-btn" [disabled]="!isFormValid || isLoading">
                 {{ isLoading ? 'Carregando...' : 'Criar Conta' }}
             </button>
 
@@ -144,6 +148,45 @@
         </form>
     </div>
 
+    <!-- Full Screen Loader Removed (Global Loader used) -->
+
+
     <!-- Info Modal -->
     <app-info-modal *ngIf="showModal" [type]="modalType" (close)="closeModal()"></app-info-modal>
+
+    <!-- Bank Selection Modal -->
+    <div class="modal-backdrop" *ngIf="isBankModalOpen" (click)="closeBankModal()">
+        <div class="modal-content filter-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Selecione sua Instituição</h3>
+                <button class="close-btn" (click)="closeBankModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="bank-list">
+                    <ng-container *ngFor="let bank of banks">
+                        <div class="bank-option" [class.selected]="tempSelectedBank === bank.name"
+                            (click)="toggleBankSelection(bank.name)">
+                            <div class="checkbox-custom">
+                                <i class="fas fa-check" *ngIf="tempSelectedBank === bank.name"></i>
+                            </div>
+                            <span>{{ bank.name }}</span>
+                        </div>
+                    </ng-container>
+
+                    <!-- Custom Bank Input -->
+                    <div class="custom-bank-input" *ngIf="tempSelectedBank === 'Outros'">
+                        <input type="text" [(ngModel)]="otherBankName" placeholder="Qual o nome do banco?"
+                            name="otherBankName" maxlength="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeBankModal()">Cancelar</button>
+                <button class="btn-save" (click)="confirmBankSelection()"
+                    [disabled]="!tempSelectedBank || (tempSelectedBank === 'Outros' && !otherBankName.trim())">Confirmar</button>
+            </div>
+        </div>
+    </div>
 </div>

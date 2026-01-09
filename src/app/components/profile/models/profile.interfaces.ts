@@ -17,4 +17,7 @@ export interface IProfile {
     isComplete?: boolean;
     isPremium?: boolean;
     premiumExpiresAt?: Date;
+    bank?: string;
+    preferredBankFilter?: string;
+    lastBankFilterUpdate?: Date;
 }

@@ -184,6 +184,26 @@ $text-light: #ffffff;
     }
 }
 
+.bank-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    width: fit-content;
+
+    i {
+        font-size: 0.75rem;
+        color: #888;
+    }
+}
+
 .section {
     margin-bottom: 24px;
 

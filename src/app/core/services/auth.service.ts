@@ -68,7 +68,6 @@ export class AuthService {
     getProfile(): Observable<any> {
         return this.http.get(`${environment.apiUrl}${ApiPaths.PROFILE}`).pipe(
             tap((response: any) => {
-                console.log('AuthService: getProfile loaded', response);
                 if (response && response.data) {
                     this.currentUser.set(response.data);
 

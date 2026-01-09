@@ -6,8 +6,7 @@ import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FeedService } from '../../core/services/feed.service';
 import { Observable, combineLatest, map } from 'rxjs';
-import { FeedbackService } from '../shared/feedback.service';
-import { FeedbackCardComponent } from '../shared/feedback-card/feedback-card.component';
+import { NavigationStateService } from '../../core/services/navigation-state.service';
 
 @Component({
     selector: 'app-actions',
@@ -28,7 +27,7 @@ export class ActionsComponent implements OnInit {
     private chatService = inject(ChatService);
     private authService = inject(AuthService);
     private feedService = inject(FeedService);
-    private feedbackService = inject(FeedbackService);
+    private navService = inject(NavigationStateService);
 
     get isPremium(): boolean {
         const user = this.authService.currentUser();
@@ -51,6 +50,14 @@ export class ActionsComponent implements OnInit {
             })
         );
     }
+    // ... existing ngOnInit/fetchLikes ...
+
+    // ... existing handlers ...
+
+    goToPlans() {
+        this.navService.allowPlansAccess();
+        this.router.navigate(['/plans']);
+    }
 
     ngOnInit() {
         this.matchService.fetchSuperLikes().subscribe();
@@ -59,23 +66,15 @@ export class ActionsComponent implements OnInit {
     }
 
     fetchLikes() {
+        // Subscribe to cache/state primarily
         this.matchService.receivedLikes$.subscribe(likes => {
             this.receivedLikes = likes;
-            if (this.receivedLikes.length > 0) {
-                this.loadingLikes = false;
-            }
-        });
-
-        if (this.receivedLikes.length === 0) {
-            // loading...
-        } else {
+            // Trust the cache state immediately to avoid flickering skeletons
             this.loadingLikes = false;
-        }
-
+        });
         this.matchService.fetchReceivedLikes().subscribe({
             next: (likes) => {
-                this.receivedLikes = likes;
-                this.loadingLikes = false;
+                // Subscription above handles the update
             },
             error: () => {
                 this.loadingLikes = false;
@@ -119,9 +118,5 @@ export class ActionsComponent implements OnInit {
         } else {
             this.router.navigate(['profile', match.id]);
         }
-    }
-
-    goToPlans() {
-        this.router.navigate(['/plans']);
     }
 }

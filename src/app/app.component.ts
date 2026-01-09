@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, Event } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from './components/shared/footer/footer.component';
@@ -12,17 +12,22 @@ import { ChatService } from './services/chat.service';
 import { ChatRealtimeService } from './services/chat-realtime.service';
 import { NotificationModalComponent } from './components/shared/notification-modal/notification-modal.component';
 import { ScrollService } from './core/services/scroll.service';
+import { LoaderService } from './core/services/loader.service';
+import { LoaderComponent } from './components/shared/loader/loader.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, FooterComponent, CommonModule, NotificationModalComponent],
+  imports: [RouterOutlet, FooterComponent, CommonModule, NotificationModalComponent, LoaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'ILovers';
   showFooter = false;
+
+  private loaderService = inject(LoaderService);
+  isLoading = this.loaderService.loading;
 
   showNotificationModal = false;
   currentNotification: { fromUserName: string; fromUserPhoto: string | null; interactionId: string } | null = null;

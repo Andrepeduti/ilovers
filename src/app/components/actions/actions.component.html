@@ -37,9 +37,9 @@
             <div class="grid-container">
                 <div class="grid-item super-like-item" *ngFor="let like of (superLikes$ | async)"
                     (click)="handleSuperLikeClick(like)">
-                    <div class="card-image">
+                    <div class="card-image" [class.blurred]="!isPremium">
                         <img [src]="like.photo || 'assets/placeholder.jpg'" [alt]="like.name">
-                        <div class="overlay-info">
+                        <div class="overlay-info" *ngIf="isPremium">
                             <span class="name">{{ like.name }}</span>
                         </div>
                         <div class="super-like-badge">
