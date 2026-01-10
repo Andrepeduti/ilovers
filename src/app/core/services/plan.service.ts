@@ -24,6 +24,7 @@ export interface PaymentResponse {
     paymentId: number;
     qrCode?: string;
     qrCodeBase64?: string;
+    ticketUrl?: string;
 }
 
 export interface ProcessPaymentRequest {
@@ -50,13 +51,25 @@ export class PlanService {
     }
 
     processPayment(request: ProcessPaymentRequest): Observable<PaymentResponse> {
-        return this.http.post<ApiResponse<PaymentResponse>>(`${this.apiUrl}/payments`, request).pipe(
-            map(response => response.data)
+        console.log('PlanService: processPayment called', request);
+        const url = `${this.apiUrl}/payments`;
+        console.log('PlanService: Submitting POST to', url);
+        return this.http.post<ApiResponse<PaymentResponse>>(url, request).pipe(
+            map(response => {
+                console.log('PlanService: Response received', response);
+                return response.data;
+            })
         );
     }
 
     getPaymentStatus(externalId: string): Observable<PaymentResponse> {
         return this.http.get<ApiResponse<PaymentResponse>>(`${this.apiUrl}/payments/${externalId}`).pipe(
+            map(response => response.data)
+        );
+    }
+
+    syncSubscription(): Observable<any> {
+        return this.http.post<ApiResponse<any>>(`${this.apiUrl}/payments/sync-subscription`, {}).pipe(
             map(response => response.data)
         );
     }

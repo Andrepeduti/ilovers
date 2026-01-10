@@ -1,14 +1,12 @@
-import { Component, OnInit, inject, NgZone } from '@angular/core';
+import { Component, OnInit, inject, NgZone, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Plan, PlanService, ProcessPaymentRequest } from '../../core/services/plan.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { environment } from '../../../environments/environment';
+import { Router, ActivatedRoute } from '@angular/router';
+import { LoaderComponent } from '../shared/loader/loader.component';
 
 declare const MercadoPago: any;
-
-import { Router, ActivatedRoute } from '@angular/router';
-
-import { LoaderComponent } from '../shared/loader/loader.component';
 
 @Component({
     selector: 'app-plans',
@@ -17,11 +15,12 @@ import { LoaderComponent } from '../shared/loader/loader.component';
     templateUrl: './plans.component.html',
     styleUrl: './plans.component.scss'
 })
-export class PlansComponent implements OnInit {
+export class PlansComponent implements OnInit, OnDestroy {
     private planService = inject(PlanService);
     private profileService = inject(ProfileService);
     private router = inject(Router);
     private ngZone = inject(NgZone);
+    private route = inject(ActivatedRoute);
 
     plans: Plan[] = [];
     isLoading = true;
@@ -35,9 +34,14 @@ export class PlansComponent implements OnInit {
     isProcessingPayment = false;
     premiumExpiresAt: Date | null = null;
     showDowngradeModal = false;
+    showSuccessModal = false;
 
-    private route = inject(ActivatedRoute); // Inject ActivatedRoute
-    private returnUrl = '/profile'; // Default
+    private returnUrl = '/profile';
+
+    paymentMethodSelected: 'credit_card' | 'pix' | null = null;
+
+    paymentPollingInterval: any;
+    currentExternalPaymentId: string | null = null;
 
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
@@ -46,24 +50,26 @@ export class PlansComponent implements OnInit {
 
         this.loadPlans();
         this.loadProfile();
-        // Initialize Mercado Pago instance with Public Key
-        this.mp = new MercadoPago(environment.mercadoPagoPublicKey, {
-            locale: 'pt-BR'
-        });
-        this.bricksBuilder = this.mp.bricks();
+        try {
+            this.mp = new MercadoPago(environment.mercadoPagoPublicKey, {
+                locale: 'pt-BR'
+            });
+            this.bricksBuilder = this.mp.bricks();
+        } catch (e) {
+            console.error('Error initializing MercadoPago', e);
+        }
+    }
+
+    ngOnDestroy() {
+        this.stopPolling();
     }
 
     navigateToProfile() {
-        // Renamed to 'goBack' effectively, but keeping name for compatibility with HTML if used there
         this.router.navigate([this.returnUrl]);
     }
 
-    // ... (rest of code)
-
     closeSuccessModal() {
         this.showSuccessModal = false;
-        // Navigate instead of hard refresh if possible, or keep hard refresh if needed for state sync
-        // Using window.location.href forces reload which might be good for updating user state globally
         window.location.href = this.returnUrl;
     }
 
@@ -98,110 +104,201 @@ export class PlansComponent implements OnInit {
 
     selectPlan(plan: Plan) {
         this.selectedPlan = plan;
-        setTimeout(() => this.createPaymentBrick(plan), 100); // Wait for DOM
     }
 
-    async createPaymentBrick(plan: Plan) {
+    cardPaymentBrickController: any;
+
+    payWithCreditCard() {
+        if (!this.selectedPlan) return;
+        this.startPaymentProcess('credit_card');
+
+        setTimeout(() => {
+            this.setupBrick();
+        }, 100);
+    }
+
+    async setupBrick() {
+        console.log('Starting setupBrick. User Email:', this.userEmail);
+        if (!this.bricksBuilder) {
+            console.error('BricksBuilder not initialized');
+            return;
+        }
+
         const settings = {
             initialization: {
-                amount: plan.price,
+                amount: this.selectedPlan!.price,
                 payer: {
-                    email: this.userEmail || 'test_user@test.com',
+                    email: this.userEmail,
                 },
             },
             customization: {
                 paymentMethods: {
                     creditCard: 'all',
-                    bankTransfer: 'all',
-                    maxInstallments: 1,
-                    minInstallments: 1
+                    mercadoPago: 'all',
                 },
                 visual: {
-                    hideValueProp: true,
                     style: {
-                        theme: 'default', // Light theme for white background
-                        customVariables: {
-                            formBackgroundColor: '#ffffff',
-                            baseColor: '#E63E98', // ILovers Pink
-                            paymentMethodBackgroundColor: '#f5f5f5' // Light grey for inputs
-                        }
-                    },
-                    texts: {
-                        installmentsSectionTitle: ' ',
-                        cardPaymentExperience: ' ',
-                        total: 'Assinatura Mensal',
+                        theme: 'default',
                     }
                 }
             },
             callbacks: {
                 onReady: () => {
+                    console.log('Brick: onReady fired');
                 },
-                onSubmit: async (cardFormData: any) => {
-                    this.isProcessingPayment = true; // Start Loading
+                onError: (error: any) => {
+                    console.error('Brick: onError fired', error);
+                    alert('Erro no formulário de pagamento.');
+                },
+                onSubmit: (brickResponse: any) => {
+                    console.log('Brick: onSubmit fired', brickResponse);
+                    const cardFormData = brickResponse.formData;
 
                     return new Promise<void>((resolve, reject) => {
-                        try {
-                            const mpMethodId = cardFormData.paymentMethodId || (cardFormData.payment_method_id) || 'pix';
+                        this.ngZone.run(() => {
+                            console.log('Processing payment in NgZone...', cardFormData);
 
+                            // Safe access and defaults
                             const request: ProcessPaymentRequest = {
-                                planCode: plan.code,
-                                token: cardFormData.token, // Optional for Pix
-                                paymentMethodId: mpMethodId,
-                                issuerId: cardFormData.issuerId,
-                                payerEmail: cardFormData.payer?.email || this.userEmail,
-                                identificationType: cardFormData.payer?.identification?.type || 'CPF',
-                                identificationNumber: cardFormData.payer?.identification?.number || '48164263885', // Fallback Test CPF
-                                amount: plan.price,
-                                description: `Assinatura ${plan.name}`
+                                planCode: this.selectedPlan!.code,
+                                token: cardFormData.token,
+                                paymentMethodId: cardFormData.payment_method_id, // Note: snake_case from MP
+                                issuerId: cardFormData.issuer_id, // Note: snake_case from MP
+                                payerEmail: cardFormData.payer.email,
+                                identificationType: cardFormData.payer.identification.type,
+                                identificationNumber: cardFormData.payer.identification.number,
+                                amount: this.selectedPlan!.price,
+                                description: `Assinatura ${this.selectedPlan!.name}`
                             };
 
                             this.planService.processPayment(request).subscribe({
                                 next: (result) => {
-                                    this.ngZone.run(() => {
-                                        this.isProcessingPayment = false; // Stop Loading
-                                        if (result.status === 'approved') {
-                                            this.verifyPremiumStatus();
-                                            resolve();
-                                        } else if (result.qrCodeBase64 && result.qrCode) {
-                                            // Pix Flow
-                                            this.pixQrCodeBase64 = result.qrCodeBase64;
-                                            this.pixQrCodeCopyPaste = result.qrCode;
-                                            if (result.paymentId) {
-                                                this.startPolling(result.paymentId.toString());
-                                            }
-                                            resolve();
-                                        } else {
-                                            alert('Pagamento pendente ou rejeitado.');
-                                            resolve();
-                                        }
-                                    });
-                                },
-                                error: (error) => {
-                                    this.ngZone.run(() => {
-                                        this.isProcessingPayment = false; // Stop Loading
-                                        console.error('API Error:', error);
-                                        alert('Erro ao processar pagamento. Verifique o console.');
+                                    console.log('Payment Success:', result);
+                                    if (result.status === 'approved' || result.status === 'authorized') {
+                                        this.verifyPremiumStatus();
+                                        resolve();
+                                    } else {
+                                        alert('Pagamento não aprovado: ' + (result.statusDetail || result.status));
                                         reject();
-                                    });
+                                    }
+                                },
+                                error: (err) => {
+                                    console.error('Payment API Error:', err);
+                                    alert('Erro ao processar pagamento.');
+                                    reject();
                                 }
                             });
-                        } catch (e) {
-                            console.error('JS Error in onSubmit:', e);
-                            reject();
-                        }
+                        });
                     });
-                },
-                onError: (error: any) => {
-                    console.error(error);
                 },
             },
         };
 
-        this.paymentBrickController = await this.bricksBuilder.create(
-            'payment',
-            'paymentBrick_container',
-            settings
-        );
+        try {
+            if (this.cardPaymentBrickController) {
+                await this.cardPaymentBrickController.unmount();
+            }
+            this.cardPaymentBrickController = await this.bricksBuilder.create(
+                'payment',
+                'payment-brick-container',
+                settings
+            );
+        } catch (e) {
+            console.error('Error creating brick', e);
+        }
+    }
+
+    async cancelPayment() {
+        console.log('Cancelling payment...');
+        if (this.cardPaymentBrickController) {
+            try {
+                // Race unmount with a 500ms timeout to prevent hanging
+                const unmountPromise = this.cardPaymentBrickController.unmount();
+                const timeoutPromise = new Promise(resolve => setTimeout(resolve, 500));
+                await Promise.race([unmountPromise, timeoutPromise]);
+                console.log('Brick unmounted.');
+            } catch (error) {
+                console.warn('Error unmounting brick', error);
+            }
+            this.cardPaymentBrickController = null;
+        }
+
+        // Force UI update inside Angular Zone
+        this.ngZone.run(() => {
+            this.paymentMethodSelected = null;
+            this.isProcessingPayment = false;
+            console.log('Payment cancelled. State reset.');
+        });
+    }
+
+    payWithPix() {
+        if (!this.selectedPlan) return;
+        this.startPaymentProcess('pix');
+
+        const request: ProcessPaymentRequest = {
+            planCode: this.selectedPlan.code,
+            token: '',
+            paymentMethodId: 'pix',
+            issuerId: '',
+            payerEmail: this.userEmail,
+            identificationType: 'CPF',
+            identificationNumber: '',
+            amount: this.selectedPlan.price,
+            description: `Pagamento Pix ${this.selectedPlan.name}`
+        };
+
+        this.executePayment(request);
+    }
+
+    startPaymentProcess(method: 'credit_card' | 'pix') {
+        this.isProcessingPayment = true;
+        this.paymentMethodSelected = method;
+    }
+
+    executePayment(request: ProcessPaymentRequest) {
+        this.planService.processPayment(request).subscribe({
+            next: (result) => {
+                this.ngZone.run(() => {
+                    this.isProcessingPayment = false;
+                    this.paymentMethodSelected = null;
+
+                    console.log('Payment Result:', result);
+
+                    // 1. Redirect Flow (Credit Card)
+                    if (result.ticketUrl) {
+                        window.open(result.ticketUrl, '_blank');
+                        return;
+                    }
+
+                    // 2. Pix Flow (QR Code)
+                    if (result.qrCodeBase64 && result.qrCode) {
+                        this.pixQrCodeBase64 = result.qrCodeBase64;
+                        this.pixQrCodeCopyPaste = result.qrCode;
+                        if (result.paymentId) {
+                            this.startPolling(result.paymentId.toString());
+                        }
+                        return;
+                    }
+
+                    // 3. Approved Immediately (Rare for this flow)
+                    if (result.status === 'approved') {
+                        this.verifyPremiumStatus();
+                        return;
+                    }
+
+                    // Fallback
+                    alert('Status do pagamento: ' + (result.statusDetail || result.status));
+                });
+            },
+            error: (error) => {
+                this.ngZone.run(() => {
+                    this.isProcessingPayment = false;
+                    this.paymentMethodSelected = null;
+                    console.error('Payment Error:', error);
+                    alert('Erro ao iniciar pagamento. Tente novamente.');
+                });
+            }
+        });
     }
 
     copyPixCode() {
@@ -212,18 +309,8 @@ export class PlansComponent implements OnInit {
         }
     }
 
-    paymentPollingInterval: any;
-    currentExternalPaymentId: string | null = null;
-
-    ngOnDestroy() {
-        this.stopPolling();
-    }
-
-    showSuccessModal = false;
-    private paymentBrickController: any;
-
     startPolling(externalId: string) {
-        this.stopPolling(); // Clear existing
+        this.stopPolling();
         this.currentExternalPaymentId = externalId;
 
         this.paymentPollingInterval = setInterval(() => {
@@ -235,13 +322,12 @@ export class PlansComponent implements OnInit {
                         this.stopPolling();
                         this.showSuccessModal = true;
                         this.clearSelection();
-                        // Refresh profile to update badges or logic
                         this.loadProfile();
                     }
                 },
                 error: (err) => console.error('Polling error', err)
             });
-        }, 5000); // Poll every 5 seconds
+        }, 5000);
     }
 
     stopPolling() {
@@ -254,21 +340,27 @@ export class PlansComponent implements OnInit {
 
     clearSelection() {
         this.stopPolling();
-
-        if (this.paymentBrickController) {
-            this.paymentBrickController.unmount();
-            this.paymentBrickController = null;
-        }
-
         this.selectedPlan = null;
         this.pixQrCodeBase64 = null;
         this.pixQrCodeCopyPaste = null;
-        const container = document.getElementById('paymentBrick_container');
-        if (container) container.innerHTML = '';
+    }
+
+    checkSubscriptionStatus() {
+        this.isLoading = true;
+        this.planService.syncSubscription().subscribe({
+            next: () => {
+                this.isLoading = false;
+                this.verifyPremiumStatus();
+            },
+            error: (err) => {
+                this.isLoading = false;
+                console.error(err);
+                alert('Nenhuma assinatura ativa encontrada para seu e-mail.');
+            }
+        });
     }
 
     verifyPremiumStatus(attempt = 1) {
-        // Show loading state if needed, or simple toast
         if (attempt === 1) this.isLoading = true;
 
         this.profileService.getMyProfile().subscribe({
@@ -277,24 +369,24 @@ export class PlansComponent implements OnInit {
                 if (data && (data.isPremium || data.IsPremium)) {
                     this.showSuccessModal = true;
                     this.selectedPlan = null;
+                    this.isLoading = false;
                 } else {
                     if (attempt < 10) {
-                        // Retry after 1s
                         setTimeout(() => this.verifyPremiumStatus(attempt + 1), 1000);
                     } else {
-                        // Give up but still notify success of payment, maybe delay is huge
+                        // Give up but assume it might work later or user needs to refresh
                         this.showSuccessModal = true;
                         this.selectedPlan = null;
+                        this.isLoading = false;
                     }
                 }
             },
             error: () => {
                 if (attempt < 5) setTimeout(() => this.verifyPremiumStatus(attempt + 1), 1000);
+                else this.isLoading = false;
             }
         });
     }
-
-
 
     openDowngradeModal() {
         this.showDowngradeModal = true;
