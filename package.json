@@ -9,7 +9,8 @@
     "test": "ng test",
     "build:hom": "ng build --configuration homolog",
     "start:hom": "ng serve --configuration homolog",
-    "start:prod": "ng serve --configuration production"
+    "start:prod": "ng serve --configuration production",
+    "start:proxy": "ng serve --configuration production --proxy-config proxy.conf.json"
   },
   "private": true,
   "dependencies": {

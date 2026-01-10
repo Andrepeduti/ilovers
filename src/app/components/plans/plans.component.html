@@ -80,34 +80,61 @@
 
     <div class="payment-container" *ngIf="selectedPlan && !pixQrCodeBase64">
 
-        <!-- Payment Info Banner -->
-        <div class="payment-info-banner"
-            style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; color: #0d47a1;">
-            <p style="margin-bottom: 8px;"><strong>ℹ️ Como funciona o pagamento:</strong></p>
-            <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
-                <li style="margin-bottom: 5px;"><strong>Pix:</strong> Pagamento único. Acesso liberado por 30 dias (não
-                    renova sozinho).</li>
-                <li><strong>Cartão de Crédito:</strong> Assinatura Mensal. Cobrança automática recorrente para você não
-                    perder o acesso.</li>
-            </ul>
-        </div>
+        <!-- Payment Method Selection -->
+        <div class="payment-methods-wrapper"
+            style="max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px;">
 
-        <div class="payment-wrapper">
-            <div id="paymentBrick_container"></div>
+            <div class="payment-info-banner"
+                style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; color: #0d47a1;">
+                <p style="margin-bottom: 8px;"><strong>ℹ️ Escolha como pagar:</strong></p>
+                <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+                    <li style="margin-bottom: 5px;"><strong>Cartão de Crédito:</strong> Assinatura Mensal (Cobrança
+                        Automática).</li>
+                    <li><strong>Pix:</strong> Pagamento Único (30 dias). Acesso imediato sem renovação automática.</li>
+                </ul>
+            </div>
+
+            <!-- Credit Card Button (Initial State) -->
+            <button class="btn-subscribe" *ngIf="paymentMethodSelected !== 'credit_card'" (click)="payWithCreditCard()"
+                [disabled]="isProcessingPayment"
+                style="background-color: #009EE3; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-credit-card"></i>
+                <span>Assinar com Cartão de Crédito</span>
+            </button>
+
+            <!-- Payment Brick Container (Active State) -->
+            <div *ngIf="paymentMethodSelected === 'credit_card'" style="width: 100%;">
+                <div id="payment-brick-container"></div>
+
+                <button (click)="cancelPayment()"
+                    style="margin-top: 10px; background: none; border: none; color: #666; cursor: pointer; text-decoration: underline; width: 100%; font-size: 0.9rem;">
+                    Cancelar / Escolher outro método
+                </button>
+            </div>
+
+            <button class="btn-subscribe" (click)="payWithPix()" [disabled]="isProcessingPayment"
+                style="background-color: #32BCAD; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-qrcode" *ngIf="!isProcessingPayment || paymentMethodSelected !== 'pix'"></i>
+                <span *ngIf="!isProcessingPayment || paymentMethodSelected !== 'pix'">Pagar com Pix (Único)</span>
+
+                <div class="spinner-small" *ngIf="isProcessingPayment && paymentMethodSelected === 'pix'"></div>
+                <span *ngIf="isProcessingPayment && paymentMethodSelected === 'pix'">Gerando Pix...</span>
+            </button>
 
             <div class="subscription-disclaimer"
                 style="text-align: center; margin-top: 15px; color: #666; font-size: 0.85rem; line-height: 1.4;">
-
-                <p>Cancele a qualquer momento nas configurações do seu plano.</p>
-                <p style="margin-top: 5px; font-size: 0.75rem; color: #999;">Ao assinar, você concorda com nossos Termos
-                    de Uso.</p>
+                <p>Ambiente seguro Mercado Pago.</p>
+                <p style="margin-top: 5px; font-size: 0.75rem; color: #999;">Ao continuar, você concorda com nossos
+                    Termos de Uso.</p>
             </div>
 
-            <div class="payment-loading-overlay" *ngIf="isProcessingPayment">
-                <div class="spinner"></div>
-                <p>Gerando Pagamento...</p>
-            </div>
         </div>
+
+        <!-- Hidden Loading for logic (optional display) -->
+        <!-- <div class="payment-loading-overlay" *ngIf="isProcessingPayment">
+            <div class="spinner"></div>
+            <p>Processando...</p>
+        </div> -->
     </div>
 
     <!-- Pix QR Code Display -->
