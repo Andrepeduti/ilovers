@@ -92,7 +92,12 @@ export class RegisterComponent {
         const bankSelected = !!this.selectedBank;
         // preferredBank is optional/hidden in register now, defaulting to empty
 
-        return emailsMatch && passwordsMatch && passwordValid && bankSelected && this.termsAccepted && this.bankEmployee;
+        return this.isEmailValid && emailsMatch && passwordsMatch && passwordValid && bankSelected && this.termsAccepted && this.bankEmployee;
+    }
+
+    get isEmailValid(): boolean {
+        // Regex strict validation
+        return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(this.email);
     }
 
     get passwordsMatch(): boolean {
@@ -178,8 +183,8 @@ export class RegisterComponent {
         if (!this.email) {
             this.registerError = 'E-mail é obrigatório.';
             return false;
-        } else if (!this.email.includes('@')) {
-            this.registerError = 'E-mail inválido.';
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(this.email)) {
+            this.registerError = 'Formato de e-mail inválido. Ex: nome@dominio.com';
             return false;
         } else if (this.email !== this.confirmEmail) {
             this.registerError = 'Os e-mails não coincidem.';

@@ -34,7 +34,9 @@
             <ul class="features">
                 <li><span class="check">✓</span> Encontre pessoas</li>
                 <li><span class="check">✓</span> Likes limitados por dia</li>
-                <li><span class="check">✓</span> 1 Super Likes por dia</li>
+                <li><span class="check">✓</span> 2 Super Likes por semana</li>
+                <li><span class="check">✓</span> Filtrar pessoas por empresa: 1 vez a cada 30 dias</li>
+                <li class="disabled"><span class="cross">✕</span> Botão "Desfazer" no Feed</li>
                 <li class="disabled"><span class="cross">✕</span> Ver quem te curtiu</li>
                 <li class="disabled"><span class="cross">✕</span> Sem anúncios</li>
             </ul>
@@ -63,7 +65,8 @@
             <ul class="features">
                 <li><span class="check">✓</span> Encontre pessoas</li>
                 <li><span class="check">✓</span> 3x Mais Likes por dia</li>
-                <li><span class="check">✓</span> 3 Super Likes por dia</li>
+                <li><span class="check">✓</span> 1 Super Like por dia</li>
+                <li><span class="check">✓</span> Filtrar pessoas por empresa: ilimitado</li>
                 <li><span class="check">✓</span> Botão "Desfazer" no Feed</li>
                 <li><span class="check">✓</span> Ver quem te curtiu</li>
                 <li><span class="check">✓</span> Sem anúncios</li>
@@ -88,18 +91,20 @@
                 style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem; color: #0d47a1;">
                 <p style="margin-bottom: 8px;"><strong>ℹ️ Escolha como pagar:</strong></p>
                 <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
-                    <li style="margin-bottom: 5px;"><strong>Cartão de Crédito:</strong> Assinatura Mensal (Cobrança
-                        Automática).</li>
-                    <li><strong>Pix:</strong> Pagamento Único (30 dias). Acesso imediato sem renovação automática.</li>
+                    <li style="margin-bottom: 5px; opacity: 0.6; text-decoration: line-through;"><strong>Cartão de
+                            Crédito:</strong> (Em Breve)</li>
+                    <li><strong>Pix:</strong> Pagamento Único (30 dias). Acesso imediato.</li>
                 </ul>
             </div>
 
-            <!-- Credit Card Button (Initial State) -->
-            <button class="btn-subscribe" *ngIf="paymentMethodSelected !== 'credit_card'" (click)="payWithCreditCard()"
-                [disabled]="isProcessingPayment"
-                style="background-color: #009EE3; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <!-- Credit Card Button (Disabled / Coming Soon) -->
+            <button class="btn-subscribe" disabled
+                style="background-color: #bdc3c7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; opacity: 0.8;">
                 <i class="fas fa-credit-card"></i>
                 <span>Assinar com Cartão de Crédito</span>
+                <span
+                    style="background: #e74c3c; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; position: absolute; top: -8px; right: -5px;">Em
+                    Breve</span>
             </button>
 
             <!-- Payment Brick Container (Active State) -->

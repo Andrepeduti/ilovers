@@ -98,8 +98,11 @@
       </div>
 
       <div class="modal-actions" *ngIf="!resetSent">
-        <button class="btn-cancel" (click)="closeForgotModal()">Cancelar</button>
-        <button class="btn-confirm" (click)="sendResetLink()" [disabled]="!forgotEmail">Enviar</button>
+        <button class="btn-cancel" (click)="closeForgotModal()" [disabled]="isForgotLoading">Cancelar</button>
+        <button class="btn-confirm" (click)="sendResetLink()" [disabled]="!forgotEmail || isForgotLoading">
+          <ng-container *ngIf="!isForgotLoading">Enviar</ng-container>
+          <div *ngIf="isForgotLoading" class="spinner"></div>
+        </button>
       </div>
     </div>
   </div>

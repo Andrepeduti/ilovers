@@ -15,6 +15,7 @@ import { ManualNavigationGuard } from './core/guards/manual-navigation.guard';
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginComponent, canActivate: [loginGuard] },
+    { path: 'auth/reset-password', loadComponent: () => import('./components/login/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
     { path: 'register', loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent), canActivate: [loginGuard] },
     { path: 'coming-soon', component: ComingSoonComponent },
     { path: 'feed', component: FeedComponent, canActivate: [authGuard, AccessGuard, ManualNavigationGuard] }, // AccessGuard added

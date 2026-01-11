@@ -46,7 +46,7 @@
 
             <div class="form-group">
                 <label>Nome <span class="required" *ngIf="!profile.displayName">*</span></label>
-                <input type="text" [(ngModel)]="profile.displayName" (input)="onNameInput($event)">
+                <input type="text" maxlength="30" [(ngModel)]="profile.displayName" (input)="onNameInput($event)">
             </div>
 
             <div class="row">
@@ -75,7 +75,7 @@
             <br>
             <div class="form-group">
                 <label>Cidade <span class="required" *ngIf="!profile.city">*</span></label>
-                <input type="text" [(ngModel)]="profile.city">
+                <input type="text" maxlength="30" [(ngModel)]="profile.city">
             </div>
         </section>
 
@@ -167,21 +167,26 @@
             <br>
             <p class="subtitle">Quero ver essas Instituições no feed: <i class="fas fa-lock"
                     *ngIf="!canEditBankFilter"></i></p>
-            <div class="bank-filter-container" [class.locked]="!canEditBankFilter">
-                <div class="lock-overlay" *ngIf="!canEditBankFilter">
-                    <span>Disponível em {{ daysUntilUnlock }} dias</span>
-                    <small *ngIf="!profile.isPremium">(Premium altera diariamente)</small>
+            <div class="bank-filter-container">
+                <div class="lock-info-banner" *ngIf="!canEditBankFilter">
+                    <i class="fas fa-lock"></i>
+                    <span>Altere novamente em {{ daysUntilUnlock }} dias</span>
                 </div>
-
+                <!-- Premium Hint Text -->
+                <p class="premium-unlock-hint" *ngIf="!canEditBankFilter" (click)="navigateToPlans()">
+                    Seja Premium e altere quando quiser
+                </p>
                 <div class="form-group">
                     <button class="filter-btn" (click)="openBankFilterModal()" [disabled]="!canEditBankFilter">
                         <i class="fas fa-university"></i>
-                        {{ filterButtonText }} <span class="required" *ngIf="!profile.preferredBankFilter">*</span>
+                        {{ filterButtonText }}
                     </button>
-                    <small style="color: black;" *ngIf="profile.preferredBankFilter && !profile.isPremium">
+                    <small style="color: black;"
+                        *ngIf="profile.preferredBankFilter && !profile.isPremium && canEditBankFilter">
                         Essa escolha só poderá ser desfeita depois de 30 dias.
                     </small>
-                    <div class="current-filter-preview" *ngIf="profile.preferredBankFilter">
+                    <div class="current-filter-preview"
+                        *ngIf="profile.preferredBankFilter && profile.preferredBankFilter !== 'Todos'">
                         <div class="preview-tags">
                             <span class="preview-tag" *ngFor="let bank of previewBanks">{{ bank }}</span>
                         </div>

@@ -71,11 +71,14 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  isForgotLoading = false;
+
   // Forgot Password Logic
   openForgotModal() {
     this.showForgotModal = true;
     this.resetSent = false;
     this.forgotEmail = '';
+    this.isForgotLoading = false;
   }
 
   closeForgotModal() {
@@ -84,8 +87,19 @@ export class LoginComponent implements OnInit {
 
   sendResetLink() {
     if (this.forgotEmail) {
-      // Simulate API call
-      this.resetSent = true;
+      this.isForgotLoading = true;
+      this.authService.forgotPassword(this.forgotEmail).subscribe({
+        next: () => {
+          this.resetSent = true;
+          this.isForgotLoading = false;
+        },
+        error: (err) => {
+          console.error(err);
+          // show error? for security we might just show success anyway or generic error
+          this.resetSent = true;
+          this.isForgotLoading = false;
+        }
+      });
     }
   }
 

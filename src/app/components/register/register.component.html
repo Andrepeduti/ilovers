@@ -13,9 +13,12 @@
             <div class="form-group" id="email">
                 <label>E-mail</label>
                 <div class="input-wrapper">
-                    <input type="email" (input)="clearError()" [(ngModel)]="email" name="email"
+                    <input type="email" (input)="clearError()" [(ngModel)]="email" name="email" maxlength="100"
                         placeholder="seu@email.com">
                     <i class="fas fa-envelope icon-suffix"></i>
+                </div>
+                <div class="error-msg" *ngIf="email && !isEmailValid">
+                    Formato de e-mail inválido.
                 </div>
             </div>
 
@@ -24,9 +27,12 @@
                 <label>Confirmar E-mail</label>
                 <div class="input-wrapper">
                     <input type="email" (input)="clearError()" [(ngModel)]="confirmEmail" name="confirmEmail"
-                        placeholder="Confirme seu e-mail">
+                        maxlength="50" placeholder="Confirme seu e-mail">
                     <i class="fas fa-check-circle icon-suffix" [class.success]="email && email === confirmEmail"
                         *ngIf="emailsMatch"></i>
+                </div>
+                <div class="error-msg" *ngIf="confirmEmail && !emailsMatch">
+                    Os e-mails não coincidem.
                 </div>
             </div>
 
@@ -35,7 +41,7 @@
                 <label>Senha</label>
                 <div class="input-wrapper">
                     <input [type]="passwordVisible ? 'text' : 'password'" [(ngModel)]="password" name="password"
-                        (input)="updatePasswordRules()" placeholder="Digite sua senha">
+                        (input)="updatePasswordRules()" placeholder="Digite sua senha" maxlength="25">
                     <span class="material-icons suffix-icon interactive" (click)="togglePasswordVisibility()">
                         {{ passwordVisible ? 'visibility_off' : 'visibility' }}
                     </span>
@@ -48,7 +54,8 @@
                 <label>Confirmar Senha</label>
                 <div class="input-wrapper">
                     <input [type]="confirmPasswordVisible ? 'text' : 'password'" (input)="clearError()"
-                        [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirme sua senha">
+                        [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirme sua senha"
+                        maxlength="25">
                     <span class="material-icons suffix-icon interactive" (click)="toggleConfirmPasswordVisibility()">
                         {{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}
                     </span>

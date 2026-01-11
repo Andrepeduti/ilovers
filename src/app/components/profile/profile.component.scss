@@ -775,43 +775,42 @@ small {
     border-radius: 12px;
     transition: opacity 0.3s;
 
-    &.locked {
-        .radio-group {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-    }
-
-    .lock-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+    .lock-info-banner {
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: center;
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(2px);
-        z-index: 10;
-        border-radius: 12px;
-        color: #555;
-        font-weight: 600;
-        font-size: 0.9rem;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-        span {
-            background: #333;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        i {
+            color: #FFD700;
         }
 
         small {
-            margin-top: 5px;
             font-size: 0.75rem;
-            color: #666;
+            color: #ccc;
+            margin-left: 2px;
+        }
+    }
+
+    .premium-unlock-hint {
+        color: #9c27b0;
+        font-size: 0.8rem;
+        text-align: center;
+        margin-top: -5px;
+        margin-bottom: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: underline;
+
+        &:hover {
+            color: #7b1fa2;
         }
     }
 }

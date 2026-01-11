@@ -19,14 +19,22 @@ export class AuthService {
 
     constructor(private http: HttpClient) { }
 
-    login(credentials: any): Observable<any> {
-        return this.http.post<AuthResponse>(`${environment.apiUrl}${ApiPaths.LOGIN}`, credentials).pipe(
+    login(credentials: { email: string, password: string }): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/auth/login`, credentials).pipe(
             tap(response => {
-                if (response.data && response.data.accessToken) {
+                if (response && response.data && response.data.accessToken) {
                     localStorage.setItem('access_token', response.data.accessToken);
                 }
             })
         );
+    }
+
+    forgotPassword(email: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/auth/forgot-password`, { email });
+    }
+
+    resetPassword(data: any): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/auth/reset-password`, data);
     }
 
     register(data: any): Observable<any> {
